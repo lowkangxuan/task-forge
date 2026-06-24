@@ -8,10 +8,14 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarRail,
 } from "@/components/ui/sidebar"
 import { Home, User } from "lucide-react"
+import { useSession } from "@/lib/auth-client"
 
 export function AppSidebar() {
+    const { data: session } = useSession();
+
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader>
@@ -31,6 +35,7 @@ export function AppSidebar() {
                     <SidebarGroupLabel>
                         Test
                     </SidebarGroupLabel>
+                    {!session && "hi"}
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton render={<div><Home/> Test</div>} onClick={() => {console.log("test")}} />
@@ -48,6 +53,7 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
+            <SidebarRail />
         </Sidebar>
     )
 }

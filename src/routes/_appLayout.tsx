@@ -1,4 +1,4 @@
-import { AppSidebar } from '@/components/app-sidebar.tsx'
+import { AppSidebar } from '@/components/sidebar/app-sidebar'
 import { SidebarInset } from '@/components/ui/sidebar'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 

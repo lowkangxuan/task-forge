@@ -4,7 +4,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 
 import appCss from "../styles.css?url"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar.tsx"
-import { AppSidebar } from "@/components/app-sidebar.tsx"
+import { AppSidebar } from "@/components/sidebar/app-sidebar"
 
 export const Route = createRootRoute({
     head: () => ({
