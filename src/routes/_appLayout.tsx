@@ -1,5 +1,5 @@
 import { AppSidebar } from '@/components/sidebar/app-sidebar'
-import { SidebarInset } from '@/components/ui/sidebar'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute("/_appLayout")({
@@ -8,11 +8,11 @@ export const Route = createFileRoute("/_appLayout")({
 
 function AppLayoutComponent() {
     return (
-        <>
+        <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
                 <Outlet />
             </SidebarInset>
-        </>
+        </SidebarProvider>
     )
 }

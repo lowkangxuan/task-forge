@@ -5,6 +5,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import appCss from "../styles.css?url"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar.tsx"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
+import { NotFound } from "@/components/not-found"
 
 export const Route = createRootRoute({
     head: () => ({
@@ -28,7 +29,7 @@ export const Route = createRootRoute({
         ],
     }),
     shellComponent: RootDocument,
-    notFoundComponent: () => <div>Not Found</div>,
+    notFoundComponent: () => <NotFound />,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -38,22 +39,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <HeadContent />
             </head>
             <body>
-                <SidebarProvider>
-                    {children}
-                    <TanStackDevtools
-                        config={{
-                            position: "bottom-right",
-                        }}
-                        plugins={[
-                            {
-                                name: "Tanstack Router",
-                                render: <TanStackRouterDevtoolsPanel />,
-                            },
-                        ]}
-                    />
-                    <Scripts />
-                </SidebarProvider>
-
+                {children}
+                <TanStackDevtools
+                    config={{
+                        position: "bottom-right",
+                    }}
+                    plugins={[
+                        {
+                            name: "Tanstack Router",
+                            render: <TanStackRouterDevtoolsPanel />,
+                        },
+                    ]}
+                />
+                <Scripts />
             </body>
         </html>
     )
