@@ -1,13 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { authMiddleware } from "@/lib/auth-middleware";
 
 export const Route = createFileRoute("/_appLayout/")({
     component: App,
-    server: {
-        middleware: [authMiddleware],
-    }
 });
 
 function App() {

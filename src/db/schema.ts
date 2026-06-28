@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, serial, integer } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
@@ -73,9 +73,42 @@ export const verification = pgTable(
     (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
+export const projects = pgTable("projects",
+    {
+        id: serial("id").primaryKey(),
+        userId: text("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        name: text("name").notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at")
+            .$onUpdate(() => new Date())
+            .notNull(),
+    },
+    (table) => [index("projects_user_id_idx").on(table.userId)],
+);
+
+export const todos = pgTable("todos",
+    {
+        id: serial("id").primaryKey(),
+        projectId: integer("project_id")
+            .notNull()
+            .references(() => projects.id, { onDelete: "cascade" }),
+        title: text("title").notNull(),
+        description: text("description"),
+        isCompleted: boolean("is_completed").default(false).notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at")
+            .$onUpdate(() => new Date())
+            .notNull(),
+    },
+    (table) => [index("todos_project_id_idx").on(table.projectId)],
+);
+
 export const userRelations = relations(user, ({ many }) => ({
     sessions: many(session),
     accounts: many(account),
+    projects: many(projects),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -89,5 +122,20 @@ export const accountRelations = relations(account, ({ one }) => ({
     user: one(user, {
         fields: [account.userId],
         references: [user.id],
+    }),
+}));
+
+export const projectRelations = relations(projects, ({ one, many }) => ({
+    user: one(user, {
+        fields: [projects.userId],
+        references: [user.id],
+    }),
+    todos: many(todos),
+}));
+
+export const todoRelations = relations(todos, ({ one }) => ({
+    project: one(projects, {
+        fields: [todos.projectId],
+        references: [projects.id],
     }),
 }));

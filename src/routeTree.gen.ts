@@ -9,26 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SigninRouteImport } from './routes/signin'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AppLayoutRouteImport } from './routes/_appLayout'
 import { Route as AppLayoutIndexRouteImport } from './routes/_appLayout.index'
+import { Route as AuthSignupRouteImport } from './routes/_auth.signup'
+import { Route as AuthSigninRouteImport } from './routes/_auth.signin'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SigninRoute = SigninRouteImport.update({
-  id: '/signin',
-  path: '/signin',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppLayoutRoute = AppLayoutRouteImport.update({
@@ -40,6 +35,16 @@ const AppLayoutIndexRoute = AppLayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppLayoutRoute,
 } as any)
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthSigninRoute = AuthSigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => AuthRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -49,23 +54,24 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppLayoutIndexRoute
   '/dashboard': typeof DashboardRoute
-  '/signin': typeof SigninRoute
-  '/signup': typeof SignupRoute
+  '/signin': typeof AuthSigninRoute
+  '/signup': typeof AuthSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
-  '/dashboard': typeof DashboardRoute
-  '/signin': typeof SigninRoute
-  '/signup': typeof SignupRoute
   '/': typeof AppLayoutIndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/signin': typeof AuthSigninRoute
+  '/signup': typeof AuthSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_appLayout': typeof AppLayoutRouteWithChildren
+  '/_auth': typeof AuthRouteWithChildren
   '/dashboard': typeof DashboardRoute
-  '/signin': typeof SigninRoute
-  '/signup': typeof SignupRoute
+  '/_auth/signin': typeof AuthSigninRoute
+  '/_auth/signup': typeof AuthSignupRoute
   '/_appLayout/': typeof AppLayoutIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -73,46 +79,39 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths: '/' | '/dashboard' | '/signin' | '/signup' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/dashboard' | '/signin' | '/signup' | '/' | '/api/auth/$'
+  to: '/' | '/dashboard' | '/signin' | '/signup' | '/api/auth/$'
   id:
     | '__root__'
     | '/_appLayout'
+    | '/_auth'
     | '/dashboard'
-    | '/signin'
-    | '/signup'
+    | '/_auth/signin'
+    | '/_auth/signup'
     | '/_appLayout/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppLayoutRoute: typeof AppLayoutRouteWithChildren
+  AuthRoute: typeof AuthRouteWithChildren
   DashboardRoute: typeof DashboardRoute
-  SigninRoute: typeof SigninRoute
-  SignupRoute: typeof SignupRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signin': {
-      id: '/signin'
-      path: '/signin'
-      fullPath: '/signin'
-      preLoaderRoute: typeof SigninRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_appLayout': {
@@ -128,6 +127,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AppLayoutIndexRouteImport
       parentRoute: typeof AppLayoutRoute
+    }
+    '/_auth/signup': {
+      id: '/_auth/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/signin': {
+      id: '/_auth/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof AuthSigninRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -151,11 +164,22 @@ const AppLayoutRouteWithChildren = AppLayoutRoute._addFileChildren(
   AppLayoutRouteChildren,
 )
 
+interface AuthRouteChildren {
+  AuthSigninRoute: typeof AuthSigninRoute
+  AuthSignupRoute: typeof AuthSignupRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthSigninRoute: AuthSigninRoute,
+  AuthSignupRoute: AuthSignupRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AppLayoutRoute: AppLayoutRouteWithChildren,
+  AuthRoute: AuthRouteWithChildren,
   DashboardRoute: DashboardRoute,
-  SigninRoute: SigninRoute,
-  SignupRoute: SignupRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,13 +1,17 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
-import { TanStackDevtools } from "@tanstack/react-devtools"
-
-import appCss from "../styles.css?url"
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar.tsx"
-import { AppSidebar } from "@/components/sidebar/app-sidebar"
-import { NotFound } from "@/components/not-found"
+import { HeadContent, Scripts, createRootRoute, redirect } from "@tanstack/react-router";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import appCss from "../styles.css?url";
+import { Toaster } from "@/components/ui/sonner";
+import { NotFound } from "@/components/not-found";
+import { getSessionFn } from "@/lib/auth-session";
 
 export const Route = createRootRoute({
+    beforeLoad: async () => {
+        const session = await getSessionFn();
+
+        return { session };
+    },
     head: () => ({
         meta: [
             {
@@ -40,6 +44,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </head>
             <body>
                 {children}
+                <Toaster />
                 <TanStackDevtools
                     config={{
                         position: "bottom-right",
