@@ -9,5 +9,5 @@ export const authMiddleware = createMiddleware().server(
             throw new Error("Unauthorized!");
         };
 
-        return next({ context: { session } });
+        return next({ context: session });
 })

@@ -9,12 +9,12 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarRail,
 } from "@/components/ui/sidebar"
 import { signOut } from "@/lib/auth-client";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Calendar, Home, LogOut, Plus, User } from "lucide-react"
 import { toast } from "sonner";
+import { ProjectCreationDialog } from "./project-creation-dialog";
 
 type User = {
     id: string;
@@ -26,7 +26,7 @@ type User = {
     image?: string | null | undefined;
 } | undefined
 
-export function AppSidebar({ name }: { name?: string }) {
+export function AppSidebar({ name, handleProjectCreation }: { name?: string, handleProjectCreation: () => void }) {
     const navigate = useNavigate();
 
     async function SignOut() {
@@ -83,9 +83,7 @@ export function AppSidebar({ name }: { name?: string }) {
                     <SidebarGroupLabel className="uppercase">
                         Projects
                     </SidebarGroupLabel>
-                    <SidebarGroupAction onClick={() => console.log("hi")}>
-                        <Plus /> <span className="sr-only">Add Project</span>
-                    </SidebarGroupAction>
+                    <SidebarGroupAction render={<ProjectCreationDialog />} onClick={handleProjectCreation} />
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton>
