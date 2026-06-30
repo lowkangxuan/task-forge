@@ -7,6 +7,9 @@ import { Plus } from "lucide-react";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
+import { createNewProject } from "@/server/projects";
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "@tanstack/react-router";
 
 const formSchema = z.object({
     name: z.string().min(5, "Project name must have at least 5 characters"),
@@ -14,6 +17,8 @@ const formSchema = z.object({
 });
 
 export function ProjectCreationDialog() {
+    const session = useSession();
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const form = useForm({
         defaultValues: {
@@ -25,12 +30,19 @@ export function ProjectCreationDialog() {
         },
         onSubmit: async ({ value }) => {
             try {
+                await createNewProject({
+                    data: {
+                        name: value.name,
+                        description: value.description,
+                    }
+                });
                 toast.success("Project successfully created!");
                 form.reset();
                 setOpen(false);
+                awaitrouter.invalidate();
             }
             catch {
-
+                toast.error("Project creation failed!");
             }
         }
     });

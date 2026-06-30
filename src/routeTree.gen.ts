@@ -12,10 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AppLayoutRouteImport } from './routes/_appLayout'
-import { Route as AppLayoutIndexRouteImport } from './routes/_appLayout.index'
-import { Route as AuthSignupRouteImport } from './routes/_auth.signup'
-import { Route as AuthSigninRouteImport } from './routes/_auth.signin'
+import { Route as AppLayoutIndexRouteImport } from './routes/_appLayout/index'
+import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
+import { Route as AuthSigninRouteImport } from './routes/_auth/signin'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppLayoutProjectsProjectIdRouteImport } from './routes/_appLayout/projects/$projectId'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -50,12 +51,19 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppLayoutProjectsProjectIdRoute =
+  AppLayoutProjectsProjectIdRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => AppLayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppLayoutIndexRoute
   '/dashboard': typeof DashboardRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
+  '/projects/$projectId': typeof AppLayoutProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -63,6 +71,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
+  '/projects/$projectId': typeof AppLayoutProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -73,13 +82,26 @@ export interface FileRoutesById {
   '/_auth/signin': typeof AuthSigninRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_appLayout/': typeof AppLayoutIndexRoute
+  '/_appLayout/projects/$projectId': typeof AppLayoutProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/signin' | '/signup' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/signin'
+    | '/signup'
+    | '/projects/$projectId'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/signin' | '/signup' | '/api/auth/$'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/signin'
+    | '/signup'
+    | '/projects/$projectId'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/_appLayout'
@@ -88,6 +110,7 @@ export interface FileRouteTypes {
     | '/_auth/signin'
     | '/_auth/signup'
     | '/_appLayout/'
+    | '/_appLayout/projects/$projectId'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -149,15 +172,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_appLayout/projects/$projectId': {
+      id: '/_appLayout/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof AppLayoutProjectsProjectIdRouteImport
+      parentRoute: typeof AppLayoutRoute
+    }
   }
 }
 
 interface AppLayoutRouteChildren {
   AppLayoutIndexRoute: typeof AppLayoutIndexRoute
+  AppLayoutProjectsProjectIdRoute: typeof AppLayoutProjectsProjectIdRoute
 }
 
 const AppLayoutRouteChildren: AppLayoutRouteChildren = {
   AppLayoutIndexRoute: AppLayoutIndexRoute,
+  AppLayoutProjectsProjectIdRoute: AppLayoutProjectsProjectIdRoute,
 }
 
 const AppLayoutRouteWithChildren = AppLayoutRoute._addFileChildren(

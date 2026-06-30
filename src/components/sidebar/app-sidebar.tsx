@@ -7,6 +7,7 @@ import {
     SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
+    SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
@@ -15,18 +16,14 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Calendar, Home, LogOut, Plus, User } from "lucide-react"
 import { toast } from "sonner";
 import { ProjectCreationDialog } from "./project-creation-dialog";
+import type { ProjectWithTodo } from "@/db/schema";
 
-type User = {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    email: string;
-    emailVerified: boolean;
-    name: string;
-    image?: string | null | undefined;
-} | undefined
+interface AppSidebarProps {
+    name?: string,
+    projects: ProjectWithTodo[],
+}
 
-export function AppSidebar({ name, handleProjectCreation }: { name?: string, handleProjectCreation: () => void }) {
+export function AppSidebar({ name, projects }: AppSidebarProps) {
     const navigate = useNavigate();
 
     async function SignOut() {
@@ -83,14 +80,26 @@ export function AppSidebar({ name, handleProjectCreation }: { name?: string, han
                     <SidebarGroupLabel className="uppercase">
                         Projects
                     </SidebarGroupLabel>
-                    <SidebarGroupAction render={<ProjectCreationDialog />} onClick={handleProjectCreation} />
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton>
-                                Button
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
+                    <SidebarGroupAction render={<ProjectCreationDialog />} />
+                    {projects.map((proj) => {
+                        return (
+                            <SidebarMenu key={proj.id}>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton render={
+                                        <Link
+                                            to="/projects/$projectId"
+                                            params={{ projectId: String(proj.id) }}
+                                        >
+                                            {proj.name}
+                                        </Link>
+                                    } />
+                                    <SidebarMenuBadge>
+                                        0
+                                    </SidebarMenuBadge>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        );
+                    })}
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
