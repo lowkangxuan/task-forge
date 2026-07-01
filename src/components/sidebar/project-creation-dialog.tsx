@@ -39,7 +39,7 @@ export function ProjectCreationDialog() {
                 toast.success("Project successfully created!");
                 form.reset();
                 setOpen(false);
-                awaitrouter.invalidate();
+                await router.invalidate();
             }
             catch {
                 toast.error("Project creation failed!");
