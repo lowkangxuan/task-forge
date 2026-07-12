@@ -94,13 +94,16 @@ export const projects = pgTable("projects",
 
 export const todos = pgTable("todos",
     {
-        id: serial("id").primaryKey(),
+        id: varchar('id', { length: 26 })
+            .primaryKey()
+            .$defaultFn(() => ulid()),
         projectId: varchar("project_id", { length: 26 })
             .notNull()
             .references(() => projects.id, { onDelete: "cascade" }),
         title: text("title").notNull(),
         description: text("description"),
         isCompleted: boolean("is_completed").default(false).notNull(),
+        dueDate: timestamp("due_date"),
         createdAt: timestamp("created_at").defaultNow().notNull(),
         updatedAt: timestamp("updated_at")
             .$onUpdate(() => new Date())

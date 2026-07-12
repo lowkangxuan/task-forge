@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export const Route = createFileRoute("/_appLayout/")({
     component: App,
@@ -9,7 +8,7 @@ export const Route = createFileRoute("/_appLayout/")({
 function App() {
     return (
         <>
-            <div className="flex min-h-svh">
+            <div className="flex">
                 <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
                     <div>
                         <h1 className="font-medium">Project ready!</h1>

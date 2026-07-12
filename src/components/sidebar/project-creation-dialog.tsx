@@ -8,7 +8,6 @@ import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { createNewProject } from "@/server/projects";
-import { useSession } from "@/lib/auth-client";
 import { useRouter } from "@tanstack/react-router";
 
 const formSchema = z.object({
@@ -17,7 +16,6 @@ const formSchema = z.object({
 });
 
 export function ProjectCreationDialog() {
-    const session = useSession();
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const form = useForm({

@@ -10,10 +10,10 @@ import {
     SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/multisidebar"
 import { signOut } from "@/lib/auth-client";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Calendar, Home, LogOut, Plus, User } from "lucide-react"
+import { Calendar, CircleDashed, Home, LogOut, User } from "lucide-react"
 import { toast } from "sonner";
 import { ProjectCreationDialog } from "./project-creation-dialog";
 import type { ProjectWithTodo } from "@/db/schema";
@@ -38,7 +38,7 @@ export function AppSidebar({ name, projects }: AppSidebarProps) {
     }
 
     return (
-        <Sidebar variant="floating" collapsible="icon">
+        <Sidebar variant="inset" collapsible="icon" side="left">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -61,7 +61,7 @@ export function AppSidebar({ name, projects }: AppSidebarProps) {
                             <SidebarMenuButton render={
                                 <Link
                                     to="/"
-                                    activeProps={{ className: "bg-black text-accent" }}
+                                    activeProps={{ className: "bg-primary" }}
                                     className=""
                                 >
                                     <Home /> Home
@@ -88,13 +88,16 @@ export function AppSidebar({ name, projects }: AppSidebarProps) {
                                     <SidebarMenuButton render={
                                         <Link
                                             to="/projects/$projectId"
+                                            activeProps={{ className: "bg-primary" }}
                                             params={{ projectId: String(proj.id) }}
+                                            preload="intent"
                                         >
+                                            <CircleDashed />
                                             {proj.name}
                                         </Link>
                                     } />
                                     <SidebarMenuBadge>
-                                        0
+                                        {proj.todos.length}
                                     </SidebarMenuBadge>
                                 </SidebarMenuItem>
                             </SidebarMenu>
