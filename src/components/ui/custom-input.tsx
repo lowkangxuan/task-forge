@@ -11,8 +11,13 @@ const customInputVariants = cva(
                 ghost: "bg-transparent border-none outline-none font-bold placeholder:text-muted-foreground field-sizing-content focus-visible:ring-0"
             },
             size: {
-                default: "",
-
+                default: "h-7 md:text-sm",
+                sm: "h-8 md:text-xs",
+                lg: "h-10 md:text-lg",
+                xl: "h-12 md:text-xl",
+                "2xl": "h-12 md:text-2xl",
+                "3xl": "h-12 md:text-3xl",
+                "4xl": "h-12 md:text-4xl",
             },
         },
         defaultVariants: {
@@ -24,15 +29,13 @@ const customInputVariants = cva(
 
 export function CustomInput({
     className,
-    value,
     variant,
     size,
     ...props
 }: Omit<React.ComponentProps<"input">, "size"> & VariantProps<typeof customInputVariants>) {
     return (
         <Input
-            value={value}
-            className={cn(customInputVariants({ variant, size, className}))}
+            className={cn(customInputVariants({ variant, size, className }))}
             {...props}
         />
     )

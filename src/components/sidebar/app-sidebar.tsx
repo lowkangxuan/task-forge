@@ -16,15 +16,15 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Calendar, CircleDashed, Home, LogOut, User } from "lucide-react"
 import { toast } from "sonner";
 import { ProjectCreationDialog } from "./project-creation-dialog";
-import type { ProjectWithTodo } from "@/db/schema";
+import { useProjects } from "@/providers/ProjectsProvider";
 
 interface AppSidebarProps {
     name?: string,
-    projects: ProjectWithTodo[],
 }
 
-export function AppSidebar({ name, projects }: AppSidebarProps) {
+export function AppSidebar({ name }: AppSidebarProps) {
     const navigate = useNavigate();
+    const { localProjects } = useProjects();
 
     async function SignOut() {
         await signOut({
@@ -81,7 +81,7 @@ export function AppSidebar({ name, projects }: AppSidebarProps) {
                         Projects
                     </SidebarGroupLabel>
                     <SidebarGroupAction render={<ProjectCreationDialog />} />
-                    {projects.map((proj) => {
+                    {localProjects.map((proj) => {
                         return (
                             <SidebarMenu key={proj.id}>
                                 <SidebarMenuItem>

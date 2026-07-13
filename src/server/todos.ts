@@ -34,3 +34,10 @@ export const getTodos = createServerFn({ method: "GET"})
         const tasks = await db.select().from(todos).where(eq(todos.projectId, data.projectId));
         return tasks;
     })
+
+export const updateTodoTitle = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator((data: { todoId: string, newTitle: string}) => data)
+    .handler(async ({ data }) => {
+        await db.update(todos).set({ title: data.newTitle}).where(eq(todos.id, data.todoId));
+    })

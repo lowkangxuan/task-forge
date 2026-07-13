@@ -41,3 +41,10 @@ export const getProject = createServerFn({ method: "GET" })
 
         return project ?? null;
     });
+
+export const updateProjectName = createServerFn({ method: "POST"})
+    .middleware([authMiddleware])
+    .inputValidator((data: {projectId: string, name: string}) => data)
+    .handler(async ({ data }) => {
+        await db.update(projects).set({ name: data.name}).where(eq(projects.id, data.projectId));
+    } )

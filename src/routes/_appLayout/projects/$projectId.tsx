@@ -1,11 +1,13 @@
 import { CustomInput } from '@/components/ui/custom-input';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useMultiSidebar } from '@/components/ui/multisidebar';
-import { getProject } from '@/server/projects';
-import { createNewTodo, getTodos } from '@/server/todos';
+import { getProject, updateProjectName } from '@/server/projects';
+import { createNewTodo } from '@/server/todos';
 import { createFileRoute, Link, notFound, useRouter } from '@tanstack/react-router'
 import * as z from "zod";
+import { useEffect, useState } from 'react';
+import { useProjects } from '@/providers/ProjectsProvider';
+import { useDebouncedCallback } from 'use-debounce';
 
 const searchSchema = z.object({
     t: z.string().optional(),
@@ -20,17 +22,29 @@ export const Route = createFileRoute('/_appLayout/projects/$projectId')({
             throw notFound();
         }
 
-        const todos = await getTodos({ data: { projectId: project.id } });
-
-        return { project, todos };
+        return { project };
     },
     component: RouteComponent,
 })
 
 function ProjectViewComponent() {
-    const { project, todos } = Route.useLoaderData();
-    const { rightSidebar } = useMultiSidebar();
     const router = useRouter();
+    const { rightSidebar } = useMultiSidebar();
+    const { projectId } = Route.useParams();
+    const { localProjects, updateLocalProjects } = useProjects();
+    const project = localProjects.find((proj) => proj.id === projectId);
+    const [title, setTitle] = useState(project?.name);
+
+    useEffect(() => {
+        setTitle(project!.name);
+    }, [project!.id]);
+
+    const debounced = useDebouncedCallback(
+        async (projectId, name) => {
+            await updateProjectName({data: {projectId: projectId, name: name}});
+            router.invalidate();
+        }, 1000,
+    )
 
     async function handleTaskCreation({ projectId, title = "", description, isCompleted, dueDate }: {
         projectId: string,
@@ -56,30 +70,44 @@ function ProjectViewComponent() {
     return (
         <div className="flex flex-col gap-4 px-16 py-8">
             <div className="flex gap-2">
-                <Input key={project.id} value={project.name} className="md:text-3xl" />
+                <CustomInput
+                    key={project?.id}
+                    value={title}
+                    onChange={(e) => {
+                        setTitle(e.target.value);
+                        updateLocalProjects((curr) => 
+                            curr.map((proj) => 
+                                proj.id === project?.id
+                            ? {
+                                ...proj,
+                                name: e.target.value,
+                            }
+                            : proj,
+                            )
+                        )
+                        debounced(project?.id, e.target.value);
+                    }}
+                    placeholder="Project Name"
+                    variant="ghost"
+                    size="4xl"
+                />
             </div>
             <div className="flex flex-col">
-                <Button className="w-fit" onClick={() => handleTaskCreation({ projectId: project.id })}>
+                <Button className="w-fit" onClick={() => handleTaskCreation({ projectId: project!.id })}>
                     Add new task
                 </Button>
-                {todos.map((todo) => {
-                    if (todo.title === "") {
-                        return (
-                            <Link
-                                to={Route.fullPath}
-                                params={{ projectId: todo.projectId }}
-                                search={{ t: todo.id }}
-                                onClick={() => rightSidebar.setOpen(true)}
-                            >
-                                New Task
-                            </Link>
-                        )
-                    }
-                    else {
-                        return (
-                            <div key={todo.id}>{todo.title}</div>
-                        )
-                    }
+                {project!.todos.map((todo) => {
+                    return (
+                        <Link
+                            key={todo.id}
+                            to={Route.fullPath}
+                            params={{ projectId: todo.projectId }}
+                            search={{ t: todo.id }}
+                            onClick={() => rightSidebar.setOpen(true)}
+                        >
+                            {todo.title === "" ? "New Task" : todo.title}
+                        </Link>
+                    )
                 })}
             </div>
         </div>
@@ -87,7 +115,5 @@ function ProjectViewComponent() {
 }
 
 function RouteComponent() {
-    const project = Route.useLoaderData();
-    console.log(project);
     return <ProjectViewComponent />
 }
