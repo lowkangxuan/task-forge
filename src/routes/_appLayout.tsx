@@ -6,7 +6,6 @@ import { ProjectsProvider } from '@/providers/ProjectsProvider';
 import { getUserProjects } from '@/server/projects';
 import { createFileRoute, Outlet, redirect, useMatchRoute } from '@tanstack/react-router';
 import { EllipsisVerticalIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 export const Route = createFileRoute("/_appLayout")({
     beforeLoad: async ({ context }) => {
@@ -16,6 +15,7 @@ export const Route = createFileRoute("/_appLayout")({
     },
     loader: async () => {
         const userProjects = await getUserProjects();
+        console.log(userProjects);
         return userProjects;
     },
     component: AppLayoutComponent,

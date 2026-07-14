@@ -8,7 +8,7 @@ const customInputVariants = cva(
         variants: {
             variant: {
                 default: "",
-                ghost: "bg-transparent border-none outline-none font-bold placeholder:text-muted-foreground field-sizing-content focus-visible:ring-0"
+                ghost: "bg-transparent px-0 border-none outline-none font-bold placeholder:text-muted-foreground field-sizing-content focus-visible:ring-0"
             },
             size: {
                 default: "h-7 md:text-sm",

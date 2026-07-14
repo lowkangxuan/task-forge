@@ -16,7 +16,7 @@ export const createNewTodo = createServerFn({ method: "POST" })
     .handler(async ({ data }) => {
         await db.insert(todos).values({
             projectId: data.projectId,
-            title: data.title,
+            name: data.title,
             description: data.title,
             isCompleted: data.isCompleted,
             dueDate: data.dueDate,
@@ -35,9 +35,9 @@ export const getTodos = createServerFn({ method: "GET"})
         return tasks;
     })
 
-export const updateTodoTitle = createServerFn({ method: "POST" })
+export const updateTodoName = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .inputValidator((data: { todoId: string, newTitle: string}) => data)
+    .inputValidator((data: { todoId: string, newName: string}) => data)
     .handler(async ({ data }) => {
-        await db.update(todos).set({ title: data.newTitle}).where(eq(todos.id, data.todoId));
+        await db.update(todos).set({ name: data.newName}).where(eq(todos.id, data.todoId));
     })

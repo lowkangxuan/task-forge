@@ -1,13 +1,12 @@
 import { CustomInput } from '@/components/ui/custom-input';
 import { Button } from '@/components/ui/button';
 import { useMultiSidebar } from '@/components/ui/multisidebar';
-import { getProject, updateProjectName } from '@/server/projects';
 import { createNewTodo } from '@/server/todos';
-import { createFileRoute, Link, notFound, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import * as z from "zod";
 import { useEffect, useState } from 'react';
 import { useProjects } from '@/providers/ProjectsProvider';
-import { useDebouncedCallback } from 'use-debounce';
+import { useDebounceProjectName } from '@/server/debounce-updaters';
 
 const searchSchema = z.object({
     t: z.string().optional(),
@@ -15,15 +14,6 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute('/_appLayout/projects/$projectId')({
     validateSearch: searchSchema,
-    loader: async ({ params }) => {
-        const project = await getProject({ data: { projectId: params.projectId } });
-
-        if (!project) {
-            throw notFound();
-        }
-
-        return { project };
-    },
     component: RouteComponent,
 })
 
@@ -34,17 +24,11 @@ function ProjectViewComponent() {
     const { localProjects, updateLocalProjects } = useProjects();
     const project = localProjects.find((proj) => proj.id === projectId);
     const [title, setTitle] = useState(project?.name);
+    const debounceProjectName = useDebounceProjectName();
 
     useEffect(() => {
         setTitle(project!.name);
     }, [project!.id]);
-
-    const debounced = useDebouncedCallback(
-        async (projectId, name) => {
-            await updateProjectName({data: {projectId: projectId, name: name}});
-            router.invalidate();
-        }, 1000,
-    )
 
     async function handleTaskCreation({ projectId, title = "", description, isCompleted, dueDate }: {
         projectId: string,
@@ -72,6 +56,7 @@ function ProjectViewComponent() {
             <div className="flex gap-2">
                 <CustomInput
                     key={project?.id}
+                    placeholder="Project Name"
                     value={title}
                     onChange={(e) => {
                         setTitle(e.target.value);
@@ -85,9 +70,8 @@ function ProjectViewComponent() {
                             : proj,
                             )
                         )
-                        debounced(project?.id, e.target.value);
+                        debounceProjectName(project?.id, e.target.value);
                     }}
-                    placeholder="Project Name"
                     variant="ghost"
                     size="4xl"
                 />
@@ -105,7 +89,7 @@ function ProjectViewComponent() {
                             search={{ t: todo.id }}
                             onClick={() => rightSidebar.setOpen(true)}
                         >
-                            {todo.title === "" ? "New Task" : todo.title}
+                            {todo.name === "" ? "New Task" : todo.name}
                         </Link>
                     )
                 })}

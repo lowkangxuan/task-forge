@@ -100,7 +100,7 @@ export const todos = pgTable("todos",
         projectId: varchar("project_id", { length: 26 })
             .notNull()
             .references(() => projects.id, { onDelete: "cascade" }),
-        title: text("title").notNull(),
+        name: text("name").notNull(),
         description: text("description"),
         isCompleted: boolean("is_completed").default(false).notNull(),
         dueDate: timestamp("due_date"),

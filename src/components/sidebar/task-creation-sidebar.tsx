@@ -9,38 +9,39 @@ import {
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldError, FieldGroup } from "../ui/field";
-import { Input } from "../ui/input";
 import { ChevronsRight } from "lucide-react";
-import { useLoaderData, useMatch, useRouter } from "@tanstack/react-router";
-import { useDebouncedCallback } from "use-debounce";
-import { updateTodoTitle } from "@/server/todos";
+import { useMatch, useRouter } from "@tanstack/react-router";
 import { CustomInput } from "../ui/custom-input";
 import { useProjects } from "@/providers/ProjectsProvider";
+import { useEffect } from "react";
+import { useDebounceTaskName } from "@/server/debounce-updaters";
 
 const formSchema = z.object({
-    title: z.string(),
+    name: z.string(),
     description: z.string(),
     isCompleted: z.boolean(),
     dueDate: z.union([z.date(), z.undefined()]),
 });
 
 export function TaskCreationSidebar() {
-    const { localProjects } = useProjects();
+    const { localProjects, updateLocalProjects } = useProjects();
     const projectMatch = useMatch({
         from: "/_appLayout/projects/$projectId",
         shouldThrow: false,
     });
-    const routeSearch = projectMatch?.search;
-    const router = useRouter();
-    // const { project: { todos }} = useLoaderData({ from: "/_appLayout/projects/$projectId" });
-    const filterdTodo = localProjects.flatMap((proj) => proj.todos).find((todo) => todo.id === routeSearch?.t);
-    // console.log(filterdTodo?.title);
+    const projectId = projectMatch?.params.projectId;
+    const todoId = projectMatch?.search.t;
+    const filteredTodo = localProjects.flatMap((proj) => proj.todos).find((todo) => todo.id === todoId);
+    const debounceTaskName = useDebounceTaskName();
+
     const form = useForm({
         defaultValues: {
-            title: filterdTodo?.title,
-            description: filterdTodo?.description,
-            isCompleted: filterdTodo?.isCompleted,
-            dueDate: undefined as Date | undefined,
+            name: filteredTodo?.name ?? "",
+            description: filteredTodo?.description ?? "",
+            isCompleted: filteredTodo?.isCompleted ?? false,
+            dueDate: filteredTodo?.dueDate
+                ? new Date(filteredTodo.dueDate)
+                : undefined,
         },
         validators: {
             onSubmit: formSchema,
@@ -50,14 +51,18 @@ export function TaskCreationSidebar() {
         }
     });
 
-    const debounced = useDebouncedCallback(
-        async (todoId, value) => {
-            console.log(todoId, value);
-            await updateTodoTitle({ data: { todoId: todoId, newTitle: value } });
-            router.invalidate();
-        },
-        500,
-    )
+    useEffect(() => {
+        if (!filteredTodo) return;
+
+        form.reset({
+            name: filteredTodo?.name ?? "",
+            description: filteredTodo?.description ?? "",
+            isCompleted: filteredTodo?.isCompleted ?? false,
+            dueDate: filteredTodo?.dueDate
+                ? new Date(filteredTodo.dueDate)
+                : undefined,
+        });
+    }, [filteredTodo?.id]);
 
     return (
         <Sidebar variant="inset" side="right">
@@ -65,11 +70,6 @@ export function TaskCreationSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarTrigger side="right"><ChevronsRight /></SidebarTrigger>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        {routeSearch?.t}
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
@@ -80,12 +80,12 @@ export function TaskCreationSidebar() {
                         e.preventDefault();
                         form.handleSubmit();
                     }}
+                    className="px-16"
                 >
                     <FieldGroup className="gap-0">
                         <form.Field
-                            name="title"
+                            name="name"
                             children={(field) => {
-                                console.log(field.state);
                                 const isInvalid =
                                     field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
@@ -98,7 +98,24 @@ export function TaskCreationSidebar() {
                                             onBlur={field.handleBlur}
                                             onChange={(e) => {
                                                 field.handleChange(e.target.value);
-                                                debounced(routeSearch?.t, e.target.value);
+                                                updateLocalProjects((curr) =>
+                                                    curr.map((proj) =>
+                                                        proj.id === projectId
+                                                            ? {
+                                                                ...proj,
+                                                                todos: proj.todos.map((todo) =>
+                                                                    todo.id === todoId
+                                                                        ? {
+                                                                            ...todo,
+                                                                            name: e.target.value,
+                                                                        }
+                                                                        : todo,
+                                                                )
+                                                            }
+                                                            : proj,
+                                                    )
+                                                );
+                                                debounceTaskName(todoId, e.target.value);
                                             }}
                                             aria-invalid={isInvalid}
                                             placeholder="New Task"
@@ -120,7 +137,7 @@ export function TaskCreationSidebar() {
                                     field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
                                     <Field data-invalid={isInvalid}>
-                                        <Input
+                                        <CustomInput
                                             id={field.name}
                                             name={field.name}
                                             value={field.state.value ?? ""}
@@ -130,7 +147,8 @@ export function TaskCreationSidebar() {
                                             aria-invalid={isInvalid}
                                             placeholder="Task Description"
                                             autoComplete="off"
-                                            className="md:text-xl"
+                                            variant="ghost"
+                                            size="2xl"
                                         />
                                         {isInvalid && (
                                             <FieldError errors={field.state.meta.errors} />

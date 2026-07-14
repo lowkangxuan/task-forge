@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start"
 import { db } from '@/db/drizzle';
 import { projects } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
 
 export const getUserProjects = createServerFn({ method: "GET" })
@@ -10,7 +10,9 @@ export const getUserProjects = createServerFn({ method: "GET" })
         const userProjects = await db.query.projects.findMany({
             where: eq(projects.userId, context.user.id),
             with: {
-                todos: true,
+                todos: {
+                    orderBy: (todos, { asc }) => [asc(todos.createdAt)],
+                },
             }
         });
         return userProjects;
@@ -35,8 +37,10 @@ export const getProject = createServerFn({ method: "GET" })
         const project = await db.query.projects.findFirst({
             where: and(eq(projects.id, data.projectId), eq(projects.userId, context.user.id)),
             with: {
-                todos: true,
-            }
+                todos: {
+                    orderBy: (todos, { asc }) => [asc(todos.createdAt)],
+                },
+            },
         })
 
         return project ?? null;
