@@ -14,7 +14,7 @@ import { useMatch, useRouter } from "@tanstack/react-router";
 import { CustomInput } from "../ui/custom-input";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { useEffect } from "react";
-import { useDebounceTaskName } from "@/server/debounce-updaters";
+import { useDebounceTaskName } from "@/server/debounce-fn";
 
 const formSchema = z.object({
     name: z.string(),

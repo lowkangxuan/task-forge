@@ -91,9 +91,10 @@ export function AppSidebar({ name }: AppSidebarProps) {
                                             activeProps={{ className: "bg-primary" }}
                                             params={{ projectId: String(proj.id) }}
                                             preload="intent"
+                                            className="overflow-clip"
                                         >
                                             <CircleDashed />
-                                            {proj.name}
+                                            <span className="pr-6">{proj.name}</span>
                                         </Link>
                                     } />
                                     <SidebarMenuBadge>

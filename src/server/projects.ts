@@ -3,6 +3,18 @@ import { db } from '@/db/drizzle';
 import { projects } from "@/db/schema";
 import { and, asc, eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
+import * as z from "zod";
+
+export const verifyProjectOwnership = createServerFn({ method: "GET" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        projectId: z.string(),
+    }))
+    .handler(async ({ context, data }) => {
+        const validProject = await db.select().from(projects).where(and(eq(projects.userId, context.user.id), eq(projects.id, data.projectId)));
+        console.log(validProject.length > 0);
+        return validProject.length > 0;
+    })
 
 export const getUserProjects = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
@@ -46,9 +58,9 @@ export const getProject = createServerFn({ method: "GET" })
         return project ?? null;
     });
 
-export const updateProjectName = createServerFn({ method: "POST"})
+export const updateProjectName = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .inputValidator((data: {projectId: string, name: string}) => data)
+    .inputValidator((data: { projectId: string, name: string }) => data)
     .handler(async ({ data }) => {
-        await db.update(projects).set({ name: data.name}).where(eq(projects.id, data.projectId));
-    } )
+        await db.update(projects).set({ name: data.name }).where(eq(projects.id, data.projectId));
+    })

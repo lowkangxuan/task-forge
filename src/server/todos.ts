@@ -3,6 +3,15 @@ import { todos } from "@/db/schema";
 import { authMiddleware } from "@/lib/auth-middleware";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+import * as z from "zod";
+
+const updateTodoImmediateSchema = z.object({
+    todoId: z.string(),
+    updates: z.object({
+        isCompleted: z.boolean().optional(),
+        dueDate: z.coerce.date().nullable().optional(),
+    }),
+});
 
 export const createNewTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
@@ -25,7 +34,7 @@ export const createNewTodo = createServerFn({ method: "POST" })
         console.log("New todo created!");
     });
 
-export const getTodos = createServerFn({ method: "GET"})
+export const getTodos = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
     .inputValidator((data: {
         projectId: string,
@@ -37,7 +46,15 @@ export const getTodos = createServerFn({ method: "GET"})
 
 export const updateTodoName = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .inputValidator((data: { todoId: string, newName: string}) => data)
+    .inputValidator((data: { todoId: string, newName: string }) => data)
     .handler(async ({ data }) => {
-        await db.update(todos).set({ name: data.newName}).where(eq(todos.id, data.todoId));
+        await db.update(todos).set({ name: data.newName }).where(eq(todos.id, data.todoId));
+    })
+
+export const updateTodoImmediate = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator(updateTodoImmediateSchema)
+    .handler(async ({ data }) => {
+        const { todoId, updates } = data;
+        await db.update(todos).set(updates).where(eq(todos.id, todoId));
     })
