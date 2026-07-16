@@ -10,11 +10,11 @@ import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldError, FieldGroup } from "../ui/field";
 import { ChevronsRight } from "lucide-react";
-import { useMatch, useRouter } from "@tanstack/react-router";
+import { useMatch } from "@tanstack/react-router";
 import { CustomInput } from "../ui/custom-input";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { useEffect } from "react";
-import { useDebounceTaskName } from "@/server/debounce-fn";
+import { useDebounceTaskBasic } from "@/server/debounce-fn";
 
 const formSchema = z.object({
     name: z.string(),
@@ -32,7 +32,7 @@ export function TaskCreationSidebar() {
     const projectId = projectMatch?.params.projectId;
     const todoId = projectMatch?.search.t;
     const filteredTodo = localProjects.flatMap((proj) => proj.todos).find((todo) => todo.id === todoId);
-    const debounceTaskName = useDebounceTaskName();
+    const debounceTaskUpdater = useDebounceTaskBasic();
 
     const form = useForm({
         defaultValues: {
@@ -115,7 +115,7 @@ export function TaskCreationSidebar() {
                                                             : proj,
                                                     )
                                                 );
-                                                debounceTaskName(todoId, e.target.value);
+                                                debounceTaskUpdater({ todoId: todoId!, updates: { name: e.target.value } });
                                             }}
                                             aria-invalid={isInvalid}
                                             placeholder="New Task"
@@ -143,7 +143,10 @@ export function TaskCreationSidebar() {
                                             value={field.state.value ?? ""}
                                             type="text"
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            onChange={(e) => {
+                                                field.handleChange(e.target.value)
+                                                debounceTaskUpdater({ todoId: todoId!, updates: { description: e.target.value } });
+                                            }}
                                             aria-invalid={isInvalid}
                                             placeholder="Task Description"
                                             autoComplete="off"

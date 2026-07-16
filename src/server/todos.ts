@@ -51,6 +51,20 @@ export const updateTodoName = createServerFn({ method: "POST" })
         await db.update(todos).set({ name: data.newName }).where(eq(todos.id, data.todoId));
     })
 
+export const updateTodoDebounce = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        todoId: z.string(),
+        updates: z.object({
+            name: z.string().optional(),
+            description: z.string().optional(),
+        }),
+    }))
+    .handler(async ({ data }) => {
+        const { todoId, updates } = data;
+        await db.update(todos).set(updates).where(eq(todos.id, todoId));
+    })
+
 export const updateTodoImmediate = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
     .inputValidator(updateTodoImmediateSchema)

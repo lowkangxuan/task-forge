@@ -1,9 +1,9 @@
 import { getRouter } from "@/router";
 import { useDebouncedCallback } from "use-debounce";
 import { updateProjectName } from "./projects";
-import { updateTodoName } from "./todos";
+import { updateTodoDebounce, updateTodoName } from "./todos";
 
-const WAIT = 1000; // 1000ms
+const WAIT = 300; // in milliseconds
 
 async function invalidateRouter() {
     await getRouter().invalidate();
@@ -18,15 +18,22 @@ export function useDebounceProjectName() {
     );
 }
 
-export function useDebounceTaskName() {
+export function useDebounceTaskBasic() {
     return useDebouncedCallback(
-        async (todoId, name) => {
-            await updateTodoName({ data: { todoId: todoId, newName: name } });
+        async (data: {
+            todoId: string,
+            updates: {
+                name?: string,
+                description?: string,
+            }
+        }) => {
+            await updateTodoDebounce({ 
+                data: { 
+                    todoId: data.todoId, 
+                    updates: data.updates,
+                }
+            });
             await invalidateRouter();
         }, WAIT
     );
-}
-
-export function useDebounceTaskDesc() {
-    
 }
