@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start"
 import { db } from '@/db/drizzle';
 import { projects } from "@/db/schema";
-import { and, asc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
 
@@ -25,7 +25,8 @@ export const getUserProjects = createServerFn({ method: "GET" })
                 todos: {
                     orderBy: (todos, { asc }) => [asc(todos.createdAt)],
                 },
-            }
+            },
+            orderBy: (projects, { asc }) => [asc(projects.createdAt)],
         });
         return userProjects;
     });

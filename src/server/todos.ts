@@ -44,13 +44,6 @@ export const getTodos = createServerFn({ method: "GET" })
         return tasks;
     })
 
-export const updateTodoName = createServerFn({ method: "POST" })
-    .middleware([authMiddleware])
-    .inputValidator((data: { todoId: string, newName: string }) => data)
-    .handler(async ({ data }) => {
-        await db.update(todos).set({ name: data.newName }).where(eq(todos.id, data.todoId));
-    })
-
 export const updateTodoDebounce = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
     .inputValidator(z.object({

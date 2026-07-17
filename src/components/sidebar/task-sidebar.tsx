@@ -8,13 +8,18 @@ import {
 } from "@/components/ui/multisidebar"
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
-import { Field, FieldError, FieldGroup } from "../ui/field";
-import { ChevronsRight } from "lucide-react";
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
 import { useMatch } from "@tanstack/react-router";
 import { CustomInput } from "../ui/custom-input";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { useEffect } from "react";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import { format } from "date-fns";
+import { Checkbox } from "../ui/checkbox";
 
 const formSchema = z.object({
     name: z.string(),
@@ -46,9 +51,7 @@ export function TaskCreationSidebar() {
         validators: {
             onSubmit: formSchema,
         },
-        onSubmit: async ({ value }) => {
 
-        }
     });
 
     useEffect(() => {
@@ -80,9 +83,9 @@ export function TaskCreationSidebar() {
                         e.preventDefault();
                         form.handleSubmit();
                     }}
-                    className="px-16"
+                    className="px-16 gap-4"
                 >
-                    <FieldGroup className="gap-0">
+                    <FieldGroup className="gap-0 mb-4">
                         <form.Field
                             name="name"
                             children={(field) => {
@@ -156,6 +159,67 @@ export function TaskCreationSidebar() {
                                         {isInvalid && (
                                             <FieldError errors={field.state.meta.errors} />
                                         )}
+                                    </Field>
+                                )
+                            }}
+                        />
+                    </FieldGroup>
+                    <FieldGroup className="gap-2">
+                        <form.Field
+                            name="dueDate"
+                            children={(field) => {
+                                const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid
+                                return (
+                                    <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
+                                        <FieldContent className="flex-none">
+                                            <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-24"><CalendarIcon />Due date</FieldLabel>
+                                        </FieldContent>
+                                        <FieldContent>
+                                            <Popover>
+                                                <PopoverTrigger render={
+                                                    <Button
+                                                        variant="ghost"
+                                                        id="date-picker-simple"
+                                                        className="justify-start min-w-0 text-sm p-0 hover:bg-transparent"
+                                                    >
+                                                        {field.state.value ? format(field.state.value, "PPP") : <span className="text-foreground">None</span>}
+                                                    </Button>
+                                                } />
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        id={field.name}
+                                                        mode="single"
+                                                        selected={field.state.value}
+                                                        onSelect={(date) => field.handleChange(date)}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            {isInvalid && (
+                                                <FieldError errors={field.state.meta.errors} />
+                                            )}
+                                        </FieldContent>
+                                    </Field>
+                                )
+                            }}
+                        />
+
+                        <form.Field
+                            name="isCompleted"
+                            children={(field) => {
+                                const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid
+                                return (
+                                    <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
+                                        <FieldContent className="flex-none">
+                                            <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-24"><ClipboardCheck />Status</FieldLabel>
+                                        </FieldContent>
+                                        <FieldContent>
+                                            <Checkbox checked={field.state.value} onCheckedChange={(e) => field.handleChange(e.valueOf())} />
+                                            {isInvalid && (
+                                                <FieldError errors={field.state.meta.errors} />
+                                            )}
+                                        </FieldContent>
                                     </Field>
                                 )
                             }}

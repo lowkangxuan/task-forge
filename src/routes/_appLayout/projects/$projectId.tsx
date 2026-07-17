@@ -15,7 +15,7 @@ const searchSchema = z.object({
 })
 
 export const Route = createFileRoute('/_appLayout/projects/$projectId')({
-    beforeLoad: async ({ context, params }) => {
+    beforeLoad: async ({ params }) => {
         const result = await verifyProjectOwnership({ data: { projectId: params.projectId } });
 
         if (!result) {

@@ -1,6 +1,5 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Todo } from "@/db/schema";
-import { TodoLink } from "./todo-link";
 import { useMultiSidebar } from "@/components/ui/multisidebar";
 import { useState } from "react";
 import { updateTodoImmediate } from "@/server/todos";

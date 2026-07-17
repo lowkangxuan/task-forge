@@ -10,6 +10,7 @@ import {
     SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
+    useMultiSidebar,
 } from "@/components/ui/multisidebar"
 import { signOut } from "@/lib/auth-client";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -25,6 +26,7 @@ interface AppSidebarProps {
 export function AppSidebar({ name }: AppSidebarProps) {
     const navigate = useNavigate();
     const { localProjects } = useProjects();
+    const { rightSidebar } = useMultiSidebar();
 
     async function SignOut() {
         await signOut({
@@ -92,6 +94,7 @@ export function AppSidebar({ name }: AppSidebarProps) {
                                             params={{ projectId: String(proj.id) }}
                                             preload="intent"
                                             className="overflow-clip"
+                                            onClick={() => rightSidebar.setOpen(false)}
                                         >
                                             <CircleDashed />
                                             <span className="pr-6">{proj.name}</span>
