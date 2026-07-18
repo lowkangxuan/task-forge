@@ -1,6 +1,5 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Todo } from "@/db/schema";
-import { useMultiSidebar } from "@/components/ui/multisidebar";
 import { useState } from "react";
 import { updateTodoImmediate } from "@/server/todos";
 import { Link, useMatch } from "@tanstack/react-router";
@@ -27,7 +26,6 @@ async function handleTaskCompletion(todoId: string, isCompleted: boolean) {
 
 export function TodoRow({ todo, path }: TodoRowProps) {
     const [checked, setChecked] = useState(todo.isCompleted);
-    const { rightSidebar } = useMultiSidebar();
     const match = useMatch({ from: "/_appLayout/projects/$projectId", shouldThrow: false });
     const isActive = match?.search.t === todo.id;
 
@@ -46,7 +44,6 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                 to={path}
                 params={{ projectId: todo.projectId }}
                 search={{ t: todo.id }}
-                onClick={() => rightSidebar.setOpen(true)}
                 className="flex-1"
             >
                 {todo.name === "" ? "New Task" : todo.name}

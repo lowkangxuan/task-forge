@@ -4,20 +4,20 @@ import {
     SidebarHeader,
     SidebarMenu,
     SidebarMenuItem,
-    SidebarTrigger,
+    useMultiSidebar,
 } from "@/components/ui/multisidebar"
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
-import { useMatch } from "@tanstack/react-router";
+import { Link, useMatch } from "@tanstack/react-router";
 import { CustomInput } from "../ui/custom-input";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { useEffect } from "react";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { format } from "date-fns";
 import { Checkbox } from "../ui/checkbox";
 
@@ -29,6 +29,7 @@ const formSchema = z.object({
 });
 
 export function TaskCreationSidebar() {
+    const { rightSidebar: { setOpen } } = useMultiSidebar();
     const { localProjects, updateLocalProjects } = useProjects();
     const projectMatch = useMatch({
         from: "/_appLayout/projects/$projectId",
@@ -67,12 +68,22 @@ export function TaskCreationSidebar() {
         });
     }, [filteredTodo?.id]);
 
+    useEffect(() => {
+        setOpen(todoId !== undefined);
+    }, [todoId, setOpen]);
+
     return (
         <Sidebar variant="inset" side="right">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarTrigger side="right"><ChevronsRight /></SidebarTrigger>
+                        <Link
+                            to="/projects/$projectId"
+                            params={{projectId: projectId!}}
+                            className={buttonVariants({ variant: "ghost", size: "icon-lg" })}
+                        >
+                            <ChevronsRight />
+                        </Link>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
