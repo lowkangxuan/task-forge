@@ -4,24 +4,23 @@ import { useState } from "react";
 import { updateTodoImmediate } from "@/server/todos";
 import { Link, useMatch } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { CalendarX } from "lucide-react";
+import { format } from "date-fns";
 
 interface TodoRowProps {
     todo: Todo,
-    path: string,
+    path?: string,
 }
 
 async function handleTaskCompletion(todoId: string, isCompleted: boolean) {
-    await updateTodoImmediate(
-        {
-            data:
-            {
-                todoId: todoId,
-                updates:
-                {
-                    isCompleted: isCompleted,
-                }
+    await updateTodoImmediate({
+        data: {
+            todoId: todoId,
+            updates: {
+                isCompleted: isCompleted,
             }
-        })
+        }
+    })
 }
 
 export function TodoRow({ todo, path }: TodoRowProps) {
@@ -41,12 +40,13 @@ export function TodoRow({ todo, path }: TodoRowProps) {
             />
             <Link
                 key={todo.id}
-                to={path}
+                to={path ?? `.`}
                 params={{ projectId: todo.projectId }}
                 search={{ t: todo.id }}
-                className="flex-1"
+                className="flex flex-col flex-1"
             >
-                {todo.name === "" ? "New Task" : todo.name}
+                <span>{todo.name === "" ? "New Task" : todo.name}</span>
+                {todo.dueDate && <span className="flex gap-1 text-sm"><CalendarX size={20} />{format(todo.dueDate, "PPP")}</span>}
             </Link>
         </div>
     )

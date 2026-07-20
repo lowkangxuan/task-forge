@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
     Sidebar,
     SidebarContent,
@@ -5,21 +6,23 @@ import {
     SidebarMenu,
     SidebarMenuItem,
     useMultiSidebar,
-} from "@/components/ui/multisidebar"
-import * as z from "zod";
-import { useForm } from "@tanstack/react-form";
-import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "../ui/field";
-import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
-import { Link, useMatch } from "@tanstack/react-router";
-import { CustomInput } from "../ui/custom-input";
-import { useProjects } from "@/providers/ProjectsProvider";
-import { useEffect } from "react";
-import { useDebounceTaskBasic } from "@/server/debounce-fn";
-import { Calendar } from "../ui/calendar";
+} from "../ui/multisidebar"
+import { Checkbox } from "../ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button, buttonVariants } from "../ui/button";
+import { Calendar } from "../ui/calendar";
+import { Field, FieldContent, FieldGroup, FieldLabel } from "../ui/field";
+import { CustomInput } from "../ui/custom-input";
+import * as z from "zod";
+import { useForm } from "@tanstack/react-form";
+import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
+import { Link, useMatchRoute, useSearch } from "@tanstack/react-router";
+import { useProjects } from "@/providers/ProjectsProvider";
+import { useDebounceTaskBasic } from "@/server/debounce-fn";
+import { updateTodoImmediate } from "@/server/todos";
 import { format } from "date-fns";
-import { Checkbox } from "../ui/checkbox";
+import { getRouter } from "@/router";
+import type { ProjectWithTodo } from "@/db/schema";
 
 const formSchema = z.object({
     name: z.string(),
@@ -28,17 +31,23 @@ const formSchema = z.object({
     dueDate: z.union([z.date(), z.undefined()]),
 });
 
+function getTodoByProjectId(projects: ProjectWithTodo[], todoId: string) {
+    return projects.flatMap((proj) => proj.todos).find((todo) => todo.id === todoId);
+}
+
 export function TaskCreationSidebar() {
     const { rightSidebar: { setOpen } } = useMultiSidebar();
     const { localProjects, updateLocalProjects } = useProjects();
-    const projectMatch = useMatch({
-        from: "/_appLayout/projects/$projectId",
-        shouldThrow: false,
-    });
-    const projectId = projectMatch?.params.projectId;
-    const todoId = projectMatch?.search.t;
-    const filteredTodo = localProjects.flatMap((proj) => proj.todos).find((todo) => todo.id === todoId);
     const debounceTaskUpdater = useDebounceTaskBasic();
+    const matchRoute = useMatchRoute();
+    const isTaskView = matchRoute({ to: "/projects/$projectId", fuzzy: true }) || matchRoute({ to: "/today", fuzzy: true });
+    const todoId = useSearch({
+        strict: false,
+        select: (search) =>
+            search.t,
+    });
+    const filteredTodo = getTodoByProjectId(localProjects, todoId!);
+    const projectId = filteredTodo?.projectId;
 
     const form = useForm({
         defaultValues: {
@@ -69,8 +78,8 @@ export function TaskCreationSidebar() {
     }, [filteredTodo?.id]);
 
     useEffect(() => {
-        setOpen(todoId !== undefined);
-    }, [todoId, setOpen]);
+        setOpen(todoId !== undefined && isTaskView !== false);
+    }, [todoId]);
 
     return (
         <Sidebar variant="inset" side="right">
@@ -78,8 +87,7 @@ export function TaskCreationSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <Link
-                            to="/projects/$projectId"
-                            params={{projectId: projectId!}}
+                            to="."
                             className={buttonVariants({ variant: "ghost", size: "icon-lg" })}
                         >
                             <ChevronsRight />
@@ -110,7 +118,7 @@ export function TaskCreationSidebar() {
                                             value={field.state.value}
                                             type="text"
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => {
+                                            onChange={async (e) => {
                                                 field.handleChange(e.target.value);
                                                 updateLocalProjects((curr) =>
                                                     curr.map((proj) =>
@@ -129,17 +137,14 @@ export function TaskCreationSidebar() {
                                                             : proj,
                                                     )
                                                 );
-                                                debounceTaskUpdater({ todoId: todoId!, updates: { name: e.target.value } });
+                                                await debounceTaskUpdater({ todoId: todoId!, updates: { name: e.target.value } });
                                             }}
                                             aria-invalid={isInvalid}
                                             placeholder="New Task"
                                             autoComplete="off"
                                             variant="ghost"
-                                            size="4xl"
+                                            size="3xl"
                                         />
-                                        {isInvalid && (
-                                            <FieldError errors={field.state.meta.errors} />
-                                        )}
                                     </Field>
                                 )
                             }}
@@ -157,9 +162,9 @@ export function TaskCreationSidebar() {
                                             value={field.state.value ?? ""}
                                             type="text"
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => {
+                                            onChange={async (e) => {
                                                 field.handleChange(e.target.value)
-                                                debounceTaskUpdater({ todoId: todoId!, updates: { description: e.target.value } });
+                                                await debounceTaskUpdater({ todoId: todoId!, updates: { description: e.target.value } });
                                             }}
                                             aria-invalid={isInvalid}
                                             placeholder="Task Description"
@@ -167,9 +172,6 @@ export function TaskCreationSidebar() {
                                             variant="ghost"
                                             size="2xl"
                                         />
-                                        {isInvalid && (
-                                            <FieldError errors={field.state.meta.errors} />
-                                        )}
                                     </Field>
                                 )
                             }}
@@ -202,13 +204,20 @@ export function TaskCreationSidebar() {
                                                         id={field.name}
                                                         mode="single"
                                                         selected={field.state.value}
-                                                        onSelect={(date) => field.handleChange(date)}
+                                                        onSelect={async (date) => {
+                                                            field.handleChange(date)
+                                                            await updateTodoImmediate({
+                                                                data: {
+                                                                    todoId: todoId!,
+                                                                    updates: {
+                                                                        dueDate: date,
+                                                                    }
+                                                                }
+                                                            })
+                                                        }}
                                                     />
                                                 </PopoverContent>
                                             </Popover>
-                                            {isInvalid && (
-                                                <FieldError errors={field.state.meta.errors} />
-                                            )}
                                         </FieldContent>
                                     </Field>
                                 )
@@ -226,10 +235,18 @@ export function TaskCreationSidebar() {
                                             <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-24"><ClipboardCheck />Status</FieldLabel>
                                         </FieldContent>
                                         <FieldContent>
-                                            <Checkbox checked={field.state.value} onCheckedChange={(e) => field.handleChange(e.valueOf())} />
-                                            {isInvalid && (
-                                                <FieldError errors={field.state.meta.errors} />
-                                            )}
+                                            <Checkbox checked={field.state.value} onCheckedChange={async (e) => {
+                                                field.handleChange(e.valueOf())
+                                                await updateTodoImmediate({
+                                                    data: {
+                                                        todoId: todoId!,
+                                                        updates: {
+                                                            isCompleted: e.valueOf(),
+                                                        }
+                                                    }
+                                                })
+                                                await getRouter().invalidate();
+                                            }} />
                                         </FieldContent>
                                     </Field>
                                 )

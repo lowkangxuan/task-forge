@@ -3,21 +3,21 @@ import { Input } from "./input";
 import { cn } from "@/lib/utils";
 
 const customInputVariants = cva(
-    "",
+    "h-auto",
     {
         variants: {
             variant: {
                 default: "",
-                ghost: "bg-transparent px-0 border-none outline-none font-bold placeholder:text-muted-foreground field-sizing-content focus-visible:ring-0"
+                ghost: "bg-transparent p-0 border-none outline-none font-bold placeholder:text-muted-foreground field-sizing-content focus-visible:ring-0"
             },
             size: {
-                default: "h-7 md:text-sm",
-                sm: "h-8 md:text-xs",
-                lg: "h-10 md:text-lg",
-                xl: "h-12 md:text-xl",
-                "2xl": "h-12 md:text-2xl",
-                "3xl": "h-12 md:text-3xl",
-                "4xl": "h-12 md:text-4xl",
+                default: "md:text-sm",
+                sm: "md:text-xs",
+                lg: "md:text-lg",
+                xl: "md:text-xl",
+                "2xl": "md:text-2xl",
+                "3xl": "md:text-3xl",
+                "4xl": "md:text-4xl",
             },
         },
         defaultVariants: {

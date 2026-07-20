@@ -61,7 +61,7 @@ function ProjectViewComponent() {
     }
 
     return (
-        <div className="flex flex-col gap-4 px-16 py-8">
+        <div className="flex flex-col gap-4">
             <div className="flex gap-2">
                 <CustomInput
                     key={project?.id}
@@ -82,7 +82,7 @@ function ProjectViewComponent() {
                         debounceProjectName(project?.id, e.target.value);
                     }}
                     variant="ghost"
-                    size="4xl"
+                    size="3xl"
                 />
             </div>
             <div className="flex flex-col gap-1">

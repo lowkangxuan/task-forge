@@ -14,7 +14,6 @@ export const Route = createFileRoute("/_appLayout")({
     },
     loader: async () => {
         const userProjects = await getUserProjects();
-        console.log(userProjects);
         return userProjects;
     },
     component: AppLayoutComponent,
@@ -38,7 +37,9 @@ function AppLayoutComponent() {
                             <ProjectActions />
                         }
                     </header>
-                    <Outlet />
+                    <div className="px-16 py-8">
+                        <Outlet />
+                    </div>
                 </SidebarInset>
                 <TaskCreationSidebar />
             </MultiSidebarProvider>

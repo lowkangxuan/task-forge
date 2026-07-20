@@ -11,11 +11,10 @@ const RouterLink = createLink(
     ),
 );
 
-export const TodoLink: typeof RouterLink = (props) => {
-    return (
-        <RouterLink
-            className=""
-            {...props}
-        />
-    );
-};
+export const SidebarLink: typeof RouterLink = (props) => (
+    <RouterLink
+        className="hover:bg-black"
+        activeProps={{ className: "bg-primary"}}
+        {...props}
+    />
+);

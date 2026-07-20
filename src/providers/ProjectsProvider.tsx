@@ -15,7 +15,6 @@ const ProjectsContext = createContext<ProjectsContextInterface | undefined>(unde
 
 export function ProjectsProvider({ children, initialProjects }: ProjectsProviderProps) {
     const [localProjects, setLocalProjects] = useState<ProjectWithTodo[]>(initialProjects);
-
     useEffect(() => {
         setLocalProjects(initialProjects);
     }, [initialProjects])

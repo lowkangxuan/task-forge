@@ -17,6 +17,7 @@ import { Calendar, CircleDashed, Home, LogOut, User } from "lucide-react"
 import { toast } from "sonner";
 import { ProjectCreationDialog } from "./project-creation-dialog";
 import { useProjects } from "@/providers/ProjectsProvider";
+import { SidebarLink } from "./sidebar-link";
 
 interface AppSidebarProps {
     name?: string,
@@ -59,13 +60,23 @@ export function AppSidebar({ name }: AppSidebarProps) {
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton render={
-                                <Link
-                                    to="/"
+                                <SidebarLink
+                                    to="/today"
                                     activeProps={{ className: "bg-primary" }}
-                                    className=""
                                 >
-                                    <Home /> Home
-                                </Link>
+                                    <Home /> Today
+                                </SidebarLink>
+                            } />
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton render={
+                                <SidebarLink 
+                                    to="/upcoming"
+                                >
+                                    <Calendar /> Upcoming
+                                </SidebarLink>
                             } />
                         </SidebarMenuItem>
                     </SidebarMenu>
