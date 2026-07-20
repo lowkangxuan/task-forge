@@ -21,7 +21,6 @@ import { useProjects } from "@/providers/ProjectsProvider";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { updateTodoImmediate } from "@/server/todos";
 import { format } from "date-fns";
-import { getRouter } from "@/router";
 import type { ProjectWithTodo } from "@/db/schema";
 
 const formSchema = z.object({
@@ -187,7 +186,7 @@ export function TaskCreationSidebar() {
                                 return (
                                     <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
                                         <FieldContent className="flex-none">
-                                            <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-24"><CalendarIcon />Due date</FieldLabel>
+                                            <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><CalendarIcon />Due date</FieldLabel>
                                         </FieldContent>
                                         <FieldContent>
                                             <Popover>
@@ -234,7 +233,7 @@ export function TaskCreationSidebar() {
                                 return (
                                     <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
                                         <FieldContent className="flex-none">
-                                            <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-24"><ClipboardCheck />Status</FieldLabel>
+                                            <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><ClipboardCheck />Status</FieldLabel>
                                         </FieldContent>
                                         <FieldContent>
                                             <Checkbox checked={field.state.value} onCheckedChange={async (e) => {
