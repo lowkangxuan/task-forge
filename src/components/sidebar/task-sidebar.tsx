@@ -16,7 +16,7 @@ import { CustomInput } from "../ui/custom-input";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
-import { Link, useMatchRoute, useSearch } from "@tanstack/react-router";
+import { Link, useMatchRoute, useRouter, useSearch } from "@tanstack/react-router";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { updateTodoImmediate } from "@/server/todos";
@@ -39,6 +39,7 @@ export function TaskCreationSidebar() {
     const { rightSidebar: { setOpen } } = useMultiSidebar();
     const { localProjects, updateLocalProjects } = useProjects();
     const debounceTaskUpdater = useDebounceTaskBasic();
+    const router = useRouter();
     const matchRoute = useMatchRoute();
     const isTaskView = matchRoute({ to: "/projects/$projectId", fuzzy: true }) || matchRoute({ to: "/today", fuzzy: true });
     const todoId = useSearch({
@@ -205,7 +206,7 @@ export function TaskCreationSidebar() {
                                                         mode="single"
                                                         selected={field.state.value}
                                                         onSelect={async (date) => {
-                                                            field.handleChange(date)
+                                                            field.handleChange(date);
                                                             await updateTodoImmediate({
                                                                 data: {
                                                                     todoId: todoId!,
@@ -213,7 +214,8 @@ export function TaskCreationSidebar() {
                                                                         dueDate: date,
                                                                     }
                                                                 }
-                                                            })
+                                                            });
+                                                            await router.invalidate();
                                                         }}
                                                     />
                                                 </PopoverContent>
@@ -236,7 +238,7 @@ export function TaskCreationSidebar() {
                                         </FieldContent>
                                         <FieldContent>
                                             <Checkbox checked={field.state.value} onCheckedChange={async (e) => {
-                                                field.handleChange(e.valueOf())
+                                                field.handleChange(e.valueOf());
                                                 await updateTodoImmediate({
                                                     data: {
                                                         todoId: todoId!,
@@ -244,8 +246,8 @@ export function TaskCreationSidebar() {
                                                             isCompleted: e.valueOf(),
                                                         }
                                                     }
-                                                })
-                                                await getRouter().invalidate();
+                                                });
+                                                await router.invalidate();
                                             }} />
                                         </FieldContent>
                                     </Field>

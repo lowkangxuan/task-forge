@@ -1,23 +1,56 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { deleteProject } from "@/server/projects";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Copy, Ellipsis, Trash } from "lucide-react";
+import { useState } from "react";
+
+type ProjectActionsProp = {
+    projectId: string;
+}
+
+type ProjectAction = "duplicate" | "delete";
 
 const actions = [
     [
         {
+            action: "duplicate" as const,
             label: "Duplicate",
             icon: Copy,
         },
         {
+            action: "delete" as const,
             label: "Delete",
             icon: Trash,
         },
     ]
 ]
 
-export function ProjectActions() {
+export function ProjectActions({ projectId }: ProjectActionsProp) {
+    const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
+    const router = useRouter();
+
+    async function handleActions(action: ProjectAction) {
+        switch (action) {
+            case "duplicate":
+                console.log("duplicate");
+                break;
+
+            case "delete":
+                navigate({ to: "/today" });
+                await deleteProject({ data: { projectId: projectId } });
+                await router.invalidate();
+                break;
+
+            default:
+                break;
+        }
+
+    }
+
     return (
-        <Popover>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger render={
                 <Button variant="ghost" size="icon-lg">
                     <Ellipsis />
@@ -28,7 +61,15 @@ export function ProjectActions() {
                     {actions.map((section, index) => (
                         <div key={index} className="flex flex-col p-2 gap-1 border-b last:border-none">
                             {section.map((item, index) => (
-                                <Button key={index} variant="ghost" className="justify-start text-sm font-normal gap-2">
+                                <Button
+                                    key={index}
+                                    variant="ghost"
+                                    className="justify-start text-sm font-normal gap-2"
+                                    onClick={() => {
+                                        handleActions(item.action);
+                                        setOpen(false);
+                                    }}
+                                >
                                     <item.icon /> <span>{item.label}</span>
                                 </Button>
                             ))}

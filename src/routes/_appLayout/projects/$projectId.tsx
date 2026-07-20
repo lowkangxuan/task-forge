@@ -1,6 +1,5 @@
 import { CustomInput } from '@/components/ui/custom-input';
 import { Button } from '@/components/ui/button';
-import { useMultiSidebar } from '@/components/ui/multisidebar';
 import { createNewTodo } from '@/server/todos';
 import { createFileRoute, notFound, useRouter } from '@tanstack/react-router'
 import * as z from "zod";
@@ -28,7 +27,6 @@ export const Route = createFileRoute('/_appLayout/projects/$projectId')({
 
 function ProjectViewComponent() {
     const router = useRouter();
-    const { rightSidebar } = useMultiSidebar();
     const { projectId } = Route.useParams();
     const { localProjects, updateLocalProjects } = useProjects();
     const project = localProjects.find((proj) => proj.id === projectId);
@@ -55,8 +53,6 @@ function ProjectViewComponent() {
                 dueDate,
             }
         });
-
-        rightSidebar.toggleSidebar();
         router.invalidate();
     }
 

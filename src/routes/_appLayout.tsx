@@ -22,9 +22,9 @@ export const Route = createFileRoute("/_appLayout")({
 function AppLayoutComponent() {
     const context = Route.useRouteContext();
     const loaderProjects = Route.useLoaderData();
-
+    console.log(loaderProjects);
     const matchRoute = useMatchRoute();
-    const isProjectPage = matchRoute({ to: "/projects/$projectId" });
+    const projectIdParam = matchRoute({ to: "/projects/$projectId" });
 
     return (
         <ProjectsProvider initialProjects={loaderProjects}>
@@ -33,8 +33,8 @@ function AppLayoutComponent() {
                 <SidebarInset className="px-4">
                     <header className="sticky top-0 flex justify-between h-16 shrink-0 items-center gap-2 bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
                         <SidebarTrigger className="-ml-1" side="left" />
-                        {isProjectPage &&
-                            <ProjectActions />
+                        {projectIdParam &&
+                            <ProjectActions projectId={projectIdParam.projectId} />
                         }
                     </header>
                     <div className="px-16 py-8">

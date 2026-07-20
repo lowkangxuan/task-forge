@@ -70,7 +70,7 @@ export const updateProjectName = createServerFn({ method: "POST" })
 export const deleteProject = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
     .inputValidator(z.object({
-        projectId: z.string()
+        projectId: z.string(),
     }))
     .handler(async ({ data, context }) => {
         await db.delete(projects).where(
