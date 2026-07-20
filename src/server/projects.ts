@@ -16,6 +16,18 @@ export const verifyProjectOwnership = createServerFn({ method: "GET" })
         return validProject.length > 0;
     })
 
+export const createNewProject = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator((data: { name: string, description: string }) => data)
+    .handler(async ({ data, context }) => {
+        await db.insert(projects).values(
+            {
+                userId: context.user.id,
+                name: data.name,
+                description: data.description,
+            });
+    });
+
 export const getUserProjects = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
     .handler(async ({ context }) => {
@@ -31,17 +43,6 @@ export const getUserProjects = createServerFn({ method: "GET" })
         return userProjects;
     });
 
-export const createNewProject = createServerFn({ method: "POST" })
-    .middleware([authMiddleware])
-    .inputValidator((data: { name: string, description: string }) => data)
-    .handler(async ({ data, context }) => {
-        await db.insert(projects).values(
-            {
-                userId: context.user.id,
-                name: data.name,
-                description: data.description,
-            });
-    });
 
 export const getProject = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
@@ -64,4 +65,18 @@ export const updateProjectName = createServerFn({ method: "POST" })
     .inputValidator((data: { projectId: string, name: string }) => data)
     .handler(async ({ data }) => {
         await db.update(projects).set({ name: data.name }).where(eq(projects.id, data.projectId));
+    })
+
+export const deleteProject = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        projectId: z.string()
+    }))
+    .handler(async ({ data, context }) => {
+        await db.delete(projects).where(
+            and(
+                eq(projects.id, data.projectId),
+                eq(projects.userId, context.user.id),
+            )
+        )
     })
