@@ -15,7 +15,7 @@ import { Route as AppLayoutIndexRouteImport } from './routes/_appLayout/index'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthSigninRouteImport } from './routes/_auth/signin'
 import { Route as AppLayoutUpcomingRouteImport } from './routes/_appLayout/upcoming'
-import { Route as AppLayoutTodayIndexRouteImport } from './routes/_appLayout/today/index'
+import { Route as AppLayoutTodayRouteImport } from './routes/_appLayout/today'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AppLayoutProjectsProjectIdRouteImport } from './routes/_appLayout/projects/$projectId'
 
@@ -47,9 +47,9 @@ const AppLayoutUpcomingRoute = AppLayoutUpcomingRouteImport.update({
   path: '/upcoming',
   getParentRoute: () => AppLayoutRoute,
 } as any)
-const AppLayoutTodayIndexRoute = AppLayoutTodayIndexRouteImport.update({
-  id: '/today/',
-  path: '/today/',
+const AppLayoutTodayRoute = AppLayoutTodayRouteImport.update({
+  id: '/today',
+  path: '/today',
   getParentRoute: () => AppLayoutRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -66,64 +66,64 @@ const AppLayoutProjectsProjectIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AppLayoutIndexRoute
+  '/today': typeof AppLayoutTodayRoute
   '/upcoming': typeof AppLayoutUpcomingRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
   '/projects/$projectId': typeof AppLayoutProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/today/': typeof AppLayoutTodayIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppLayoutIndexRoute
+  '/today': typeof AppLayoutTodayRoute
   '/upcoming': typeof AppLayoutUpcomingRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
   '/projects/$projectId': typeof AppLayoutProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/today': typeof AppLayoutTodayIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_appLayout': typeof AppLayoutRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
+  '/_appLayout/today': typeof AppLayoutTodayRoute
   '/_appLayout/upcoming': typeof AppLayoutUpcomingRoute
   '/_auth/signin': typeof AuthSigninRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_appLayout/': typeof AppLayoutIndexRoute
   '/_appLayout/projects/$projectId': typeof AppLayoutProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/_appLayout/today/': typeof AppLayoutTodayIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/today'
     | '/upcoming'
     | '/signin'
     | '/signup'
     | '/projects/$projectId'
     | '/api/auth/$'
-    | '/today/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/today'
     | '/upcoming'
     | '/signin'
     | '/signup'
     | '/projects/$projectId'
     | '/api/auth/$'
-    | '/today'
   id:
     | '__root__'
     | '/_appLayout'
     | '/_auth'
+    | '/_appLayout/today'
     | '/_appLayout/upcoming'
     | '/_auth/signin'
     | '/_auth/signup'
     | '/_appLayout/'
     | '/_appLayout/projects/$projectId'
     | '/api/auth/$'
-    | '/_appLayout/today/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,11 +176,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLayoutUpcomingRouteImport
       parentRoute: typeof AppLayoutRoute
     }
-    '/_appLayout/today/': {
-      id: '/_appLayout/today/'
+    '/_appLayout/today': {
+      id: '/_appLayout/today'
       path: '/today'
-      fullPath: '/today/'
-      preLoaderRoute: typeof AppLayoutTodayIndexRouteImport
+      fullPath: '/today'
+      preLoaderRoute: typeof AppLayoutTodayRouteImport
       parentRoute: typeof AppLayoutRoute
     }
     '/api/auth/$': {
@@ -201,17 +201,17 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppLayoutRouteChildren {
+  AppLayoutTodayRoute: typeof AppLayoutTodayRoute
   AppLayoutUpcomingRoute: typeof AppLayoutUpcomingRoute
   AppLayoutIndexRoute: typeof AppLayoutIndexRoute
   AppLayoutProjectsProjectIdRoute: typeof AppLayoutProjectsProjectIdRoute
-  AppLayoutTodayIndexRoute: typeof AppLayoutTodayIndexRoute
 }
 
 const AppLayoutRouteChildren: AppLayoutRouteChildren = {
+  AppLayoutTodayRoute: AppLayoutTodayRoute,
   AppLayoutUpcomingRoute: AppLayoutUpcomingRoute,
   AppLayoutIndexRoute: AppLayoutIndexRoute,
   AppLayoutProjectsProjectIdRoute: AppLayoutProjectsProjectIdRoute,
-  AppLayoutTodayIndexRoute: AppLayoutTodayIndexRoute,
 }
 
 const AppLayoutRouteWithChildren = AppLayoutRoute._addFileChildren(

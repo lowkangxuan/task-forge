@@ -1,5 +1,5 @@
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
-import { TaskCreationSidebar } from '@/components/sidebar/task-sidebar';
+import { TaskSidebar } from '@/components/sidebar/task-sidebar';
 import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/multisidebar';
 import { ProjectActions } from '@/features/project/components/project-actions';
 import { ProjectsProvider } from '@/providers/ProjectsProvider';
@@ -37,11 +37,11 @@ function AppLayoutComponent() {
                             <ProjectActions projectId={projectIdParam.projectId} />
                         }
                     </header>
-                    <div className="px-16 py-8">
+                    <div className="flex flex-col flex-1 px-16 py-8 min-h-0 h-dvh overflow-hidden">
                         <Outlet />
                     </div>
                 </SidebarInset>
-                <TaskCreationSidebar />
+                <TaskSidebar />
             </MultiSidebarProvider>
         </ProjectsProvider>
     )

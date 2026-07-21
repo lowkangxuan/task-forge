@@ -42,7 +42,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <head>
                 <HeadContent />
             </head>
-            <body>
+            <body className="h-dvh overflow-hidden">
                 {children}
                 <Toaster />
                 <TanStackDevtools

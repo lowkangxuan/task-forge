@@ -6,7 +6,7 @@ import * as z from "zod";
 import { useEffect, useState } from 'react';
 import { useProjects } from '@/providers/ProjectsProvider';
 import { useDebounceProjectName } from '@/server/debounce-fn';
-import { TodoRow } from '@/features/project/components/todo-row';
+import { TodoRow } from '@/features/todo/components/todo-row';
 import { verifyProjectOwnership } from '@/server/projects';
 
 const searchSchema = z.object({

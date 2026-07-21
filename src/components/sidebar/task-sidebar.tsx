@@ -34,7 +34,7 @@ function getTodoByProjectId(projects: ProjectWithTodo[], todoId: string) {
     return projects.flatMap((proj) => proj.todos).find((todo) => todo.id === todoId);
 }
 
-export function TaskCreationSidebar() {
+export function TaskSidebar() {
     const { rightSidebar: { setOpen } } = useMultiSidebar();
     const { localProjects, updateLocalProjects } = useProjects();
     const debounceTaskUpdater = useDebounceTaskBasic();
