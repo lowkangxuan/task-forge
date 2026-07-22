@@ -1,16 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { deleteProject } from "@/server/projects";
+import { deleteTodo } from "@/server/todos";
 import type { GenericActions } from "@/types/generic-actions";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Copy, Ellipsis, Trash } from "lucide-react";
 import { useState } from "react";
 
-type ProjectActionsProp = {
-    projectId: string;
+type TodoActionsProp = {
+    todoId: string;
 }
 
-type ProjectAction = "test" | GenericActions;
+type TodoActions = GenericActions;
 
 const actions = [
     [
@@ -27,20 +28,20 @@ const actions = [
     ]
 ]
 
-export function ProjectActions({ projectId }: ProjectActionsProp) {
+export function TodoActions({ todoId }: TodoActionsProp) {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const router = useRouter();
 
-    async function handleActions(action: ProjectAction) {
+    async function handleActions(action: TodoActions) {
         switch (action) {
             case "duplicate":
                 console.log("duplicate");
                 break;
 
             case "delete":
-                navigate({ to: "/today" });
-                await deleteProject({ data: { projectId: projectId } });
+                navigate({ to: "." });
+                await deleteTodo({ data: { todoId: todoId } });
                 await router.invalidate();
                 break;
 

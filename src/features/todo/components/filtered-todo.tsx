@@ -13,7 +13,7 @@ function filterCheck(date: Date, filter: filter) {
     switch (filter) {
         case "today":
             return isToday(date);
-        
+
         case "tomorrow":
             return isTomorrow(date);
 
@@ -33,11 +33,20 @@ function filterTodos({ projects, filter }: FilteredTodoProps) {
 export function FilteredTodo(props: FilteredTodoProps) {
     const todos = filterTodos(props);
 
-    return (
-        <div className="flex flex-col gap-1 flex-1 scroll-fade overflow-y-auto min-h-0">
-            {todos.map(todo => (
-                <TodoRow key={todo.id} todo={todo} path="." />
-            ))}
-        </div>
-    )
+    if (todos.length === 0) {
+        return (
+            <div className="flex-1 content-center text-center font-semibold text-accent-foreground/50 capitalize">
+                <span>No pending tasks for {props.filter}</span>
+            </div>
+        )
+    } else {
+        return (
+            <div className="flex flex-col gap-1 flex-1 scroll-fade overflow-y-auto min-h-0">
+                {todos.map(todo => (
+                    <TodoRow key={todo.id} todo={todo} path="." />
+                ))}
+            </div>
+        )
+    }
+
 }

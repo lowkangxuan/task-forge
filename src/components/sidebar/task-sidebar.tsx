@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import {
     Sidebar,
     SidebarContent,
+    SidebarGroup,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuItem,
@@ -15,13 +16,14 @@ import { Field, FieldContent, FieldGroup, FieldLabel } from "../ui/field";
 import { CustomInput } from "../ui/custom-input";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
-import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
+import { CalendarIcon, ChevronsRight, ClipboardCheck, Ellipsis } from "lucide-react";
 import { Link, useMatchRoute, useRouter, useSearch } from "@tanstack/react-router";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { updateTodoImmediate } from "@/server/todos";
 import { format } from "date-fns";
 import type { ProjectWithTodo } from "@/db/schema";
+import { TodoActions } from "@/features/todo/components/todo-actions";
 
 const formSchema = z.object({
     name: z.string(),
@@ -84,16 +86,23 @@ export function TaskSidebar() {
     return (
         <Sidebar variant="inset" side="right">
             <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <Link
-                            to="."
-                            className={buttonVariants({ variant: "ghost", size: "icon-lg" })}
-                        >
-                            <ChevronsRight />
-                        </Link>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+                <SidebarGroup className="flex-row">
+                    <SidebarMenu className="">
+                        <SidebarMenuItem>
+                            <Link
+                                to="."
+                                className={buttonVariants({ variant: "ghost", size: "icon-lg" })}
+                            >
+                                <ChevronsRight />
+                            </Link>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                    <SidebarMenu className="w-fit">
+                        <SidebarMenuItem>
+                            <TodoActions todoId={todoId!} />
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroup>
             </SidebarHeader>
             <SidebarContent>
                 <form

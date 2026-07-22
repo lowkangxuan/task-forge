@@ -85,7 +85,7 @@ function ProjectViewComponent() {
                 <Button className="w-fit" onClick={() => handleTaskCreation({ projectId: project!.id })}>
                     Add new task
                 </Button>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 flex-1 min-h-0">
                     {project!.todos.map((todo) => {
                         return (
                             <TodoRow key={todo.id} todo={todo} path={Route.fullPath} />

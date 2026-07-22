@@ -1,6 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Todo } from "@/db/schema";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { updateTodoImmediate } from "@/server/todos";
 import { Link, useMatch } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,10 @@ export function TodoRow({ todo, path }: TodoRowProps) {
     const [checked, setChecked] = useState(todo.isCompleted);
     const match = useMatch({ from: "/_appLayout/projects/$projectId", shouldThrow: false });
     const isActive = match?.search.t === todo.id;
+
+    useEffect(() => {
+        setChecked(todo.isCompleted);
+    }, [todo.isCompleted]);
 
     return (
         <div className={cn("flex items-center gap-2 px-2 py-1 rounded-md hover:bg-secondary", isActive && "bg-accent")}>

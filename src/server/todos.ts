@@ -65,3 +65,13 @@ export const updateTodoImmediate = createServerFn({ method: "POST" })
         const { todoId, updates } = data;
         await db.update(todos).set(updates).where(eq(todos.id, todoId));
     })
+
+export const deleteTodo = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        todoId: z.string(),
+    }))
+    .handler(async ({ data }) => {
+        const { todoId } = data;
+        await db.delete(todos).where(eq(todos.id, todoId));
+    })
