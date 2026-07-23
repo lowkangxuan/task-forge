@@ -1,29 +1,10 @@
 import type { ProjectWithTodo } from "@/db/schema";
-import { addWeeks, isSameWeek, isToday, isTomorrow } from "date-fns";
 import { TodoRow } from "./todo-row";
-
-type filter = "today" | "tomorrow" | "next week";
+import { filterCheck, type filter } from "../utils";
 
 type FilteredTodoProps = {
     projects: ProjectWithTodo[];
     filter: filter;
-}
-
-function filterCheck(date: Date, filter: filter) {
-    switch (filter) {
-        case "today":
-            return isToday(date);
-
-        case "tomorrow":
-            return isTomorrow(date);
-
-        case "next week":
-            const nextWeekDate = addWeeks(new Date(), 1);
-            return isSameWeek(date, nextWeekDate);
-
-        default:
-            break;
-    }
 }
 
 function filterTodos({ projects, filter }: FilteredTodoProps) {

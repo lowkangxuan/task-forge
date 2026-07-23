@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
     Sidebar,
     SidebarContent,
@@ -17,13 +17,14 @@ import { CustomInput } from "../ui/custom-input";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { CalendarIcon, ChevronsRight, ClipboardCheck, Ellipsis } from "lucide-react";
-import { Link, useMatchRoute, useRouter, useSearch } from "@tanstack/react-router";
+import { Link, useMatchRoute, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { updateTodoImmediate } from "@/server/todos";
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import type { ProjectWithTodo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-actions";
+import { filterCheck } from "@/features/todo/utils";
 
 const formSchema = z.object({
     name: z.string(),
@@ -41,23 +42,52 @@ export function TaskSidebar() {
     const { localProjects, updateLocalProjects } = useProjects();
     const debounceTaskUpdater = useDebounceTaskBasic();
     const router = useRouter();
+    const navigate = useNavigate();
+
     const matchRoute = useMatchRoute();
-    const isTaskView = matchRoute({ to: "/projects/$projectId", fuzzy: true }) || matchRoute({ to: "/today", fuzzy: true });
+    const isProjectRoute = matchRoute({ to: "/projects/$projectId", fuzzy: false, }) !== false;
+    const isTodayRoute = matchRoute({ to: "/today", fuzzy: false, }) !== false;
+    const isUpcomingRoute = matchRoute({ to: "/upcoming", fuzzy: false, }) !== false;
+
     const todoId = useSearch({
         strict: false,
         select: (search) =>
             search.t,
     });
-    const filteredTodo = getTodoByProjectId(localProjects, todoId!);
-    const projectId = filteredTodo?.projectId;
+    const selectedTodo = useMemo(() => {
+        if (!todoId) return undefined;
+        const todo = getTodoByProjectId(localProjects, todoId);
+        if (!todo) return undefined;
+
+        if (isTodayRoute) {
+            const belongsToToday = todo.dueDate ? filterCheck(todo.dueDate, "today") : false;
+
+            if (!belongsToToday) {
+                return undefined;
+            }
+        }
+
+        if (isUpcomingRoute) {
+            const belongsToUpcoming = todo.dueDate ? filterCheck(todo.dueDate, "today") || filterCheck(todo.dueDate, "tomorrow") || filterCheck(todo.dueDate, "next week") : false;
+
+            if (!belongsToUpcoming) {
+                return undefined;
+            }
+        }
+
+        return todo;
+    }, [localProjects, todoId, isTodayRoute]);
+
+    // const filteredTodo = getTodoByProjectId(localProjects, todoId!);
+    const projectId = selectedTodo?.projectId;
 
     const form = useForm({
         defaultValues: {
-            name: filteredTodo?.name ?? "",
-            description: filteredTodo?.description ?? "",
-            isCompleted: filteredTodo?.isCompleted ?? false,
-            dueDate: filteredTodo?.dueDate
-                ? new Date(filteredTodo.dueDate)
+            name: selectedTodo?.name ?? "",
+            description: selectedTodo?.description ?? "",
+            isCompleted: selectedTodo?.isCompleted ?? false,
+            dueDate: selectedTodo?.dueDate
+                ? new Date(selectedTodo.dueDate)
                 : undefined,
         },
         validators: {
@@ -67,21 +97,42 @@ export function TaskSidebar() {
     });
 
     useEffect(() => {
-        if (!filteredTodo) return;
+        if (!selectedTodo) return;
 
         form.reset({
-            name: filteredTodo?.name ?? "",
-            description: filteredTodo?.description ?? "",
-            isCompleted: filteredTodo?.isCompleted ?? false,
-            dueDate: filteredTodo?.dueDate
-                ? new Date(filteredTodo.dueDate)
+            name: selectedTodo?.name ?? "",
+            description: selectedTodo?.description ?? "",
+            isCompleted: selectedTodo?.isCompleted ?? false,
+            dueDate: selectedTodo?.dueDate
+                ? new Date(selectedTodo.dueDate)
                 : undefined,
         });
-    }, [filteredTodo?.id]);
+    }, [selectedTodo?.id]);
+
 
     useEffect(() => {
-        setOpen(todoId !== undefined && isTaskView !== false);
-    }, [todoId]);
+        const isSupportedRoute = isProjectRoute || isTodayRoute || isUpcomingRoute;
+        const hasValidTask = Boolean(todoId && selectedTodo);
+
+        setOpen(isSupportedRoute && hasValidTask);
+
+        if (todoId && isSupportedRoute && !selectedTodo) {
+            void navigate({
+                to: ".",
+                search: (previous) => ({
+                    ...previous,
+                    t: undefined,
+                }),
+                replace: true,
+            });
+        }
+    }, [
+        todoId,
+        selectedTodo,
+        isProjectRoute,
+        isTodayRoute,
+        isUpcomingRoute,
+    ]);
 
     return (
         <Sidebar variant="inset" side="right">
@@ -91,6 +142,11 @@ export function TaskSidebar() {
                         <SidebarMenuItem>
                             <Link
                                 to="."
+                                search={(prev) => ({
+                                    ...prev,
+                                    t: undefined,
+                                })}
+                                replace={true}
                                 className={buttonVariants({ variant: "ghost", size: "icon-lg" })}
                             >
                                 <ChevronsRight />
