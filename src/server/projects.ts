@@ -12,7 +12,6 @@ export const verifyProjectOwnership = createServerFn({ method: "GET" })
     }))
     .handler(async ({ context, data }) => {
         const validProject = await db.select().from(projects).where(and(eq(projects.userId, context.user.id), eq(projects.id, data.projectId)));
-        console.log(validProject.length > 0);
         return validProject.length > 0;
     })
 

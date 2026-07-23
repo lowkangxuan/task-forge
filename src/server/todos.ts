@@ -30,8 +30,6 @@ export const createNewTodo = createServerFn({ method: "POST" })
             isCompleted: data.isCompleted,
             dueDate: data.dueDate,
         })
-
-        console.log("New todo created!");
     });
 
 export const getTodos = createServerFn({ method: "GET" })

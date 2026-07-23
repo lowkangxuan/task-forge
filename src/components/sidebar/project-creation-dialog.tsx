@@ -49,9 +49,6 @@ export function ProjectCreationDialog() {
         <Dialog
             open={open}
             onOpenChange={(open) => {
-                if (!open) {
-                    console.log("Dialog Closed");
-                }
                 form.reset();
                 setOpen(open);
             }}

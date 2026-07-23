@@ -22,7 +22,6 @@ export const Route = createFileRoute("/_appLayout")({
 function AppLayoutComponent() {
     const context = Route.useRouteContext();
     const loaderProjects = Route.useLoaderData();
-    console.log(loaderProjects);
     const matchRoute = useMatchRoute();
     const projectIdParam = matchRoute({ to: "/projects/$projectId" });
 
