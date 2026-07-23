@@ -2,7 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { Todo } from "@/db/schema";
 import { useEffect, useState } from "react";
 import { updateTodoImmediate } from "@/server/todos";
-import { Link, useMatch } from "@tanstack/react-router";
+import { Link, useMatch, useSearch } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { CalendarX } from "lucide-react";
 import { format } from "date-fns";
@@ -25,8 +25,8 @@ async function handleTaskCompletion(todoId: string, isCompleted: boolean) {
 
 export function TodoRow({ todo, path }: TodoRowProps) {
     const [checked, setChecked] = useState(todo.isCompleted);
-    const match = useMatch({ from: "/_appLayout/projects/$projectId", shouldThrow: false });
-    const isActive = match?.search.t === todo.id;
+    const search = useSearch({ strict: false });
+    const isActive = search?.t === todo.id;
 
     useEffect(() => {
         setChecked(todo.isCompleted);
