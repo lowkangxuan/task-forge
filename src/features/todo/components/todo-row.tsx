@@ -2,7 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { Todo } from "@/db/schema";
 import { useEffect, useState } from "react";
 import { updateTodoImmediate } from "@/server/todos";
-import { Link, useMatch, useSearch } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { CalendarX } from "lucide-react";
 import { format } from "date-fns";

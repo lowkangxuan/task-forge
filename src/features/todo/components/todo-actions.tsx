@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { deleteProject } from "@/server/projects";
 import { deleteTodo } from "@/server/todos";
 import type { GenericActions } from "@/types/generic-actions";
 import { useNavigate, useRouter } from "@tanstack/react-router";
