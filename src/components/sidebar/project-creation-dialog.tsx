@@ -53,7 +53,7 @@ export function ProjectCreationDialog() {
                 setOpen(open);
             }}
         >
-            <DialogTrigger render={<button><Plus /> <span className="sr-only">Add Project</span></button>} />
+            <DialogTrigger render={<Button variant="ghost" className="w-full text-sm"><Plus size={32} /> <span>Add Project</span></Button>} />
             <DialogContent className="sm:max-w-sm">
                 <form
                     onSubmit={(e) => {

@@ -72,7 +72,7 @@ export function AppSidebar({ name }: AppSidebarProps) {
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton render={
-                                <SidebarLink 
+                                <SidebarLink
                                     to="/upcoming"
                                 >
                                     <Calendar /> Upcoming
@@ -91,11 +91,10 @@ export function AppSidebar({ name }: AppSidebarProps) {
                     <SidebarGroupLabel className="uppercase">
                         Projects
                     </SidebarGroupLabel>
-                    <SidebarGroupAction render={<ProjectCreationDialog />} />
-                    {localProjects.map((proj) => {
-                        return (
-                            <SidebarMenu key={proj.id}>
-                                <SidebarMenuItem>
+                    <SidebarMenu>
+                        {localProjects.map((proj) => {
+                            return (
+                                <SidebarMenuItem key={proj.id}>
                                     <SidebarMenuButton render={
                                         <Link
                                             to="/projects/$projectId"
@@ -112,9 +111,18 @@ export function AppSidebar({ name }: AppSidebarProps) {
                                         {proj.todos.length}
                                     </SidebarMenuBadge>
                                 </SidebarMenuItem>
-                            </SidebarMenu>
-                        );
-                    })}
+                            );
+                        })}
+                    </SidebarMenu>
+                </SidebarGroup>
+                <SidebarGroup>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton render={
+                                <ProjectCreationDialog />
+                            } />
+                        </SidebarMenuItem>
+                    </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>

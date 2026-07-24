@@ -54,7 +54,7 @@ export function TaskSidebar() {
         select: (search) =>
             search.t,
     });
-    const selectedTodo = useMemo(() => {
+    const selectedTodo = (() => {
         if (!todoId) return undefined;
         const todo = getTodoByProjectId(localProjects, todoId);
         if (!todo) return undefined;
@@ -76,7 +76,7 @@ export function TaskSidebar() {
         }
 
         return todo;
-    }, [localProjects, todoId, isTodayRoute]);
+    })();
 
     // const filteredTodo = getTodoByProjectId(localProjects, todoId!);
     const projectId = selectedTodo?.projectId;
