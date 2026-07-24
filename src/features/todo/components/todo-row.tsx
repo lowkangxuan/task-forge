@@ -2,7 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { Todo } from "@/db/schema";
 import { useEffect, useState } from "react";
 import { updateTodoImmediate } from "@/server/todos";
-import { Link, useSearch } from "@tanstack/react-router";
+import { Link, useMatchRoute, useSearch } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { CalendarX } from "lucide-react";
 import { format } from "date-fns";
@@ -25,8 +25,10 @@ async function handleTaskCompletion(todoId: string, isCompleted: boolean) {
 
 export function TodoRow({ todo, path }: TodoRowProps) {
     const [checked, setChecked] = useState(todo.isCompleted);
+    const matchRoute = useMatchRoute();
     const search = useSearch({ strict: false });
     const isActive = search?.t === todo.id;
+    const isProjectView = matchRoute({ to: "/projects/$projectId" });
 
     useEffect(() => {
         setChecked(todo.isCompleted);
@@ -50,7 +52,10 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                 className="flex flex-col flex-1"
             >
                 <span>{todo.name === "" ? "New Task" : todo.name}</span>
-                {todo.dueDate && <span className="flex gap-1 text-sm"><CalendarX size={20} />{format(todo.dueDate, "PPP")}</span>}
+                <div className="flex divide-x">
+                    {todo.dueDate && <span className="flex gap-1 text-sm items-center px-2"><CalendarX size={20} />{format(todo.dueDate, "PPP")}</span>}
+                    {/* {!isProjectView && <span className="px-2">{todo.projectId}</span>} */}
+                </div>
             </Link>
         </div>
     )
