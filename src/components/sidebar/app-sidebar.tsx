@@ -68,8 +68,6 @@ export function AppSidebar({ name }: AppSidebarProps) {
                                 </SidebarLink>
                             } />
                         </SidebarMenuItem>
-                    </SidebarMenu>
-                    <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton render={
                                 <SidebarLink
@@ -79,8 +77,6 @@ export function AppSidebar({ name }: AppSidebarProps) {
                                 </SidebarLink>
                             } />
                         </SidebarMenuItem>
-                    </SidebarMenu>
-                    <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton render={<a href="/"><Calendar /> Calendar</a>} />
                         </SidebarMenuItem>
