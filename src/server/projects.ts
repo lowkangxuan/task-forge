@@ -5,6 +5,20 @@ import { and, eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
 
+
+const defaultProjectInput = z.object({
+    name: z.string(),
+    description: z.string(),
+})
+
+async function insertProject(input: {
+    userId: string;
+    name: string;
+    description?: string;
+}) {
+    return db.insert(projects).values(input).returning();
+}
+
 export const verifyProjectOwnership = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
     .inputValidator(z.object({
@@ -13,18 +27,17 @@ export const verifyProjectOwnership = createServerFn({ method: "GET" })
     .handler(async ({ context, data }) => {
         const validProject = await db.select().from(projects).where(and(eq(projects.userId, context.user.id), eq(projects.id, data.projectId)));
         return validProject.length > 0;
-    })
+    });
 
 export const createNewProject = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .inputValidator((data: { name: string, description: string }) => data)
-    .handler(async ({ data, context }) => {
-        await db.insert(projects).values(
-            {
-                userId: context.user.id,
-                name: data.name,
-                description: data.description,
-            });
+    .inputValidator(defaultProjectInput)
+    .handler(async ({ context, data }) => {
+        const project = await insertProject({
+            userId: context.user.id,
+            ...data,
+        });
+        console.log(project);
     });
 
 export const getUserProjects = createServerFn({ method: "GET" })
@@ -43,12 +56,15 @@ export const getUserProjects = createServerFn({ method: "GET" })
     });
 
 
-export const getProject = createServerFn({ method: "GET" })
+export const getProjectById = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
-    .inputValidator((data: { projectId: string }) => data)
-    .handler(async ({ data, context }) => {
+    .inputValidator(z.object({
+        projectId: z.string(),
+    }))
+    .handler(async ({ context, data }) => {
+        const { projectId } = data;
         const project = await db.query.projects.findFirst({
-            where: and(eq(projects.id, data.projectId), eq(projects.userId, context.user.id)),
+            where: and(eq(projects.id, projectId), eq(projects.userId, context.user.id)),
             with: {
                 todos: {
                     orderBy: (todos, { asc }) => [asc(todos.createdAt)],
@@ -71,11 +87,41 @@ export const deleteProject = createServerFn({ method: "POST" })
     .inputValidator(z.object({
         projectId: z.string(),
     }))
-    .handler(async ({ data, context }) => {
+    .handler(async ({ context, data }) => {
         await db.delete(projects).where(
             and(
                 eq(projects.id, data.projectId),
                 eq(projects.userId, context.user.id),
             )
         )
+    });
+
+export const duplicateProject = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        projectId: z.string(),
+    }))
+    .handler(async ({ context, data }) => {
+        const { projectId } = data;
+        const projectToDupe = await getProjectById({
+            data: {
+                projectId: projectId,
+            }
+        });
+
+        if (!projectToDupe) return undefined;
+
+        const similarNames = await db.query.projects.findMany({
+            where: (projects, { like }) => like(projects.name, `${projectToDupe.name}%`),
+        })
+        const nextSuffix = similarNames.length;
+        const todos = projectToDupe.todos;
+
+        await insertProject({
+            userId: context.user.id,
+            name: `${projectToDupe.name}_${nextSuffix}`,
+            description: `${projectToDupe.description}`,
+        });
+
+        
     })

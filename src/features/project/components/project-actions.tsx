@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { deleteProject } from "@/server/projects";
+import { deleteProject, duplicateProject } from "@/server/projects";
 import type { GenericActions } from "@/types/generic-actions";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Copy, Ellipsis, Trash } from "lucide-react";
@@ -35,7 +35,8 @@ export function ProjectActions({ projectId }: ProjectActionsProp) {
     async function handleActions(action: ProjectAction) {
         switch (action) {
             case "duplicate":
-                console.log("duplicate");
+                await duplicateProject({ data: { projectId: projectId } });
+                await router.invalidate();
                 break;
 
             case "delete":

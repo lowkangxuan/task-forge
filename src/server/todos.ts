@@ -1,8 +1,8 @@
+import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db/drizzle";
 import { todos } from "@/db/schema";
-import { authMiddleware } from "@/lib/auth-middleware";
-import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
 
 const updateTodoImmediateSchema = z.object({
@@ -12,6 +12,16 @@ const updateTodoImmediateSchema = z.object({
         dueDate: z.coerce.date().nullable().optional(),
     }),
 });
+
+async function insertTodo(input: {
+    projectId: string,
+    name: string,
+    description: string | null,
+    isCompleted: boolean | false,
+    dueDate: Date | null,
+}) {
+    return db.insert(todos).values(input).returning();
+}
 
 export const createNewTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
