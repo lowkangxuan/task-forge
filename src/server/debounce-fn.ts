@@ -1,7 +1,7 @@
 import { getRouter } from "@/router";
 import { useDebouncedCallback } from "use-debounce";
-import { updateProjectName } from "./projects";
-import { updateTodoDebounce } from "./todos";
+import { updateProjectName } from "./functions/projects";
+import { updateTodoDebounce } from "./functions/todos";
 
 const WAIT = 300; // in milliseconds
 

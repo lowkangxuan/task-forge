@@ -1,13 +1,13 @@
 import { CustomInput } from '@/components/ui/custom-input';
 import { Button } from '@/components/ui/button';
-import { createNewTodo } from '@/server/todos';
+import { createNewTodo } from '@/server/functions/todos';
 import { createFileRoute, notFound, useRouter } from '@tanstack/react-router'
 import * as z from "zod";
 import { useEffect, useState } from 'react';
 import { useProjects } from '@/providers/ProjectsProvider';
 import { useDebounceProjectName } from '@/server/debounce-fn';
 import { TodoRow } from '@/features/todo/components/todo-row';
-import { verifyProjectOwnership } from '@/server/projects';
+import { verifyProjectOwnership } from '@/server/functions/projects';
 
 const searchSchema = z.object({
     t: z.string().optional(),
@@ -47,7 +47,7 @@ function ProjectViewComponent() {
         await createNewTodo({
             data: {
                 projectId,
-                title,
+                name: title,
                 description,
                 isCompleted,
                 dueDate,

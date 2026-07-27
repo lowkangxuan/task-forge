@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { deleteProject, duplicateProject } from "@/server/projects";
+import { deleteProject, duplicateProject } from "@/server/functions/projects";
 import type { GenericActions } from "@/types/generic-actions";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Copy, Ellipsis, Trash } from "lucide-react";

@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { createNewProject } from "@/server/projects";
+import { createNewProject } from "@/server/functions/projects";
 import { useRouter } from "@tanstack/react-router";
 
 const formSchema = z.object({

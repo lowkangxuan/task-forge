@@ -4,6 +4,7 @@ import { projects } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
+import { findManyProjects, findProjectById, insertProject, removeProject } from "../repositories/projects.server";
 
 
 const defaultProjectInput = z.object({
@@ -11,22 +12,17 @@ const defaultProjectInput = z.object({
     description: z.string(),
 })
 
-async function insertProject(input: {
-    userId: string;
-    name: string;
-    description?: string;
-}) {
-    return db.insert(projects).values(input).returning();
-}
-
 export const verifyProjectOwnership = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
     .inputValidator(z.object({
         projectId: z.string(),
     }))
     .handler(async ({ context, data }) => {
-        const validProject = await db.select().from(projects).where(and(eq(projects.userId, context.user.id), eq(projects.id, data.projectId)));
-        return validProject.length > 0;
+        const query = await findProjectById({
+            userId: context.user.id,
+            projectId: data.projectId,
+        });
+        return query !== null;
     });
 
 export const createNewProject = createServerFn({ method: "POST" })
@@ -36,25 +32,16 @@ export const createNewProject = createServerFn({ method: "POST" })
         const project = await insertProject({
             userId: context.user.id,
             ...data,
-        });
-        console.log(project);
+        })
+        return project;
     });
 
 export const getUserProjects = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
     .handler(async ({ context }) => {
-        const userProjects = await db.query.projects.findMany({
-            where: eq(projects.userId, context.user.id),
-            with: {
-                todos: {
-                    orderBy: (todos, { asc }) => [asc(todos.createdAt)],
-                },
-            },
-            orderBy: (projects, { asc }) => [asc(projects.createdAt)],
-        });
+        const userProjects = await findManyProjects(context.user.id);
         return userProjects;
     });
-
 
 export const getProjectById = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
@@ -63,14 +50,10 @@ export const getProjectById = createServerFn({ method: "GET" })
     }))
     .handler(async ({ context, data }) => {
         const { projectId } = data;
-        const project = await db.query.projects.findFirst({
-            where: and(eq(projects.id, projectId), eq(projects.userId, context.user.id)),
-            with: {
-                todos: {
-                    orderBy: (todos, { asc }) => [asc(todos.createdAt)],
-                },
-            },
-        })
+        const project = await findProjectById({
+            userId: context.user.id,
+            projectId: projectId,
+        });
 
         return project ?? null;
     });
@@ -88,12 +71,10 @@ export const deleteProject = createServerFn({ method: "POST" })
         projectId: z.string(),
     }))
     .handler(async ({ context, data }) => {
-        await db.delete(projects).where(
-            and(
-                eq(projects.id, data.projectId),
-                eq(projects.userId, context.user.id),
-            )
-        )
+        await removeProject({
+            userId: context.user.id,
+            projectId: data.projectId,
+        })
     });
 
 export const duplicateProject = createServerFn({ method: "POST" })
@@ -103,11 +84,10 @@ export const duplicateProject = createServerFn({ method: "POST" })
     }))
     .handler(async ({ context, data }) => {
         const { projectId } = data;
-        const projectToDupe = await getProjectById({
-            data: {
-                projectId: projectId,
-            }
-        });
+        const projectToDupe = await findProjectById({
+            userId: context.user.id,
+            projectId: projectId,
+        })
 
         if (!projectToDupe) return undefined;
 

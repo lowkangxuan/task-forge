@@ -20,7 +20,7 @@ import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
 import { Link, useMatchRoute, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
-import { updateTodoImmediate } from "@/server/todos";
+import { updateTodoImmediate } from "@/server/functions/todos";
 import { format } from "date-fns";
 import type { ProjectWithTodo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-actions";

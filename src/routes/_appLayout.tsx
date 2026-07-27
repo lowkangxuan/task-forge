@@ -3,7 +3,7 @@ import { TaskSidebar } from '@/components/sidebar/task-sidebar';
 import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/multisidebar';
 import { ProjectActions } from '@/features/project/components/project-actions';
 import { ProjectsProvider } from '@/providers/ProjectsProvider';
-import { getUserProjects } from '@/server/projects';
+import { getUserProjects } from '@/server/functions/projects';
 import { createFileRoute, Outlet, redirect, useMatchRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute("/_appLayout")({
