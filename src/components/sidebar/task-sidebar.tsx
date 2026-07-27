@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
     Sidebar,
     SidebarContent,
@@ -20,7 +20,7 @@ import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
 import { Link, useMatchRoute, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
-import { updateTodoImmediate } from "@/server/functions/todos";
+import { updateTodo } from "@/server/functions/todos";
 import { format } from "date-fns";
 import type { ProjectWithTodo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-actions";
@@ -271,7 +271,7 @@ export function TaskSidebar() {
                                                         selected={field.state.value}
                                                         onSelect={async (date) => {
                                                             field.handleChange(date);
-                                                            await updateTodoImmediate({
+                                                            await updateTodo({
                                                                 data: {
                                                                     todoId: todoId!,
                                                                     updates: {
@@ -303,7 +303,7 @@ export function TaskSidebar() {
                                         <FieldContent>
                                             <Checkbox checked={field.state.value} onCheckedChange={async (e) => {
                                                 field.handleChange(e.valueOf());
-                                                await updateTodoImmediate({
+                                                await updateTodo({
                                                     data: {
                                                         todoId: todoId!,
                                                         updates: {

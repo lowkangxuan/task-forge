@@ -1,7 +1,7 @@
 import { getRouter } from "@/router";
 import { useDebouncedCallback } from "use-debounce";
 import { updateProjectName } from "./functions/projects";
-import { updateTodoDebounce } from "./functions/todos";
+import { updateTodo } from "./functions/todos";
 
 const WAIT = 300; // in milliseconds
 
@@ -27,7 +27,7 @@ export function useDebounceTaskBasic() {
                 description?: string,
             }
         }) => {
-            await updateTodoDebounce({ 
+            await updateTodo({ 
                 data: { 
                     todoId: data.todoId, 
                     updates: data.updates,

@@ -27,7 +27,7 @@ export const createNewTodo = createServerFn({ method: "POST" })
     });
 
 
-export const updateTodoDebounce = createServerFn({ method: "POST" })
+export const updateTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
     .inputValidator(updateTodoValidator)
     .handler(async ({ data }) => {
@@ -38,16 +38,6 @@ export const updateTodoDebounce = createServerFn({ method: "POST" })
         });
     });
 
-export const updateTodoImmediate = createServerFn({ method: "POST" })
-    .middleware([authMiddleware])
-    .inputValidator(updateTodoValidator)
-    .handler(async ({ data }) => {
-        const { todoId, updates } = data;
-        await updateTodoData({
-            todoId: todoId,
-            updates,
-        });
-    });
 
 export const deleteTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])

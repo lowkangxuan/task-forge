@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Todo } from "@/db/schema";
 import { useEffect, useState } from "react";
-import { updateTodoImmediate } from "@/server/functions/todos";
+import { updateTodo } from "@/server/functions/todos";
 import { Link, useMatchRoute, useSearch } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { CalendarX } from "lucide-react";
@@ -13,7 +13,7 @@ interface TodoRowProps {
 }
 
 async function handleTaskCompletion(todoId: string, isCompleted: boolean) {
-    await updateTodoImmediate({
+    await updateTodo({
         data: {
             todoId: todoId,
             updates: {
