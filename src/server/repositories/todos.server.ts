@@ -1,14 +1,13 @@
 import { db } from "@/db/drizzle";
 import { todos } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import * as z from "zod";
 
 export async function insertTodo(input: {
     projectId: string,
     name: string,
-    description?: string,
+    description?: string | null,
     isCompleted?: boolean,
-    dueDate?: Date,
+    dueDate?: Date | null,
 }) {
     return await db.insert(todos).values(input).returning();
 }

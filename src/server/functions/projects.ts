@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
 import { findManyProjects, findProjectById, insertProject, removeProject } from "../repositories/projects.server";
+import { insertTodo } from "../repositories/todos.server";
 
 
 const defaultProjectInput = z.object({
@@ -97,11 +98,20 @@ export const duplicateProject = createServerFn({ method: "POST" })
         const nextSuffix = similarNames.length;
         const todos = projectToDupe.todos;
 
-        await insertProject({
+        const [newProject] = await insertProject({
             userId: context.user.id,
             name: `${projectToDupe.name}_${nextSuffix}`,
             description: `${projectToDupe.description}`,
         });
 
-        
+        todos.forEach(async (todo) => {
+            const { name, description, isCompleted, dueDate} = todo;
+            await insertTodo({
+                projectId: newProject.id,
+                name,
+                description,
+                isCompleted,
+                dueDate
+            })
+        });
     })
