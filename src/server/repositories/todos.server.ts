@@ -3,16 +3,6 @@ import { todos } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
 
-const updateTodoValidator = z.object({
-    todoId: z.string(),
-    updates: z.object({
-        name: z.string().optional(),
-        description: z.string().optional(),
-        isCompleted: z.boolean().optional(),
-        dueDate: z.coerce.date().nullable().optional(),
-    }),
-});
-
 export async function insertTodo(input: {
     projectId: string,
     name: string,

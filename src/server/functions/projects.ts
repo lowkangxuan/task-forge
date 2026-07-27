@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start"
 import { db } from '@/db/drizzle';
 import { projects } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
 import { findManyProjects, findProjectById, insertProject, removeProject } from "../repositories/projects.server";
