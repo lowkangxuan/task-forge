@@ -104,14 +104,15 @@ export const duplicateProject = createServerFn({ method: "POST" })
             description: `${projectToDupe.description}`,
         });
 
-        todos.forEach(async (todo) => {
-            const { name, description, isCompleted, dueDate} = todo;
+        for (const todo of todos) {
+            const { name, description, isCompleted, dueDate } = todo;
+
             await insertTodo({
                 projectId: newProject.id,
                 name,
                 description,
                 isCompleted,
-                dueDate
-            })
-        });
+                dueDate,
+            });
+        };
     })
