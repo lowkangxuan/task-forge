@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { ProjectCreationDialog } from "./project-creation-dialog";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { SidebarLink } from "./sidebar-link";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../ui/context-menu";
 
 interface AppSidebarProps {
     name?: string,
@@ -91,18 +92,28 @@ export function AppSidebar({ name }: AppSidebarProps) {
                         {localProjects.map((proj) => {
                             return (
                                 <SidebarMenuItem key={proj.id}>
-                                    <SidebarMenuButton render={
-                                        <Link
-                                            to="/projects/$projectId"
-                                            activeProps={{ className: "bg-primary" }}
-                                            params={{ projectId: String(proj.id) }}
-                                            preload="intent"
-                                            className="overflow-clip"
-                                        >
-                                            <CircleDashed />
-                                            <span className="pr-6">{proj.name}</span>
-                                        </Link>
-                                    } />
+                                    <ContextMenu>
+                                        <ContextMenuTrigger render={
+                                            <SidebarMenuButton render={
+                                                <Link
+                                                    to="/projects/$projectId"
+                                                    activeProps={{ className: "bg-primary" }}
+                                                    params={{ projectId: String(proj.id) }}
+                                                    preload="intent"
+                                                    className="overflow-clip"
+                                                />
+                                            }>
+                                                <CircleDashed />
+                                                <span className="pr-6">{proj.name}</span>
+                                            </SidebarMenuButton>
+                                        } />
+                                        <ContextMenuContent>
+                                            <ContextMenuItem>Profile</ContextMenuItem>
+                                            <ContextMenuItem>Billing</ContextMenuItem>
+                                            <ContextMenuItem>Team</ContextMenuItem>
+                                            <ContextMenuItem>Subscription</ContextMenuItem>
+                                        </ContextMenuContent>
+                                    </ContextMenu>
                                     <SidebarMenuBadge>
                                         {proj.todos.length}
                                     </SidebarMenuBadge>
@@ -113,11 +124,7 @@ export function AppSidebar({ name }: AppSidebarProps) {
                 </SidebarGroup>
                 <SidebarGroup>
                     <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton render={
-                                <ProjectCreationDialog />
-                            } />
-                        </SidebarMenuItem>
+                        <ProjectCreationDialog />
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>

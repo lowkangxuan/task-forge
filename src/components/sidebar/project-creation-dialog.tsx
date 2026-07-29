@@ -9,6 +9,7 @@ import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { createNewProject } from "@/server/functions/projects";
 import { useRouter } from "@tanstack/react-router";
+import { SidebarMenuItem, SidebarMenuButton } from "../ui/multisidebar";
 
 const formSchema = z.object({
     name: z.string().min(5, "Project name must have at least 5 characters"),
@@ -53,7 +54,12 @@ export function ProjectCreationDialog() {
                 setOpen(open);
             }}
         >
-            <DialogTrigger render={<Button variant="ghost" className="w-full text-sm"><Plus size={32} /> <span>Add Project</span></Button>} />
+            <SidebarMenuItem>
+                <DialogTrigger render={
+                    <SidebarMenuButton className="group-data-[state=expanded]:justify-center">
+                        <Plus size={32} className="shrink-0" /> <span>Add Project</span></SidebarMenuButton>
+                } />
+            </SidebarMenuItem>
             <DialogContent className="sm:max-w-sm">
                 <form
                     onSubmit={(e) => {
