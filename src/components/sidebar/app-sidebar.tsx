@@ -18,6 +18,7 @@ import { ProjectCreationDialog } from "./project-creation-dialog";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { SidebarLink } from "./sidebar-link";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../ui/context-menu";
+import { SidebarProjectButton } from "./sidebar-project-button";
 
 interface AppSidebarProps {
     name?: string,
@@ -91,28 +92,7 @@ export function AppSidebar({ name }: AppSidebarProps) {
                         {localProjects.map((proj) => {
                             return (
                                 <SidebarMenuItem key={proj.id}>
-                                    <ContextMenu>
-                                        <ContextMenuTrigger render={
-                                            <SidebarMenuButton render={
-                                                <Link
-                                                    to="/projects/$projectId"
-                                                    activeProps={{ className: "bg-primary" }}
-                                                    params={{ projectId: String(proj.id) }}
-                                                    preload="intent"
-                                                    className="overflow-clip"
-                                                />
-                                            }>
-                                                <CircleDashed />
-                                                <span className="pr-6">{proj.name}</span>
-                                            </SidebarMenuButton>
-                                        } />
-                                        <ContextMenuContent>
-                                            <ContextMenuItem>Profile</ContextMenuItem>
-                                            <ContextMenuItem>Billing</ContextMenuItem>
-                                            <ContextMenuItem>Team</ContextMenuItem>
-                                            <ContextMenuItem>Subscription</ContextMenuItem>
-                                        </ContextMenuContent>
-                                    </ContextMenu>
+                                    <SidebarProjectButton id={proj.id} name={proj.name} />
                                     <SidebarMenuBadge>
                                         {proj.todos.length}
                                     </SidebarMenuBadge>
