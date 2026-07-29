@@ -7,13 +7,13 @@ import {
     SidebarMenu,
     SidebarMenuItem,
     useMultiSidebar,
-} from "../../../components/ui/multisidebar"
-import { Checkbox } from "../../../components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
-import { Button, buttonVariants } from "../../../components/ui/button";
-import { Calendar } from "../../../components/ui/calendar";
-import { Field, FieldContent, FieldGroup, FieldLabel } from "../../../components/ui/field";
-import { CustomInput } from "../../../components/ui/custom-input";
+} from "@/components/ui/multisidebar"
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { CustomInput } from "@/components/ui/custom-input";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
