@@ -17,8 +17,8 @@ import { toast } from "sonner";
 import { ProjectCreationDialog } from "./project-creation-dialog";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { SidebarLink } from "./sidebar-link";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../ui/context-menu";
-import { SidebarProjectButton } from "./sidebar-project-button";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../../../components/ui/context-menu";
+import { SidebarProjectButton } from "../sidebar-project-button";
 
 interface AppSidebarProps {
     name?: string,

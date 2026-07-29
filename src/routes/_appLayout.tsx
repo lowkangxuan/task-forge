@@ -1,5 +1,5 @@
-import { AppSidebar } from '@/components/sidebar/app-sidebar';
-import { TaskSidebar } from '@/components/sidebar/task-sidebar';
+import { AppSidebar } from '@/features/sidebar/components/app-sidebar';
+import { TaskSidebar } from '@/features/sidebar/components/task-sidebar';
 import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/multisidebar';
 import { ProjectActions } from '@/features/project/components/project-actions';
 import { ProjectsProvider } from '@/providers/ProjectsProvider';

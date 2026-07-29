@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { Button } from "../ui/button";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
+import { Button } from "../../../components/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../../components/ui/dialog";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "../../../components/ui/field";
+import { Input } from "../../../components/ui/input";
 import { Plus } from "lucide-react";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { createNewProject } from "@/server/functions/projects";
 import { useRouter } from "@tanstack/react-router";
-import { SidebarMenuItem, SidebarMenuButton } from "../ui/multisidebar";
+import { SidebarMenuItem, SidebarMenuButton } from "../../../components/ui/multisidebar";
 
 const formSchema = z.object({
     name: z.string().min(5, "Project name must have at least 5 characters"),

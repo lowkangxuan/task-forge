@@ -10,7 +10,7 @@ type ProjectActionsProp = {
     projectId: string;
 }
 
-type ProjectAction = "test" | GenericActions;
+type ProjectAction = GenericActions;
 
 const actions = [
     [
