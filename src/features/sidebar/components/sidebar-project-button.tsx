@@ -8,8 +8,6 @@ type SidebarProjectButtonProps = {
     name: string;
 }
 
-const 
-
 export function SidebarProjectButton({ id, name }: SidebarProjectButtonProps) {
     return (
         <ContextMenu>

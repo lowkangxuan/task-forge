@@ -11,14 +11,13 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/multisidebar"
 import { signOut } from "@/lib/auth-client";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { Calendar, CircleDashed, Home, LogOut, User } from "lucide-react"
+import {  useNavigate } from "@tanstack/react-router";
+import { Calendar, Home, LogOut, User } from "lucide-react"
 import { toast } from "sonner";
 import { ProjectCreationDialog } from "./project-creation-dialog";
 import { useProjects } from "@/providers/ProjectsProvider";
 import { SidebarLink } from "./sidebar-link";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../../../components/ui/context-menu";
-import { SidebarProjectButton } from "../sidebar-project-button";
+import { SidebarProjectButton } from "./sidebar-project-button";
 
 interface AppSidebarProps {
     name?: string,
