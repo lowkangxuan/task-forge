@@ -1,7 +1,7 @@
 import { AppSidebar } from '@/features/sidebar/components/app-sidebar';
 import { TaskSidebar } from '@/features/sidebar/components/task-sidebar';
 import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/multisidebar';
-import { ProjectActions } from '@/features/project/components/project-actions';
+import { ProjectActions } from '@/features/project/components/project-header-actions';
 import { ProjectsProvider } from '@/providers/ProjectsProvider';
 import { getUserProjects } from '@/server/functions/projects';
 import { createFileRoute, Outlet, redirect, useMatchRoute } from '@tanstack/react-router';
