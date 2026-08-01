@@ -5,27 +5,13 @@ import type { GenericActions } from "@/types/generic-actions";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Copy, Ellipsis, Trash } from "lucide-react";
 import { useState } from "react";
+import { PROJECT_HEADER_ACTIONS } from "../project-actions";
 
 type ProjectActionsProp = {
     projectId: string;
 }
 
 type ProjectAction = GenericActions;
-
-const actions = [
-    [
-        {
-            action: "duplicate" as const,
-            label: "Duplicate",
-            icon: Copy,
-        },
-        {
-            action: "delete" as const,
-            label: "Delete",
-            icon: Trash,
-        },
-    ]
-]
 
 export function ProjectActions({ projectId }: ProjectActionsProp) {
     const [open, setOpen] = useState(false);
@@ -60,7 +46,7 @@ export function ProjectActions({ projectId }: ProjectActionsProp) {
             } />
             <PopoverContent align="end" className="w-56 overflow-hidden rounded-lg p-0">
                 <div className="flex flex-col">
-                    {actions.map((section, index) => (
+                    {PROJECT_HEADER_ACTIONS.map((section, index) => (
                         <div key={index} className="flex flex-col p-2 gap-1 border-b last:border-none">
                             {section.map((item, index) => (
                                 <Button

@@ -91,7 +91,7 @@ export function AppSidebar({ name }: AppSidebarProps) {
                         {localProjects.map((proj) => {
                             return (
                                 <SidebarMenuItem key={proj.id}>
-                                    <SidebarProjectButton id={proj.id} name={proj.name} />
+                                    <SidebarProjectButton projectId={proj.id} name={proj.name} />
                                     <SidebarMenuBadge>
                                         {proj.todos.length}
                                     </SidebarMenuBadge>
