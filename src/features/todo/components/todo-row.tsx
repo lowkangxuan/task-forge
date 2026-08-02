@@ -86,7 +86,7 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                 >
                     <span>{todo.name === "" ? "New Task" : todo.name}</span>
                     <div className="flex divide-x">
-                        {todo.dueDate && <span className="flex gap-1 text-sm items-center px-2"><CalendarX size={20} />{format(todo.dueDate, "PPP")}</span>}
+                        {todo.dueDate && <span className="flex gap-1 text-sm items-center"><CalendarX size={16} />{format(todo.dueDate, "PPP")}</span>}
                     </div>
                 </Link>
             </ContextMenuTrigger>
