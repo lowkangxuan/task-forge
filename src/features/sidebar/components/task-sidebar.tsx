@@ -68,7 +68,7 @@ export function TaskSidebar() {
         }
 
         if (isUpcomingRoute) {
-            const belongsToUpcoming = todo.dueDate ? filterCheck(todo.dueDate, "today") || filterCheck(todo.dueDate, "tomorrow") || filterCheck(todo.dueDate, "next week") : false;
+            const belongsToUpcoming = todo.dueDate ? filterCheck(todo.dueDate, "today") || filterCheck(todo.dueDate, "tomorrow") || filterCheck(todo.dueDate, "this_week") || filterCheck(todo.dueDate, "next_week") || filterCheck(todo.dueDate, "this_month") : false;
 
             if (!belongsToUpcoming) {
                 return undefined;

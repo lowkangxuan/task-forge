@@ -1,10 +1,10 @@
 import type { ProjectWithTodo } from "@/db/schema";
 import { TodoRow } from "./todo-row";
-import { filterCheck, type filter } from "../utils";
+import { filterCheck, FILTERS, type Filter } from "../utils";
 
 type FilteredTodoProps = {
     projects: ProjectWithTodo[];
-    filter: filter;
+    filter: Filter;
 }
 
 function filterTodos({ projects, filter }: FilteredTodoProps) {
@@ -17,7 +17,7 @@ export function FilteredTodo(props: FilteredTodoProps) {
     if (todos.length === 0) {
         return (
             <div className="flex-1 content-center text-center font-semibold text-accent-foreground/50 capitalize">
-                <span>No pending tasks for {props.filter}</span>
+                <span>No pending tasks for {FILTERS[props.filter].empty}</span>
             </div>
         )
     } else {

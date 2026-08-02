@@ -1,4 +1,5 @@
 import { Header } from '@/components/header';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FilteredTodo } from '@/features/todo/components/filtered-todo';
 import { Card } from '@/features/upcoming/components/card';
 import { useProjects } from '@/providers/ProjectsProvider';
@@ -8,33 +9,59 @@ export const Route = createFileRoute('/_appLayout/upcoming')({
     component: RouteComponent,
 })
 
+function TomorrowView() {
+
+}
+
+function ThisWeekView() {
+
+}
+
+function NextWeekView() {
+
+}
+
+function ThisMonthView() {
+    
+}
+
 function RouteComponent() {
     const { localProjects } = useProjects();
     return (
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
             <Header as="h1">Upcoming</Header>
-            <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-4 overflow-hidden">
-                <Card className="col-span-2" title="Today">
-                    <FilteredTodo
-                        projects={localProjects}
-                        filter="today"
-                    />
-                </Card>
-
-                <Card title="Tomorrow">
+            <Tabs defaultValue="tomorrow">
+                <TabsList>
+                    <TabsTrigger value="tomorrow" className="px-2 py-1">Tomorrow</TabsTrigger>
+                    <TabsTrigger value="this_week" className="px-2 py-1">This Week</TabsTrigger>
+                    <TabsTrigger value="next_week" className="px-2 py-1">Next Week</TabsTrigger>
+                    <TabsTrigger value="this_month" className="px-2 py-1">This Month</TabsTrigger>
+                </TabsList>
+                <TabsContent value="tomorrow">
                     <FilteredTodo
                         projects={localProjects}
                         filter="tomorrow"
                     />
-                </Card>
-
-                <Card title="Next Week">
+                </TabsContent>
+                <TabsContent value="this_week">
                     <FilteredTodo
                         projects={localProjects}
-                        filter="next week"
+                        filter="this_week"
                     />
-                </Card>
-            </div>
+                </TabsContent>
+                <TabsContent value="next_week">
+                    <FilteredTodo
+                        projects={localProjects}
+                        filter="next_week"
+                    />
+                </TabsContent>
+                <TabsContent value="this_month">
+                    <FilteredTodo
+                        projects={localProjects}
+                        filter="this_month"
+                    />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }
