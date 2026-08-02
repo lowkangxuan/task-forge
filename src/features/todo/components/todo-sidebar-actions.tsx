@@ -1,16 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { deleteTodo } from "@/server/functions/todos";
+import { createNewTodo, deleteTodo } from "@/server/functions/todos";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Ellipsis } from "lucide-react";
 import { useState } from "react";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
+import type { Todo } from "@/db/schema";
 
 type TodoActionsProp = {
-    todoId: string;
+    todo: Todo;
 }
 
-export function TodoActions({ todoId }: TodoActionsProp) {
+export function TodoActions({ todo }: TodoActionsProp) {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const router = useRouter();
@@ -18,12 +19,26 @@ export function TodoActions({ todoId }: TodoActionsProp) {
     async function handleActions(action: TodoActions) {
         switch (action) {
             case "duplicate":
-                console.log("duplicate");
+                const { projectId, name, description, isCompleted, dueDate } = todo;
+                await createNewTodo({
+                    data: {
+                        projectId,
+                        name,
+                        description,
+                        isCompleted,
+                        dueDate,
+                    }
+                });
+                await router.invalidate();
                 break;
 
             case "delete":
                 navigate({ to: "." });
-                await deleteTodo({ data: { todoId: todoId } });
+                await deleteTodo({ 
+                    data: { 
+                        todoId: todo.id, 
+                    } 
+                });
                 await router.invalidate();
                 break;
 
