@@ -1,29 +1,12 @@
 import { Header } from '@/components/header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FilteredTodo } from '@/features/todo/components/filtered-todo';
-import { Card } from '@/features/upcoming/components/card';
 import { useProjects } from '@/providers/ProjectsProvider';
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_appLayout/upcoming')({
     component: RouteComponent,
 })
-
-function TomorrowView() {
-
-}
-
-function ThisWeekView() {
-
-}
-
-function NextWeekView() {
-
-}
-
-function ThisMonthView() {
-    
-}
 
 function RouteComponent() {
     const { localProjects } = useProjects();
