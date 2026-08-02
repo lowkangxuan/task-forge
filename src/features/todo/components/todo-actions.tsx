@@ -1,31 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { deleteTodo } from "@/server/functions/todos";
-import type { GenericActions } from "@/types/generic-actions";
 import { useNavigate, useRouter } from "@tanstack/react-router";
-import { Copy, Ellipsis, Trash } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import { useState } from "react";
+import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
 
 type TodoActionsProp = {
     todoId: string;
 }
-
-type TodoActions = GenericActions;
-
-const actions = [
-    [
-        {
-            action: "duplicate" as const,
-            label: "Duplicate",
-            icon: Copy,
-        },
-        {
-            action: "delete" as const,
-            label: "Delete",
-            icon: Trash,
-        },
-    ]
-]
 
 export function TodoActions({ todoId }: TodoActionsProp) {
     const [open, setOpen] = useState(false);
@@ -59,11 +42,11 @@ export function TodoActions({ todoId }: TodoActionsProp) {
             } />
             <PopoverContent align="end" className="w-56 overflow-hidden rounded-lg p-0">
                 <div className="flex flex-col">
-                    {actions.map((section, index) => (
-                        <div key={index} className="flex flex-col p-2 gap-1 border-b last:border-none">
-                            {section.map((item, index) => (
+                    {TODO_ACTIONS.map((section, sectionIndex) => (
+                        <div key={sectionIndex} className="flex flex-col p-2 gap-1 border-b last:border-none">
+                            {section.map((item) => (
                                 <Button
-                                    key={index}
+                                    key={item.action}
                                     variant="ghost"
                                     className="justify-start text-sm font-normal gap-2"
                                     onClick={() => {

@@ -18,9 +18,9 @@ export const createNewTodo = createServerFn({ method: "POST" })
     .inputValidator((data: {
         projectId: string,
         name: string,
-        description?: string,
+        description?: string | null,
         isCompleted?: boolean,
-        dueDate?: Date,
+        dueDate?: Date | null,
     }) => data)
     .handler(async ({ data }) => {
         await insertTodo(data);
