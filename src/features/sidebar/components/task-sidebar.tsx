@@ -24,7 +24,7 @@ import { updateTodo } from "@/server/functions/todos";
 import { format } from "date-fns";
 import type { ProjectWithTodo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-sidebar-actions";
-import { filterCheck } from "@/features/todo/utils";
+import { filterCheck } from "@/features/todo/filters";
 
 const formSchema = z.object({
     name: z.string(),

@@ -1,6 +1,6 @@
 import type { ProjectWithTodo } from "@/db/schema";
 import { TodoRow } from "./todo-row";
-import { filterCheck, FILTERS, type Filter } from "../utils";
+import { filterCheck, FILTERS, type Filter } from "../filters";
 
 type FilteredTodoProps = {
     projects: ProjectWithTodo[];
