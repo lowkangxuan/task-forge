@@ -16,7 +16,7 @@ export function FilteredTodo(props: FilteredTodoProps) {
 
     if (todos.length === 0) {
         return (
-            <div className="flex-1 content-center text-center font-semibold text-accent-foreground/50 capitalize">
+            <div className="flex-1 content-center text-center text-lg font-semibold text-accent-foreground/50 capitalize">
                 <span>No pending tasks for {FILTERS[props.filter].empty}</span>
             </div>
         )
