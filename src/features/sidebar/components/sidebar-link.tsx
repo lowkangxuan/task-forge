@@ -6,15 +6,14 @@ const RouterLink = createLink(
     ({ className, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) => (
         <a
             {...props}
-            className={cn(className)}
+            className={cn(
+                className,
+                "data-[status=active]:bg-primary",
+                "data-[status=active]:hover:bg-primary",
+                "data-[status=active]:text-primary-foreground",
+            )}
         />
     ),
 );
 
-export const SidebarLink: typeof RouterLink = (props) => (
-    <RouterLink
-        className="hover:bg-black"
-        activeProps={{ className: "bg-primary"}}
-        {...props}
-    />
-);
+export const SidebarLink = RouterLink;

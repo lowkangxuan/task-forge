@@ -69,11 +69,7 @@ export function SidebarProjectButton({ projectId, name }: SidebarProjectButtonPr
                         <Link
                             to="/projects/$projectId"
                             params={{ projectId: projectId }}
-                            activeProps={{
-                                className: "bg-primary",
-                            }}
-                            preload="intent"
-                            className="overflow-clip"
+                            className="data-[status=active]:bg-primary data-[status=active]:hover:bg-primary data-[status=active]:text-primary-foreground"
                         />
                     }
                 >

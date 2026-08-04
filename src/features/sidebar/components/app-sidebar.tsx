@@ -62,7 +62,6 @@ export function AppSidebar({ name }: AppSidebarProps) {
                             <SidebarMenuButton render={
                                 <SidebarLink
                                     to="/today"
-                                    activeProps={{ className: "bg-primary" }}
                                 >
                                     <Home /> Today
                                 </SidebarLink>
