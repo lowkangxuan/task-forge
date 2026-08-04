@@ -15,7 +15,7 @@ const updateTodoValidator = z.object({
 
 export const createNewTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .inputValidator((data: {
+    .validator((data: {
         projectId: string,
         name: string,
         description?: string | null,
@@ -29,7 +29,7 @@ export const createNewTodo = createServerFn({ method: "POST" })
 
 export const updateTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .inputValidator(updateTodoValidator)
+    .validator(updateTodoValidator)
     .handler(async ({ data }) => {
         const { todoId, updates } = data;
         await updateTodoData({
@@ -41,7 +41,7 @@ export const updateTodo = createServerFn({ method: "POST" })
 
 export const deleteTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .inputValidator(z.object({
+    .validator(z.object({
         todoId: z.string(),
     }))
     .handler(async ({ data }) => {
@@ -51,7 +51,7 @@ export const deleteTodo = createServerFn({ method: "POST" })
 
 export const getTodos = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
-    .inputValidator((data: {
+    .validator((data: {
         projectId: string,
     }) => data)
     .handler(async ({ data }) => {

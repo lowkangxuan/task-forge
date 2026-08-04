@@ -9,22 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AppLayoutRouteImport } from './routes/_appLayout'
+import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AppLayoutIndexRouteImport } from './routes/_appLayout/index'
-import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
-import { Route as AuthSigninRouteImport } from './routes/_auth/signin'
-import { Route as AppLayoutUpcomingRouteImport } from './routes/_appLayout/upcoming'
 import { Route as AppLayoutTodayRouteImport } from './routes/_appLayout/today'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppLayoutUpcomingRouteImport } from './routes/_appLayout/upcoming'
+import { Route as AuthSigninRouteImport } from './routes/_auth/signin'
+import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AppLayoutProjectsProjectIdRouteImport } from './routes/_appLayout/projects/$projectId'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/_auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppLayoutRoute = AppLayoutRouteImport.update({
   id: '/_appLayout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppLayoutIndexRoute = AppLayoutIndexRouteImport.update({
@@ -32,30 +32,25 @@ const AppLayoutIndexRoute = AppLayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppLayoutRoute,
 } as any)
-const AuthSignupRoute = AuthSignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthSigninRoute = AuthSigninRouteImport.update({
-  id: '/signin',
-  path: '/signin',
-  getParentRoute: () => AuthRoute,
+const AppLayoutTodayRoute = AppLayoutTodayRouteImport.update({
+  id: '/today',
+  path: '/today',
+  getParentRoute: () => AppLayoutRoute,
 } as any)
 const AppLayoutUpcomingRoute = AppLayoutUpcomingRouteImport.update({
   id: '/upcoming',
   path: '/upcoming',
   getParentRoute: () => AppLayoutRoute,
 } as any)
-const AppLayoutTodayRoute = AppLayoutTodayRouteImport.update({
-  id: '/today',
-  path: '/today',
-  getParentRoute: () => AppLayoutRoute,
+const AuthSigninRoute = AuthSigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => AuthRoute,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AppLayoutProjectsProjectIdRoute =
   AppLayoutProjectsProjectIdRouteImport.update({
@@ -63,6 +58,11 @@ const AppLayoutProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => AppLayoutRoute,
   } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppLayoutIndexRoute
@@ -134,18 +134,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_appLayout': {
       id: '/_appLayout'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_appLayout/': {
@@ -155,19 +155,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLayoutIndexRouteImport
       parentRoute: typeof AppLayoutRoute
     }
-    '/_auth/signup': {
-      id: '/_auth/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof AuthSignupRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/signin': {
-      id: '/_auth/signin'
-      path: '/signin'
-      fullPath: '/signin'
-      preLoaderRoute: typeof AuthSigninRouteImport
-      parentRoute: typeof AuthRoute
+    '/_appLayout/today': {
+      id: '/_appLayout/today'
+      path: '/today'
+      fullPath: '/today'
+      preLoaderRoute: typeof AppLayoutTodayRouteImport
+      parentRoute: typeof AppLayoutRoute
     }
     '/_appLayout/upcoming': {
       id: '/_appLayout/upcoming'
@@ -176,11 +169,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLayoutUpcomingRouteImport
       parentRoute: typeof AppLayoutRoute
     }
-    '/_appLayout/today': {
-      id: '/_appLayout/today'
-      path: '/today'
-      fullPath: '/today'
-      preLoaderRoute: typeof AppLayoutTodayRouteImport
+    '/_auth/signin': {
+      id: '/_auth/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof AuthSigninRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/signup': {
+      id: '/_auth/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_appLayout/projects/$projectId': {
+      id: '/_appLayout/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof AppLayoutProjectsProjectIdRouteImport
       parentRoute: typeof AppLayoutRoute
     }
     '/api/auth/$': {
@@ -189,13 +196,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_appLayout/projects/$projectId': {
-      id: '/_appLayout/projects/$projectId'
-      path: '/projects/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof AppLayoutProjectsProjectIdRouteImport
-      parentRoute: typeof AppLayoutRoute
     }
   }
 }
