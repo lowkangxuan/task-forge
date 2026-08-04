@@ -3,7 +3,7 @@ import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
 import { findManyTodos, insertTodo, removeTodo, updateTodoData } from "../repositories/todos.server";
 
-const updateTodoValidator = z.object({
+const updateTodoinputValidator = z.object({
     todoId: z.string(),
     updates: z.object({
         name: z.string().optional(),
@@ -15,7 +15,7 @@ const updateTodoValidator = z.object({
 
 export const createNewTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .validator((data: {
+    .inputValidator((data: {
         projectId: string,
         name: string,
         description?: string | null,
@@ -29,7 +29,7 @@ export const createNewTodo = createServerFn({ method: "POST" })
 
 export const updateTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .validator(updateTodoValidator)
+    .inputValidator(updateTodoinputValidator)
     .handler(async ({ data }) => {
         const { todoId, updates } = data;
         await updateTodoData({
@@ -41,7 +41,7 @@ export const updateTodo = createServerFn({ method: "POST" })
 
 export const deleteTodo = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .validator(z.object({
+    .inputValidator(z.object({
         todoId: z.string(),
     }))
     .handler(async ({ data }) => {
@@ -51,7 +51,7 @@ export const deleteTodo = createServerFn({ method: "POST" })
 
 export const getTodos = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
-    .validator((data: {
+    .inputValidator((data: {
         projectId: string,
     }) => data)
     .handler(async ({ data }) => {

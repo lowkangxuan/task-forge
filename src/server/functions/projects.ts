@@ -15,7 +15,7 @@ const defaultProjectInput = z.object({
 
 export const verifyProjectOwnership = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
-    .validator(z.object({
+    .inputValidator(z.object({
         projectId: z.string(),
     }))
     .handler(async ({ context, data }) => {
@@ -28,7 +28,7 @@ export const verifyProjectOwnership = createServerFn({ method: "GET" })
 
 export const createNewProject = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .validator(defaultProjectInput)
+    .inputValidator(defaultProjectInput)
     .handler(async ({ context, data }) => {
         const project = await insertProject({
             userId: context.user.id,
@@ -46,7 +46,7 @@ export const getUserProjects = createServerFn({ method: "GET" })
 
 export const getProjectById = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
-    .validator(z.object({
+    .inputValidator(z.object({
         projectId: z.string(),
     }))
     .handler(async ({ context, data }) => {
@@ -61,14 +61,14 @@ export const getProjectById = createServerFn({ method: "GET" })
 
 export const updateProjectName = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .validator((data: { projectId: string, name: string }) => data)
+    .inputValidator((data: { projectId: string, name: string }) => data)
     .handler(async ({ data }) => {
         await db.update(projects).set({ name: data.name }).where(eq(projects.id, data.projectId));
     })
 
 export const deleteProject = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .validator(z.object({
+    .inputValidator(z.object({
         projectId: z.string(),
     }))
     .handler(async ({ context, data }) => {
@@ -80,7 +80,7 @@ export const deleteProject = createServerFn({ method: "POST" })
 
 export const duplicateProject = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
-    .validator(z.object({
+    .inputValidator(z.object({
         projectId: z.string(),
     }))
     .handler(async ({ context, data }) => {

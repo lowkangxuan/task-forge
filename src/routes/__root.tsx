@@ -1,6 +1,6 @@
 import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { ReactQueryDevtools, ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
@@ -63,7 +63,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                         {
                             name: "Tanstack Query",
                             render: <ReactQueryDevtoolsPanel />,
-                        }
+                        },
                     ]}
                 />
                 <Scripts />
