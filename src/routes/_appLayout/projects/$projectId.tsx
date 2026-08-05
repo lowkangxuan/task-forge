@@ -9,6 +9,7 @@ import { useDebounceProjectName } from '@/server/debounce-fn';
 import { TodoRow } from '@/features/todo/components/todo-row';
 import { verifyProjectOwnership } from '@/server/functions/projects';
 import { projectQueryOptions } from '@/features/project/api/project-queries';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 const searchSchema = z.object({
     t: z.string().optional(),
@@ -34,9 +35,10 @@ export const Route = createFileRoute('/_appLayout/projects/$projectId')({
 function ProjectViewComponent() {
     const router = useRouter();
     const { projectId } = Route.useParams();
+    const { data: project } = useSuspenseQuery(projectQueryOptions(projectId));
     const { localProjects, updateLocalProjects } = useProjects();
-    const project = localProjects.find((proj) => proj.id === projectId);
-    const [title, setTitle] = useState(project?.name);
+    // const project = localProjects.find((proj) => proj.id === projectId);
+    const [title, setTitle] = useState(project!.name);
     const debounceProjectName = useDebounceProjectName();
 
     useEffect(() => {

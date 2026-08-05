@@ -18,6 +18,8 @@ import { ProjectCreationDialog } from "../../project/components/project-creation
 import { useProjects } from "@/providers/ProjectsProvider";
 import { SidebarLink } from "./sidebar-link";
 import { SidebarProjectButton } from "./sidebar-project-button";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { projectsQueryOptions } from "@/features/project/api/project-queries";
 
 interface AppSidebarProps {
     name?: string,
@@ -26,6 +28,7 @@ interface AppSidebarProps {
 export function AppSidebar({ name }: AppSidebarProps) {
     const navigate = useNavigate();
     const { localProjects } = useProjects();
+    const { data: projects } = useSuspenseQuery(projectsQueryOptions());
 
     async function SignOut() {
         await signOut({
@@ -87,7 +90,7 @@ export function AppSidebar({ name }: AppSidebarProps) {
                         Projects
                     </SidebarGroupLabel>
                     <SidebarMenu>
-                        {localProjects.map((proj) => {
+                        {projects.map((proj) => {
                             return (
                                 <SidebarMenuItem key={proj.id}>
                                     <SidebarProjectButton projectId={proj.id} name={proj.name} />
