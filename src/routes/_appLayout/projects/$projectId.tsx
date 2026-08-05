@@ -8,12 +8,14 @@ import { useProjects } from '@/providers/ProjectsProvider';
 import { useDebounceProjectName } from '@/server/debounce-fn';
 import { TodoRow } from '@/features/todo/components/todo-row';
 import { verifyProjectOwnership } from '@/server/functions/projects';
+import { projectQueryOptions } from '@/features/project/api/project-queries';
 
 const searchSchema = z.object({
     t: z.string().optional(),
 })
 
 export const Route = createFileRoute('/_appLayout/projects/$projectId')({
+    validateSearch: searchSchema,
     beforeLoad: async ({ params }) => {
         const result = await verifyProjectOwnership({ data: { projectId: params.projectId } });
 
@@ -21,7 +23,11 @@ export const Route = createFileRoute('/_appLayout/projects/$projectId')({
             throw notFound();
         }
     },
-    validateSearch: searchSchema,
+    loader: async ({ context, params }) => {
+        context.queryClient.prefetchQuery(
+            projectQueryOptions(params.projectId),
+        )
+    },
     component: RouteComponent,
 })
 

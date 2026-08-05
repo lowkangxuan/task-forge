@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import {
-    // getProject,
+    getProjectById,
     getUserProjects,
 } from "@/server/functions/projects";
 
@@ -21,12 +21,12 @@ export function projectsQueryOptions() {
     });
 }
 
-// export function projectQueryOptions(projectId: string) {
-//     return queryOptions({
-//         queryKey: projectKeys.detail(projectId),
-//         queryFn: () =>
-//             getProject({
-//                 data: { projectId },
-//             }),
-//     });
-// }
+export function projectQueryOptions(projectId: string) {
+    return queryOptions({
+        queryKey: projectKeys.detail(projectId),
+        queryFn: async () =>
+            await getProjectById({
+                data: { projectId },
+            }),
+    });
+}
