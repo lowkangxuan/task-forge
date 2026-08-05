@@ -5,6 +5,7 @@ import { ProjectActions } from '@/features/project/components/project-header-act
 import { ProjectsProvider } from '@/providers/ProjectsProvider';
 import { getUserProjects } from '@/server/functions/projects';
 import { createFileRoute, Outlet, redirect, useMatchRoute } from '@tanstack/react-router';
+import { projectsQueryOptions } from '@/features/project/api/project-queries';
 
 export const Route = createFileRoute("/_appLayout")({
     beforeLoad: async ({ context }) => {
@@ -12,8 +13,11 @@ export const Route = createFileRoute("/_appLayout")({
             throw redirect({ to: "/signin" });
         }
     },
-    loader: async () => {
+    loader: async ({ context }) => {
         const userProjects = await getUserProjects();
+        context.queryClient.prefetchQuery(
+            projectsQueryOptions(),
+        )
         return userProjects;
     },
     component: AppLayoutComponent,
