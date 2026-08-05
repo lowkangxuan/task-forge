@@ -1,24 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { deleteProject, duplicateProject } from "@/server/functions/projects";
-import type { GenericActions } from "@/types/generic-actions";
 import { useNavigate, useRouter } from "@tanstack/react-router";
-import { Copy, Ellipsis, Trash } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import { useState } from "react";
-import { PROJECT_HEADER_ACTIONS } from "../project-actions";
+import { PROJECT_HEADER_ACTIONS, type ProjectHeaderActions } from "../project-actions";
+import { useDeleteProject } from "../api/project-mutations";
 
 type ProjectActionsProp = {
     projectId: string;
 }
 
-type ProjectAction = GenericActions;
-
 export function ProjectActions({ projectId }: ProjectActionsProp) {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const router = useRouter();
+    const deleteProjectMutation = useDeleteProject();
 
-    async function handleActions(action: ProjectAction) {
+    async function handleActions(action: ProjectHeaderActions) {
         switch (action) {
             case "duplicate":
                 await duplicateProject({ data: { projectId: projectId } });
@@ -26,9 +25,8 @@ export function ProjectActions({ projectId }: ProjectActionsProp) {
                 break;
 
             case "delete":
+                deleteProjectMutation.mutate(projectId);
                 navigate({ to: "/today" });
-                await deleteProject({ data: { projectId: projectId } });
-                await router.invalidate();
                 break;
 
             default:
