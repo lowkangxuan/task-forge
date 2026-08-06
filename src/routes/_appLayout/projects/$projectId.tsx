@@ -8,8 +8,9 @@ import { useProjects } from '@/providers/ProjectsProvider';
 import { useDebounceProjectName } from '@/server/debounce-fn';
 import { TodoRow } from '@/features/todo/components/todo-row';
 import { verifyProjectOwnership } from '@/server/functions/projects';
-import { projectQueryOptions } from '@/features/project/api/project-queries';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { projectKeys, projectQueryOptions } from '@/features/project/api/project-queries';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import type { ProjectWithTodo } from '@/db/schema';
 
 const searchSchema = z.object({
     t: z.string().optional(),
@@ -33,10 +34,11 @@ export const Route = createFileRoute('/_appLayout/projects/$projectId')({
 })
 
 function ProjectViewComponent() {
+    const queryClient = useQueryClient();
     const router = useRouter();
     const { projectId } = Route.useParams();
     const { data: project } = useSuspenseQuery(projectQueryOptions(projectId));
-    const { localProjects, updateLocalProjects } = useProjects();
+    // const { localProjects, updateLocalProjects } = useProjects();
     // const project = localProjects.find((proj) => proj.id === projectId);
     const [title, setTitle] = useState(project!.name);
     const debounceProjectName = useDebounceProjectName();
@@ -73,16 +75,16 @@ function ProjectViewComponent() {
                     value={title}
                     onChange={(e) => {
                         setTitle(e.target.value);
-                        updateLocalProjects((curr) =>
-                            curr.map((proj) =>
-                                proj.id === project?.id
-                                    ? {
-                                        ...proj,
-                                        name: e.target.value,
-                                    }
-                                    : proj,
-                            )
-                        )
+                        queryClient.setQueryData<ProjectWithTodo[]>(
+                            projectKeys.list(),
+                            (projects) =>
+                                projects?.map((project) =>
+                                    project.id === projectId
+                                        ? { ...project, name: e.target.value }
+                                        : project,
+                                ),
+
+                        );
                         debounceProjectName(project?.id, e.target.value);
                     }}
                     variant="ghost"

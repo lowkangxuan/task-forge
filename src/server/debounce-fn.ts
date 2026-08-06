@@ -1,7 +1,7 @@
 import { getRouter } from "@/router";
 import { useDebouncedCallback } from "use-debounce";
-import { updateProjectName } from "./functions/projects";
 import { updateTodo } from "./functions/todos";
+import { useRenameProject } from "@/features/project/api/project-mutations";
 
 const WAIT = 300; // in milliseconds
 
@@ -10,10 +10,11 @@ async function invalidateRouter() {
 }
 
 export function useDebounceProjectName() {
+    const renameProject = useRenameProject();
+
     return useDebouncedCallback(
-        async (projectId, name) => {
-            await updateProjectName({ data: { projectId: projectId, name: name } });
-            await invalidateRouter();
+        (projectId, name) => {
+            renameProject.mutate({ projectId, name });
         }, WAIT
     );
 }
@@ -27,9 +28,9 @@ export function useDebounceTaskBasic() {
                 description?: string,
             }
         }) => {
-            await updateTodo({ 
-                data: { 
-                    todoId: data.todoId, 
+            await updateTodo({
+                data: {
+                    todoId: data.todoId,
                     updates: data.updates,
                 }
             });

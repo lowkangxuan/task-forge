@@ -3,7 +3,7 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 
-import { deleteProject, duplicateProject } from "@/server/functions/projects";
+import { deleteProject, duplicateProject, updateProjectName } from "@/server/functions/projects";
 import {
     projectKeys,
 } from "@/features/project/api/project-queries";
@@ -58,4 +58,22 @@ export function useDuplicateProject() {
             });
         },
     });
+}
+
+export function useRenameProject() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (input: {
+            projectId: string,
+            name: string,
+        }) =>
+            await updateProjectName({ data: input, }),
+
+        onSettled: () => {
+            return queryClient.invalidateQueries({
+                queryKey: projectKeys.all,
+            });
+        },
+    })
 }
