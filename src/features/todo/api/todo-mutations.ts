@@ -33,9 +33,9 @@ export function useDuplicateTodo() {
         }) =>
             await createNewTodo({ data: input }),
 
-        onSuccess: () => {
+        onSuccess: (newTodo) => {
             return queryClient.invalidateQueries({
-                queryKey: projectKeys.all,
+                queryKey: projectKeys.detail(newTodo.projectId),
             });
         },
     })
