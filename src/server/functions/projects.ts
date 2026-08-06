@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start"
 import { db } from '@/db/drizzle';
 import { projects, type ProjectWithTodo } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
 import { findManyProjects, findProjectById, insertProject, removeProject } from "../repositories/projects.server";
@@ -62,8 +62,13 @@ export const getProjectById = createServerFn({ method: "GET" })
 export const updateProjectName = createServerFn({ method: "POST" })
     .middleware([authMiddleware])
     .inputValidator((data: { projectId: string, name: string }) => data)
-    .handler(async ({ data }) => {
-        await db.update(projects).set({ name: data.name }).where(eq(projects.id, data.projectId));
+    .handler(async ({ context, data }) => {
+        await db.update(projects).set({ name: data.name }).where(
+            and(
+                eq(projects.id, data.projectId),
+                eq(projects.userId, context.user.id),
+            )
+        );
     })
 
 export const deleteProject = createServerFn({ method: "POST" })
