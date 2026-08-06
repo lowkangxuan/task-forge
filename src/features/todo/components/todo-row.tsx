@@ -10,6 +10,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, Con
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
 import { useDeleteTodo, useDuplicateTodo } from "../api/todo-mutations";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EditorDialog } from "./editor-dialog";
 
 interface TodoRowProps {
     todo: Todo,
@@ -118,16 +119,8 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                     ))}
                 </ContextMenuContent>
             </ContextMenu>
-
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{todo.name || "New Task"}</DialogTitle>
-                    <DialogDescription>
-                        View or edit the task details.
-                    </DialogDescription>
-                </DialogHeader>
-                {/* Task form */}
-            </DialogContent>
+ 
+            <EditorDialog todo={todo} />
         </Dialog>
     )
 }
