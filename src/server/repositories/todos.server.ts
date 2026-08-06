@@ -25,7 +25,7 @@ export async function updateTodoData(input: {
 }
 
 export async function removeTodo(todoId: string) {
-    await db.delete(todos).where(eq(todos.id, todoId));
+    return await db.delete(todos).where(eq(todos.id, todoId)).returning();
 }
 
 export async function findManyTodos(projectId: string) {

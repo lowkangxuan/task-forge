@@ -8,7 +8,7 @@ import { CalendarX } from "lucide-react";
 import { format } from "date-fns";
 import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
-import { useDuplicateTodo } from "../api/todo-mutations";
+import { useDeleteTodo, useDuplicateTodo } from "../api/todo-mutations";
 
 interface TodoRowProps {
     todo: Todo,
@@ -27,6 +27,7 @@ async function handleTaskCompletion(todoId: string, isCompleted: boolean) {
 }
 
 export function TodoRow({ todo, path }: TodoRowProps) {
+    const deleteTodoMutation = useDeleteTodo();
     const duplicateTodoMutation = useDuplicateTodo();
     const [checked, setChecked] = useState(todo.isCompleted);
     const search = useSearch({ strict: false });
@@ -52,12 +53,7 @@ export function TodoRow({ todo, path }: TodoRowProps) {
             }
 
             case "delete": {
-                await deleteTodo({
-                    data: {
-                        todoId: todo.id,
-                    }
-                });
-                await router.invalidate();
+                deleteTodoMutation.mutate(todo.id);
                 break;
             }
         }

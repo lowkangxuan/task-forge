@@ -46,7 +46,8 @@ export const deleteTodo = createServerFn({ method: "POST" })
     }))
     .handler(async ({ data }) => {
         const { todoId } = data;
-        await removeTodo(todoId);
+        const [deletedTodo] = await removeTodo(todoId)
+        return deletedTodo;
     });
 
 export const getTodos = createServerFn({ method: "GET" })

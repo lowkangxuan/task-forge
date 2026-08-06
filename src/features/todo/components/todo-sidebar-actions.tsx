@@ -6,17 +6,18 @@ import { Ellipsis } from "lucide-react";
 import { useState } from "react";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
 import type { Todo } from "@/db/schema";
-import { useDuplicateTodo } from "../api/todo-mutations";
+import { useDeleteTodo, useDuplicateTodo } from "../api/todo-mutations";
 
 type TodoActionsProp = {
     todo: Todo;
 }
 
 export function TodoActions({ todo }: TodoActionsProp) {
+    const deleteTodoMutation = useDeleteTodo();
+    const duplicateTodoMutation = useDuplicateTodo();
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const router = useRouter();
-    const duplicateTodoMutation = useDuplicateTodo();
 
     async function handleActions(action: TodoActions) {
         switch (action) {
@@ -32,13 +33,8 @@ export function TodoActions({ todo }: TodoActionsProp) {
                 break;
 
             case "delete":
-                navigate({ to: "." });
-                await deleteTodo({ 
-                    data: { 
-                        todoId: todo.id, 
-                    } 
-                });
-                await router.invalidate();
+                deleteTodoMutation.mutate(todo.id);
+                await navigate({ to: "." });
                 break;
 
             default:
