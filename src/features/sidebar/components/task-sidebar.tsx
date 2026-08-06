@@ -25,6 +25,8 @@ import { format } from "date-fns";
 import type { ProjectWithTodo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-sidebar-actions";
 import { filterCheck } from "@/features/todo/filters";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { projectKeys, projectQueryOptions } from "@/features/project/api/project-queries";
 
 const formSchema = z.object({
     name: z.string(),
@@ -40,7 +42,9 @@ function getTodoByProjectId(projects: ProjectWithTodo[], todoId: string) {
 export function TaskSidebar() {
     const { rightSidebar: { setOpen } } = useMultiSidebar();
     const { localProjects, updateLocalProjects } = useProjects();
+    // const { data: project } = useSuspenseQuery(projectQueryOptions())
     const debounceTaskUpdater = useDebounceTaskBasic();
+    const queryClient = useQueryClient();
     const router = useRouter();
     const navigate = useNavigate();
 
@@ -78,7 +82,6 @@ export function TaskSidebar() {
         return todo;
     })();
 
-    // const filteredTodo = getTodoByProjectId(localProjects, todoId!);
     const projectId = selectedTodo?.projectId;
 
     const form = useForm({
@@ -183,26 +186,42 @@ export function TaskSidebar() {
                                             value={field.state.value}
                                             type="text"
                                             onBlur={field.handleBlur}
-                                            onChange={async (e) => {
+                                            onChange={(e) => {
                                                 field.handleChange(e.target.value);
-                                                updateLocalProjects((curr) =>
-                                                    curr.map((proj) =>
-                                                        proj.id === projectId
-                                                            ? {
-                                                                ...proj,
-                                                                todos: proj.todos.map((todo) =>
-                                                                    todo.id === todoId
-                                                                        ? {
-                                                                            ...todo,
-                                                                            name: e.target.value,
-                                                                        }
-                                                                        : todo,
-                                                                )
-                                                            }
-                                                            : proj,
-                                                    )
+                                                // updateLocalProjects((curr) =>
+                                                //     curr.map((proj) =>
+                                                //         proj.id === projectId
+                                                //             ? {
+                                                //                 ...proj,
+                                                //                 todos: proj.todos.map((todo) =>
+                                                //                     todo.id === todoId
+                                                //                         ? {
+                                                //                             ...todo,
+                                                //                             name: e.target.value,
+                                                //                         }
+                                                //                         : todo,
+                                                //                 )
+                                                //             }
+                                                //             : proj,
+                                                //     )
+                                                // );
+
+                                                queryClient.setQueryData<ProjectWithTodo>(
+                                                    projectKeys.detail(projectId!),
+                                                    (project) => {
+                                                        if (!project) return project;
+                                                        return {
+                                                            ...project,
+                                                            todos: project.todos.map((todo) =>
+                                                                todo.id === todoId
+                                                                    ? { ...todo, name: e.target.value }
+                                                                    : todo
+                                                            ),
+                                                        };
+                                                    }
                                                 );
-                                                await debounceTaskUpdater({ todoId: todoId!, updates: { name: e.target.value } });
+
+                                                debounceTaskUpdater({ todoId: todoId!, updates: { name: e.target.value } });
                                             }}
                                             aria-invalid={isInvalid}
                                             placeholder="New Task"
