@@ -3,10 +3,11 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 
-import { deleteProject } from "@/server/functions/projects";
+import { deleteProject, duplicateProject } from "@/server/functions/projects";
 import {
     projectKeys,
 } from "@/features/project/api/project-queries";
+import type { ProjectWithTodo } from "@/db/schema";
 
 export function useDeleteProject() {
     const queryClient = useQueryClient();
@@ -24,6 +25,36 @@ export function useDeleteProject() {
 
             await queryClient.invalidateQueries({
                 queryKey: projectKeys.lists(),
+            });
+        },
+    });
+}
+
+export function useDuplicateProject() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (projectId: string) =>
+            await duplicateProject({
+                data: { projectId },
+            }),
+
+        onSuccess: (duplicatedProject) => {
+            if (!duplicatedProject) return;
+
+            queryClient.setQueryData<ProjectWithTodo[]>(
+
+                projectKeys.list(),
+
+                (projects = []) => [...projects, duplicatedProject],
+
+            );
+
+        },
+
+        onSettled: () => {
+            return queryClient.invalidateQueries({
+                queryKey: projectKeys.all,
             });
         },
     });

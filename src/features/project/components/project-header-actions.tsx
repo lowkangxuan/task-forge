@@ -5,7 +5,7 @@ import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Ellipsis } from "lucide-react";
 import { useState } from "react";
 import { PROJECT_HEADER_ACTIONS, type ProjectHeaderActions } from "../project-actions";
-import { useDeleteProject } from "../api/project-mutations";
+import { useDeleteProject, useDuplicateProject } from "../api/project-mutations";
 
 type ProjectActionsProp = {
     projectId: string;
@@ -16,12 +16,14 @@ export function ProjectActions({ projectId }: ProjectActionsProp) {
     const navigate = useNavigate();
     const router = useRouter();
     const deleteProjectMutation = useDeleteProject();
+    const duplicateProjectMutation = useDuplicateProject();
 
     async function handleActions(action: ProjectHeaderActions) {
         switch (action) {
             case "duplicate":
-                await duplicateProject({ data: { projectId: projectId } });
-                await router.invalidate();
+                duplicateProjectMutation.mutate(projectId);
+                // await duplicateProject({ data: { projectId: projectId } });
+                // await router.invalidate();
                 break;
 
             case "delete":

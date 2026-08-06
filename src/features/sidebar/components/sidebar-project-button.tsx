@@ -15,6 +15,7 @@ import {
 } from "@/features/project/project-actions";
 import { deleteProject, duplicateProject } from "@/server/functions/projects";
 import { toast } from "sonner";
+import { useDeleteProject, useDuplicateProject } from "@/features/project/api/project-mutations";
 
 type SidebarProjectButtonProps = {
     projectId: string;
@@ -34,6 +35,8 @@ async function copyLink(projectId: string) {
 
 export function SidebarProjectButton({ projectId, name }: SidebarProjectButtonProps) {
     const router = useRouter();
+    const deleteProjectMutation = useDeleteProject();
+    const duplicateProjectMutation = useDuplicateProject();
 
     async function handleAction(action: ProjectSidebarActions) {
         switch (action) {
@@ -43,14 +46,12 @@ export function SidebarProjectButton({ projectId, name }: SidebarProjectButtonPr
             }
 
             case "duplicate": {
-                await duplicateProject({ data: { projectId: projectId } });
-                router.invalidate();
+                duplicateProjectMutation.mutate(projectId);
                 break;
             }
 
             case "delete": {
-                await deleteProject({ data: { projectId: projectId } });
-                router.invalidate();
+                deleteProjectMutation.mutate(projectId);
                 break;
             }
 

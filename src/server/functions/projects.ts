@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start"
 import { db } from '@/db/drizzle';
-import { projects } from "@/db/schema";
+import { projects, type ProjectWithTodo } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
@@ -98,11 +98,16 @@ export const duplicateProject = createServerFn({ method: "POST" })
         const nextSuffix = similarNames.length;
         const todos = projectToDupe.todos;
 
-        const [newProject] = await insertProject({
+        const [_newProject] = await insertProject({
             userId: context.user.id,
             name: `${projectToDupe.name}_${nextSuffix}`,
             description: `${projectToDupe.description}`,
         });
+
+        const newProject: ProjectWithTodo = {
+            ..._newProject,
+            todos: [],
+        };
 
         for (const todo of todos) {
             const { name, description, isCompleted, dueDate } = todo;
@@ -115,4 +120,9 @@ export const duplicateProject = createServerFn({ method: "POST" })
                 dueDate,
             });
         };
+
+        return {
+            ...newProject,
+            todos,
+        }
     })
