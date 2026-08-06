@@ -16,13 +16,13 @@ export function todoQueryOptions(queryClient: QueryClient, todoId?: string) {
             : skipToken,
         initialData: () => {
             if (!todoId) return undefined;
-            
-            const projectQueries =
-                queryClient.getQueriesData<ProjectWithTodo>({
-                    queryKey: projectKeys.all,
-                });
 
-            for (const [, project] of projectQueries) {
+            const projectQueries =
+                queryClient.getQueryData<ProjectWithTodo[]>(
+                    projectKeys.list(),
+                );
+            console.log(projectQueries);
+            for (const project of projectQueries!) {
                 const todo = project?.todos.find(
                     (todo) => todo.id === todoId,
                 );
