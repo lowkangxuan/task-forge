@@ -68,7 +68,7 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                 <ContextMenuTrigger render={
                     <div
                         className={cn("flex items-center gap-2 px-2 py-1 rounded-md hover:bg-secondary", isActive && "bg-accent")}
-                        onClick={() => setDialogOpen(true)}
+                        // onClick={() => setDialogOpen(true)}
                     />
                 }>
                     <Checkbox
@@ -79,7 +79,7 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                         }}
 
                     />
-                    {/* <Link
+                    <Link
                         key={todo.id}
                         to={path ?? `.`}
                         params={{ projectId: todo.projectId }}
@@ -90,8 +90,8 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                         <div className="flex divide-x text-xs">
                             {todo.dueDate && <span className="flex gap-1 items-center"><CalendarX size={16} />{format(todo.dueDate, "PPP")}</span>}
                         </div>
-                    </Link> */}
-                    <div
+                    </Link>
+                    {/* <div
                         key={todo.id}
                         className="flex flex-col flex-1"
                     >
@@ -99,7 +99,7 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                         <div className="flex divide-x text-xs">
                             {todo.dueDate && <span className="flex gap-1 items-center"><CalendarX size={16} />{format(todo.dueDate, "PPP")}</span>}
                         </div>
-                    </div>
+                    </div> */}
                 </ContextMenuTrigger>
                 <ContextMenuContent>
                     {TODO_ACTIONS.map((section, sectionIndex) => (

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
-import { findManyTodos, insertTodo, removeTodo, updateTodoData } from "../repositories/todos.server";
+import { findManyTodos, findOneTodoById, insertTodo, removeTodo, updateTodoData } from "../repositories/todos.server";
 
 const updateTodoinputValidator = z.object({
     todoId: z.string(),
@@ -51,12 +51,21 @@ export const deleteTodo = createServerFn({ method: "POST" })
         return deletedTodo;
     });
 
+export const getTodoById = createServerFn({ method: "GET" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        todoId: z.string(),
+    }))
+    .handler(async ({ data }) => {
+        const [result] = await findOneTodoById(data.todoId);
+        return result;
+    });
+
 export const getTodos = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
     .inputValidator((data: {
         projectId: string,
     }) => data)
     .handler(async ({ data }) => {
-        const tasks = await findManyTodos(data.projectId);
-        return tasks;
+        return await findManyTodos(data.projectId);
     });

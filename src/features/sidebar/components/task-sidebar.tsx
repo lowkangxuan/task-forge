@@ -25,8 +25,9 @@ import { format } from "date-fns";
 import type { ProjectWithTodo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-sidebar-actions";
 import { filterCheck } from "@/features/todo/filters";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { projectKeys, projectQueryOptions } from "@/features/project/api/project-queries";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { projectKeys } from "@/features/project/api/project-queries";
+import { todoQueryOptions } from "@/features/todo/api/todo-queries";
 
 const formSchema = z.object({
     name: z.string(),
@@ -40,9 +41,8 @@ function getTodoByProjectId(projects: ProjectWithTodo[], todoId: string) {
 }
 
 export function TaskSidebar() {
-    const { rightSidebar: { setOpen } } = useMultiSidebar();
+    const { rightSidebar: { open, setOpen } } = useMultiSidebar();
     const { localProjects, updateLocalProjects } = useProjects();
-    // const { data: project } = useSuspenseQuery(projectQueryOptions())
     const debounceTaskUpdater = useDebounceTaskBasic();
     const queryClient = useQueryClient();
     const router = useRouter();
@@ -58,6 +58,12 @@ export function TaskSidebar() {
         select: (search) =>
             search.t,
     });
+    const { data: todo } = useQuery(todoQueryOptions(queryClient, todoId));
+
+    if (open) {
+        console.log(todo);
+    }
+
     const selectedTodo = (() => {
         if (!todoId) return undefined;
         const todo = getTodoByProjectId(localProjects, todoId);
@@ -188,26 +194,9 @@ export function TaskSidebar() {
                                             onBlur={field.handleBlur}
                                             onChange={(e) => {
                                                 field.handleChange(e.target.value);
-                                                // updateLocalProjects((curr) =>
-                                                //     curr.map((proj) =>
-                                                //         proj.id === projectId
-                                                //             ? {
-                                                //                 ...proj,
-                                                //                 todos: proj.todos.map((todo) =>
-                                                //                     todo.id === todoId
-                                                //                         ? {
-                                                //                             ...todo,
-                                                //                             name: e.target.value,
-                                                //                         }
-                                                //                         : todo,
-                                                //                 )
-                                                //             }
-                                                //             : proj,
-                                                //     )
-                                                // );
 
                                                 queryClient.setQueryData<ProjectWithTodo>(
-                                                    projectKeys.detail(projectId!),
+                                                    projectKeys.detail(todo!.projectId),
                                                     (project) => {
                                                         if (!project) return project;
                                                         return {
@@ -290,6 +279,22 @@ export function TaskSidebar() {
                                                         selected={field.state.value}
                                                         onSelect={async (date) => {
                                                             field.handleChange(date);
+
+                                                            queryClient.setQueryData<ProjectWithTodo>(
+                                                                projectKeys.detail(todo!.projectId),
+                                                                (project) => {
+                                                                    if (!project) return project;
+                                                                    return {
+                                                                        ...project,
+                                                                        todos: project.todos.map((todo) =>
+                                                                            todo.id === todoId
+                                                                                ? { ...todo, dueDate: date ?? null }
+                                                                                : todo
+                                                                        ),
+                                                                    };
+                                                                }
+                                                            );
+
                                                             await updateTodo({
                                                                 data: {
                                                                     todoId: todoId!,
@@ -298,7 +303,6 @@ export function TaskSidebar() {
                                                                     }
                                                                 }
                                                             });
-                                                            await router.invalidate();
                                                         }}
                                                     />
                                                 </PopoverContent>
@@ -320,18 +324,35 @@ export function TaskSidebar() {
                                             <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><ClipboardCheck />Status</FieldLabel>
                                         </FieldContent>
                                         <FieldContent>
-                                            <Checkbox checked={field.state.value} onCheckedChange={async (e) => {
-                                                field.handleChange(e.valueOf());
-                                                await updateTodo({
-                                                    data: {
-                                                        todoId: todoId!,
-                                                        updates: {
-                                                            isCompleted: e.valueOf(),
+                                            <Checkbox
+                                                checked={field.state.value}
+                                                onCheckedChange={async (e) => {
+                                                    field.handleChange(e.valueOf());
+
+                                                    queryClient.setQueryData<ProjectWithTodo>(
+                                                        projectKeys.detail(todo!.projectId),
+                                                        (project) => {
+                                                            if (!project) return project;
+                                                            return {
+                                                                ...project,
+                                                                todos: project.todos.map((todo) =>
+                                                                    todo.id === todoId
+                                                                        ? { ...todo, isCompleted: e.valueOf() }
+                                                                        : todo
+                                                                ),
+                                                            };
                                                         }
-                                                    }
-                                                });
-                                                await router.invalidate();
-                                            }} />
+                                                    );
+
+                                                    await updateTodo({
+                                                        data: {
+                                                            todoId: todoId!,
+                                                            updates: {
+                                                                isCompleted: e.valueOf(),
+                                                            }
+                                                        }
+                                                    });
+                                                }} />
                                         </FieldContent>
                                     </Field>
                                 )

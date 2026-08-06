@@ -28,6 +28,10 @@ export async function removeTodo(todoId: string) {
     return await db.delete(todos).where(eq(todos.id, todoId)).returning();
 }
 
+export async function findOneTodoById(todoId: string) {
+    return await db.select().from(todos).where(eq(todos.id, todoId)).limit(1);
+}
+
 export async function findManyTodos(projectId: string) {
     return await db.select().from(todos).where(eq(todos.projectId, projectId));
 }
