@@ -17,14 +17,12 @@ import { CustomInput } from "@/components/ui/custom-input";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
-import { Link, useMatchRoute, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
-import { useProjects } from "@/providers/ProjectsProvider";
+import { Link, useMatchRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { updateTodo } from "@/server/functions/todos";
 import { format } from "date-fns";
 import type { ProjectWithTodo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-sidebar-actions";
-import { filterCheck } from "@/features/todo/filters";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectKeys } from "@/features/project/api/project-queries";
 import { todoQueryOptions } from "@/features/todo/api/todo-queries";
@@ -36,16 +34,10 @@ const formSchema = z.object({
     dueDate: z.union([z.date(), z.undefined()]),
 });
 
-function getTodoByProjectId(projects: ProjectWithTodo[], todoId: string) {
-    return projects.flatMap((proj) => proj.todos).find((todo) => todo.id === todoId);
-}
-
 export function TaskSidebar() {
-    const { rightSidebar: { open, setOpen } } = useMultiSidebar();
-    const { localProjects, updateLocalProjects } = useProjects();
+    const { rightSidebar: { setOpen } } = useMultiSidebar();
     const debounceTaskUpdater = useDebounceTaskBasic();
     const queryClient = useQueryClient();
-    const router = useRouter();
     const navigate = useNavigate();
 
     const matchRoute = useMatchRoute();
@@ -60,43 +52,13 @@ export function TaskSidebar() {
     });
     const { data: todo } = useQuery(todoQueryOptions(queryClient, todoId));
 
-    if (open) {
-        console.log(todo);
-    }
-
-    const selectedTodo = (() => {
-        if (!todoId) return undefined;
-        const todo = getTodoByProjectId(localProjects, todoId);
-        if (!todo) return undefined;
-
-        if (isTodayRoute) {
-            const belongsToToday = todo.dueDate ? filterCheck(todo.dueDate, "today") : false;
-
-            if (!belongsToToday) {
-                return undefined;
-            }
-        }
-
-        if (isUpcomingRoute) {
-            const belongsToUpcoming = todo.dueDate ? filterCheck(todo.dueDate, "today") || filterCheck(todo.dueDate, "tomorrow") || filterCheck(todo.dueDate, "this_week") || filterCheck(todo.dueDate, "next_week") || filterCheck(todo.dueDate, "this_month") : false;
-
-            if (!belongsToUpcoming) {
-                return undefined;
-            }
-        }
-
-        return todo;
-    })();
-
-    const projectId = selectedTodo?.projectId;
-
     const form = useForm({
         defaultValues: {
-            name: selectedTodo?.name ?? "",
-            description: selectedTodo?.description ?? "",
-            isCompleted: selectedTodo?.isCompleted ?? false,
-            dueDate: selectedTodo?.dueDate
-                ? new Date(selectedTodo.dueDate)
+            name: todo?.name ?? "",
+            description: todo?.description ?? "",
+            isCompleted: todo?.isCompleted ?? false,
+            dueDate: todo?.dueDate
+                ? new Date(todo.dueDate)
                 : undefined,
         },
         validators: {
@@ -106,26 +68,26 @@ export function TaskSidebar() {
     });
 
     useEffect(() => {
-        if (!selectedTodo) return;
+        if (!todo) return;
 
         form.reset({
-            name: selectedTodo?.name ?? "",
-            description: selectedTodo?.description ?? "",
-            isCompleted: selectedTodo?.isCompleted ?? false,
-            dueDate: selectedTodo?.dueDate
-                ? new Date(selectedTodo.dueDate)
+            name: todo?.name ?? "",
+            description: todo?.description ?? "",
+            isCompleted: todo?.isCompleted ?? false,
+            dueDate: todo?.dueDate
+                ? new Date(todo.dueDate)
                 : undefined,
         });
-    }, [selectedTodo?.id]);
+    }, [todo?.id]);
 
 
     useEffect(() => {
         const isSupportedRoute = isProjectRoute || isTodayRoute || isUpcomingRoute;
-        const hasValidTask = Boolean(todoId && selectedTodo);
+        const hasValidTask = Boolean(todoId && todo);
 
         setOpen(isSupportedRoute && hasValidTask);
 
-        if (todoId && isSupportedRoute && !selectedTodo) {
+        if (todoId && isSupportedRoute && !todo) {
             void navigate({
                 to: ".",
                 search: (previous) => ({
@@ -137,7 +99,7 @@ export function TaskSidebar() {
         }
     }, [
         todoId,
-        selectedTodo,
+        todo,
         isProjectRoute,
         isTodayRoute,
         isUpcomingRoute,
@@ -164,7 +126,7 @@ export function TaskSidebar() {
                     </SidebarMenu>
                     <SidebarMenu className="w-fit">
                         <SidebarMenuItem>
-                            <TodoActions todo={selectedTodo!} />
+                            <TodoActions todo={todo!} />
                         </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarGroup>
