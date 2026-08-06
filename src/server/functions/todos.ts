@@ -23,7 +23,7 @@ export const createNewTodo = createServerFn({ method: "POST" })
         dueDate?: Date | null,
     }) => data)
     .handler(async ({ data }) => {
-        await insertTodo(data);
+        return await insertTodo(data);
     });
 
 

@@ -6,6 +6,7 @@ import { Ellipsis } from "lucide-react";
 import { useState } from "react";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
 import type { Todo } from "@/db/schema";
+import { useDuplicateTodo } from "../api/todo-mutations";
 
 type TodoActionsProp = {
     todo: Todo;
@@ -15,21 +16,19 @@ export function TodoActions({ todo }: TodoActionsProp) {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const router = useRouter();
+    const duplicateTodoMutation = useDuplicateTodo();
 
     async function handleActions(action: TodoActions) {
         switch (action) {
             case "duplicate":
                 const { projectId, name, description, isCompleted, dueDate } = todo;
-                await createNewTodo({
-                    data: {
-                        projectId,
-                        name,
-                        description,
-                        isCompleted,
-                        dueDate,
-                    }
+                duplicateTodoMutation.mutate({
+                    projectId,
+                    name,
+                    description,
+                    isCompleted,
+                    dueDate
                 });
-                await router.invalidate();
                 break;
 
             case "delete":

@@ -8,6 +8,7 @@ import { CalendarX } from "lucide-react";
 import { format } from "date-fns";
 import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
+import { useDuplicateTodo } from "../api/todo-mutations";
 
 interface TodoRowProps {
     todo: Todo,
@@ -26,6 +27,7 @@ async function handleTaskCompletion(todoId: string, isCompleted: boolean) {
 }
 
 export function TodoRow({ todo, path }: TodoRowProps) {
+    const duplicateTodoMutation = useDuplicateTodo();
     const [checked, setChecked] = useState(todo.isCompleted);
     const search = useSearch({ strict: false });
     const router = useRouter();
@@ -39,16 +41,13 @@ export function TodoRow({ todo, path }: TodoRowProps) {
         switch (action) {
             case "duplicate": {
                 const { projectId, name, description, isCompleted, dueDate } = todo;
-                await createNewTodo( {
-                    data: {
-                        projectId,
-                        name,
-                        description,
-                        isCompleted,
-                        dueDate,
-                    }
+                duplicateTodoMutation.mutate({
+                    projectId,
+                    name,
+                    description,
+                    isCompleted,
+                    dueDate
                 });
-                await router.invalidate();
                 break;
             }
 
