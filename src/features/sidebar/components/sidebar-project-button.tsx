@@ -8,12 +8,11 @@ import {
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { SidebarMenuButton } from "@/components/ui/multisidebar";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
     PROJECT_SIDEBAR_ACTIONS,
     type ProjectSidebarActions,
 } from "@/features/project/project-actions";
-import { deleteProject, duplicateProject } from "@/server/functions/projects";
 import { toast } from "sonner";
 import { useDeleteProject, useDuplicateProject } from "@/features/project/api/project-mutations";
 
@@ -34,7 +33,6 @@ async function copyLink(projectId: string) {
 }
 
 export function SidebarProjectButton({ projectId, name }: SidebarProjectButtonProps) {
-    const router = useRouter();
     const deleteProjectMutation = useDeleteProject();
     const duplicateProjectMutation = useDuplicateProject();
 

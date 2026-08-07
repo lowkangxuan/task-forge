@@ -8,7 +8,6 @@ import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { createNewProject } from "@/server/functions/projects";
-import { useRouter } from "@tanstack/react-router";
 import { SidebarMenuItem, SidebarMenuButton } from "../../../components/ui/multisidebar";
 
 const formSchema = z.object({
@@ -17,7 +16,6 @@ const formSchema = z.object({
 });
 
 export function ProjectCreationDialog() {
-    const router = useRouter();
     const [open, setOpen] = useState(false);
     const form = useForm({
         defaultValues: {
@@ -38,7 +36,6 @@ export function ProjectCreationDialog() {
                 toast.success("Project successfully created!");
                 form.reset();
                 setOpen(false);
-                await router.invalidate();
             }
             catch {
                 toast.error("Project creation failed!");

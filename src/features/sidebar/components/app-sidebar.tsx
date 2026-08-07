@@ -15,7 +15,6 @@ import {  useNavigate } from "@tanstack/react-router";
 import { Calendar, Home, LogOut, User } from "lucide-react"
 import { toast } from "sonner";
 import { ProjectCreationDialog } from "../../project/components/project-creation-dialog";
-import { useProjects } from "@/providers/ProjectsProvider";
 import { SidebarLink } from "./sidebar-link";
 import { SidebarProjectButton } from "./sidebar-project-button";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -27,7 +26,6 @@ interface AppSidebarProps {
 
 export function AppSidebar({ name }: AppSidebarProps) {
     const navigate = useNavigate();
-    const { localProjects } = useProjects();
     const { data: projects } = useSuspenseQuery(projectsQueryOptions());
 
     async function SignOut() {

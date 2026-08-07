@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { createNewTodo, deleteTodo } from "@/server/functions/todos";
-import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Ellipsis } from "lucide-react";
 import { useState } from "react";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
@@ -17,7 +16,6 @@ export function TodoActions({ todo }: TodoActionsProp) {
     const duplicateTodoMutation = useDuplicateTodo();
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
-    const router = useRouter();
 
     async function handleActions(action: TodoActions) {
         switch (action) {
