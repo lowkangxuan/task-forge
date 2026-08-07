@@ -1,13 +1,16 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Todo } from "@/db/schema";
 import { useEffect, useState } from "react";
-import { Link, useRouter, useSearch } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { CalendarX } from "lucide-react";
 import { format } from "date-fns";
 import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
 import { useDeleteTodo, useDuplicateTodo } from "../api/todo-mutations";
+import { useQueryClient } from "@tanstack/react-query";
+import { todoKeys } from "../api/todo-queries";
+import { updateTodo } from "@/server/functions/todos";
 
 interface TodoRowProps {
     todo: Todo,
@@ -26,6 +29,7 @@ async function handleTaskCompletion(todoId: string, isCompleted: boolean) {
 }
 
 export function TodoRow({ todo, path }: TodoRowProps) {
+    const queryClient = useQueryClient();
     const deleteTodoMutation = useDeleteTodo();
     const duplicateTodoMutation = useDuplicateTodo();
     const [checked, setChecked] = useState(todo.isCompleted);
@@ -62,14 +66,24 @@ export function TodoRow({ todo, path }: TodoRowProps) {
             <ContextMenuTrigger render={
                 <div
                     className={cn("flex items-center gap-2 px-2 py-1 rounded-md hover:bg-secondary", isActive && "bg-accent")}
-                // onClick={() => setDialogOpen(true)}
                 />
             }>
                 <Checkbox
                     checked={checked}
-                    onCheckedChange={(checked) => {
-                        handleTaskCompletion(todo.id, checked === true);
+                    onCheckedChange={async (checked) => {
                         setChecked(checked);
+                        queryClient.setQueryData<Todo>(
+                            todoKeys.detail(todo.id),
+                            (todo) => {
+                                if (!todo) return undefined;
+
+                                return {
+                                    ...todo,
+                                    isCompleted: checked,
+                                };
+                            },
+                        );
+                        await handleTaskCompletion(todo.id, checked === true);
                     }}
 
                 />
