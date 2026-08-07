@@ -1,6 +1,7 @@
 import { db } from "@/db/drizzle";
 import { todos } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { endOfDay, isToday, startOfDay } from "date-fns";
+import { asc, between, eq } from "drizzle-orm";
 
 export async function insertTodo(input: {
     projectId: string,
@@ -34,4 +35,11 @@ export async function findOneTodoById(todoId: string) {
 
 export async function findManyTodos(projectId: string) {
     return await db.select().from(todos).where(eq(todos.projectId, projectId));
+}
+
+export async function findTodayTodos() {
+    const today = new Date();
+    const startDate = startOfDay(today);
+    const endDate = endOfDay(today);
+    return await db.select().from(todos).where(between(todos.dueDate, startDate, endDate)).orderBy(asc(todos.createdAt));
 }
