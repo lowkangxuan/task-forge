@@ -102,7 +102,7 @@ export function TaskSidebar() {
             search.t,
     });
     const { data: todo } = useQuery(todoQueryOptions(queryClient, todoId));
-
+    
     const form = useForm({
         defaultValues: {
             name: todo?.name ?? "",
@@ -129,7 +129,7 @@ export function TaskSidebar() {
                 ? new Date(todo.dueDate)
                 : undefined,
         });
-    }, [todo?.id]);
+    }, [todoId]);
 
 
     useEffect(() => {

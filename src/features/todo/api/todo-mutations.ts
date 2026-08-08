@@ -172,8 +172,10 @@ export function useUpdateTodoCompleted() {
             );
         },
 
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: todoKeys.all });
+        onSuccess: (data, { projectId, todoId }) => {
+            queryClient.invalidateQueries({ queryKey: projectKeys.list() });
+            queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
+            queryClient.invalidateQueries({ queryKey: todoKeys.detail(todoId) });
         }
     })
 }
