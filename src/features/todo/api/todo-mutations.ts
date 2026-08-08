@@ -1,6 +1,8 @@
+import type { ProjectWithTodo, Todo } from "@/db/schema";
 import { projectKeys } from "@/features/project/api/project-queries";
-import { createNewTodo, deleteTodo } from "@/server/functions/todos";
+import { createNewTodo, deleteTodo, updateTodo } from "@/server/functions/todos";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { todoKeys } from "./todo-queries";
 
 export function useDeleteTodo() {
     const queryClient = useQueryClient();
@@ -38,5 +40,140 @@ export function useDuplicateTodo() {
                 queryKey: projectKeys.detail(newTodo.projectId),
             });
         },
+    })
+}
+
+export function useUpdateTodoDate() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (input: {
+            projectId: string,
+            todoId: string,
+            dueDate: Date | null,
+        }) =>
+            await updateTodo({
+                data: {
+                    todoId: input.todoId,
+                    updates: {
+                        dueDate: input.dueDate ?? null,
+                    }
+                }
+            }),
+
+        onMutate: (variables) => {
+            const { projectId, todoId, dueDate } = variables;
+            queryClient.setQueryData<ProjectWithTodo>(
+                projectKeys.detail(projectId),
+                (project) => {
+                    if (!project) return undefined;
+                    return {
+                        ...project,
+                        todos: project.todos.map((todo) =>
+                            todo.id === todoId
+                                ? { ...todo, dueDate }
+                                : todo
+                        ),
+                    };
+                }
+            );
+
+            queryClient.setQueryData<Todo[]>(
+                todoKeys.today(),
+                (todos) => {
+                    if (!todos) return undefined;
+                    return (
+                        todos.map((todo) =>
+                            todo.id === todoId
+                                ? { ...todo, dueDate }
+                                : todo,
+                        )
+                    );
+                },
+            );
+
+            queryClient.setQueryData<Todo>(
+                todoKeys.detail(todoId),
+                (todo) => {
+                    if (!todo) return undefined;
+                    return {
+                        ...todo,
+                        dueDate,
+                    };
+                },
+            );
+        },
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: projectKeys.all });
+            queryClient.invalidateQueries({ queryKey: todoKeys.all });
+        }
+    })
+}
+
+export function useUpdateTodoCompleted() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (input: {
+            projectId: string,
+            todoId: string,
+            isCompleted: boolean,
+        }) =>
+            await updateTodo({
+                data: {
+                    todoId: input.todoId,
+                    updates: {
+                        isCompleted: input.isCompleted,
+                    }
+                }
+            }),
+
+        onMutate: (variables) => {
+            const { projectId, todoId, isCompleted } = variables;
+            queryClient.setQueryData<ProjectWithTodo>(
+                projectKeys.detail(projectId),
+                (project) => {
+                    if (!project) return undefined;
+                    return {
+                        ...project,
+                        todos: project.todos.map((todo) =>
+                            todo.id === todoId
+                                ? { ...todo, isCompleted }
+                                : todo
+                        ),
+                    };
+                }
+            );
+
+            queryClient.setQueryData<Todo[]>(
+                todoKeys.today(),
+                (todos) => {
+                    if (!todos) return undefined;
+                    return (
+                        todos.map((todo) =>
+                            todo.id === todoId
+                                ? { ...todo, isCompleted }
+                                : todo,
+                        )
+                    );
+                },
+            );
+
+            queryClient.setQueryData<Todo>(
+                todoKeys.detail(todoId),
+                (todo) => {
+                    if (!todo) return undefined;
+                    return {
+                        ...todo,
+                        isCompleted,
+                    };
+                },
+            );
+        },
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: todoKeys.all });
+        }
     })
 }

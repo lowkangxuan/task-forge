@@ -1,6 +1,6 @@
 import type { ProjectWithTodo } from "@/db/schema";
 import { projectKeys } from "@/features/project/api/project-queries";
-import { getTodayTodos, getTodoById } from "@/server/functions/todos";
+import { getTodayTodos, getTodoById, getUpcomingTodos } from "@/server/functions/todos";
 import { QueryClient, queryOptions, skipToken } from "@tanstack/react-query";
 
 export const todoKeys = {
@@ -42,5 +42,13 @@ export function todayTodoQueryOptions() {
         queryKey: todoKeys.today(),
         queryFn: async () =>
             await getTodayTodos(),
-    })
+    });
+}
+
+export function upcomingTodoQueryOptions() {
+    return queryOptions({
+        queryKey: todoKeys.upcoming(),
+        queryFn: async() =>
+            await getUpcomingTodos(),
+    });
 }

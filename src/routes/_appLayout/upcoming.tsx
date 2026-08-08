@@ -1,10 +1,14 @@
 import { Header } from '@/components/header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { upcomingTodoQueryOptions } from '@/features/todo/api/todo-queries';
 import { FilteredTodo } from '@/features/todo/components/filtered-todo';
 import { useProjects } from '@/providers/ProjectsProvider';
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_appLayout/upcoming')({
+    loader: ({ context }) => {
+        context.queryClient.prefetchQuery(upcomingTodoQueryOptions());
+    },
     component: RouteComponent,
 })
 

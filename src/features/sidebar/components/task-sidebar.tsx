@@ -26,6 +26,7 @@ import { TodoActions } from "@/features/todo/components/todo-sidebar-actions";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectKeys } from "@/features/project/api/project-queries";
 import { todoKeys, todoQueryOptions } from "@/features/todo/api/todo-queries";
+import { useUpdateTodoCompleted, useUpdateTodoDate } from "@/features/todo/api/todo-mutations";
 
 type optimisticInput = {
     queryClient: QueryClient;
@@ -82,95 +83,13 @@ function optimisticNameUpdate({ queryClient, projectId, todoId, name }: optimist
     );
 }
 
-function optimisticCheckboxUpdate({ queryClient, projectId, todoId, isCompleted }: optimisticInput & { isCompleted: boolean }) {
-    queryClient.setQueryData<ProjectWithTodo>(
-        projectKeys.detail(projectId),
-        (project) => {
-            if (!project) return undefined;
-            return {
-                ...project,
-                todos: project.todos.map((todo) =>
-                    todo.id === todoId
-                        ? { ...todo, isCompleted }
-                        : todo
-                ),
-            };
-        }
-    );
-
-    queryClient.setQueryData<Todo[]>(
-        todoKeys.today(),
-        (todos) => {
-            if (!todos) return undefined;
-            return (
-                todos.map((todo) =>
-                    todo.id === todoId
-                        ? { ...todo, isCompleted }
-                        : todo,
-                )
-            );
-        },
-    );
-
-    queryClient.setQueryData<Todo>(
-        todoKeys.detail(todoId),
-        (todo) => {
-            if (!todo) return undefined;
-            return {
-                ...todo,
-                isCompleted,
-            };
-        },
-    );
-}
-
-function optimisticDateUpdate({ queryClient, projectId, todoId, dueDate }: optimisticInput & { dueDate: Date | null }) {
-    queryClient.setQueryData<ProjectWithTodo>(
-        projectKeys.detail(projectId),
-        (project) => {
-            if (!project) return undefined;
-            return {
-                ...project,
-                todos: project.todos.map((todo) =>
-                    todo.id === todoId
-                        ? { ...todo, dueDate }
-                        : todo
-                ),
-            };
-        }
-    );
-
-    queryClient.setQueryData<Todo[]>(
-        todoKeys.today(),
-        (todos) => {
-            if (!todos) return undefined;
-            return (
-                todos.map((todo) =>
-                    todo.id === todoId
-                        ? { ...todo, dueDate }
-                        : todo,
-                )
-            );
-        },
-    );
-
-    queryClient.setQueryData<Todo>(
-        todoKeys.detail(todoId),
-        (todo) => {
-            if (!todo) return undefined;
-            return {
-                ...todo,
-                dueDate,
-            };
-        },
-    );
-}
-
 export function TaskSidebar() {
     const { rightSidebar: { setOpen } } = useMultiSidebar();
-    const debounceTaskUpdater = useDebounceTaskBasic();
-    const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const updateDateMutation = useUpdateTodoDate();
+    const updateCompletedMutation = useUpdateTodoCompleted();
+    const debounceTaskUpdater = useDebounceTaskBasic();
 
     const matchRoute = useMatchRoute();
     const isProjectRoute = matchRoute({ to: "/projects/$projectId", fuzzy: false, }) !== false;
@@ -358,14 +277,10 @@ export function TaskSidebar() {
                                                         selected={field.state.value}
                                                         onSelect={async (date) => {
                                                             field.handleChange(date);
-                                                            optimisticDateUpdate({ queryClient, projectId: todo!.projectId, todoId: todo!.id, dueDate: date ?? null })
-                                                            await updateTodo({
-                                                                data: {
-                                                                    todoId: todoId!,
-                                                                    updates: {
-                                                                        dueDate: date ?? null,
-                                                                    }
-                                                                }
+                                                            updateDateMutation.mutate({
+                                                                projectId: todo!.projectId,
+                                                                todoId: todo!.id,
+                                                                dueDate: date ?? null,
                                                             });
                                                         }}
                                                     />
@@ -392,14 +307,10 @@ export function TaskSidebar() {
                                                 checked={field.state.value}
                                                 onCheckedChange={async (e) => {
                                                     field.handleChange(e.valueOf());
-                                                    optimisticCheckboxUpdate({ queryClient, projectId: todo!.projectId, todoId: todoId!, isCompleted: e.valueOf() });
-                                                    await updateTodo({
-                                                        data: {
-                                                            todoId: todoId!,
-                                                            updates: {
-                                                                isCompleted: e.valueOf(),
-                                                            }
-                                                        }
+                                                    updateCompletedMutation.mutate({
+                                                        projectId: todo!.projectId,
+                                                        todoId: todo!.id,
+                                                        isCompleted: e.valueOf(),
                                                     });
                                                 }} />
                                         </FieldContent>

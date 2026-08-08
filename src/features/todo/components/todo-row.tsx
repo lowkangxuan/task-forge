@@ -7,7 +7,7 @@ import { CalendarX } from "lucide-react";
 import { format } from "date-fns";
 import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
-import { useDeleteTodo, useDuplicateTodo } from "../api/todo-mutations";
+import { useDeleteTodo, useDuplicateTodo, useUpdateTodoCompleted } from "../api/todo-mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { todoKeys } from "../api/todo-queries";
 import { updateTodo } from "@/server/functions/todos";
@@ -32,6 +32,7 @@ export function TodoRow({ todo, path }: TodoRowProps) {
     const queryClient = useQueryClient();
     const deleteTodoMutation = useDeleteTodo();
     const duplicateTodoMutation = useDuplicateTodo();
+    const updateCompletedMutation = useUpdateTodoCompleted();
     const [checked, setChecked] = useState(todo.isCompleted);
     const search = useSearch({ strict: false });
     const isActive = search?.t === todo.id;
@@ -72,18 +73,23 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                     checked={checked}
                     onCheckedChange={async (checked) => {
                         setChecked(checked);
-                        queryClient.setQueryData<Todo>(
-                            todoKeys.detail(todo.id),
-                            (todo) => {
-                                if (!todo) return undefined;
+                        updateCompletedMutation.mutate({
+                            projectId: todo.projectId,
+                            todoId: todo.id,
+                            isCompleted: checked,
+                        })
+                        // queryClient.setQueryData<Todo>(
+                        //     todoKeys.detail(todo.id),
+                        //     (todo) => {
+                        //         if (!todo) return undefined;
 
-                                return {
-                                    ...todo,
-                                    isCompleted: checked,
-                                };
-                            },
-                        );
-                        await handleTaskCompletion(todo.id, checked === true);
+                        //         return {
+                        //             ...todo,
+                        //             isCompleted: checked,
+                        //         };
+                        //     },
+                        // );
+                        // await handleTaskCompletion(todo.id, checked === true);
                     }}
 
                 />

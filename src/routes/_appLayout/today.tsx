@@ -6,7 +6,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_appLayout/today')({
     loader: ({ context }) => {
-        context.queryClient.prefetchQuery(
+        context.queryClient.ensureQueryData(
             todayTodoQueryOptions(),
         );
     },
