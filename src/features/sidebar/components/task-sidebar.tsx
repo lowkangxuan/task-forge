@@ -21,11 +21,17 @@ import { Link, useMatchRoute, useNavigate, useSearch } from "@tanstack/react-rou
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { updateTodo } from "@/server/functions/todos";
 import { format } from "date-fns";
-import type { ProjectWithTodo } from "@/db/schema";
+import type { ProjectWithTodo, Todo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-sidebar-actions";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectKeys } from "@/features/project/api/project-queries";
-import { todoQueryOptions } from "@/features/todo/api/todo-queries";
+import { todoKeys, todoQueryOptions } from "@/features/todo/api/todo-queries";
+
+type optimisticInput = {
+    queryClient: QueryClient;
+    projectId: string;
+    todoId: string;
+}
 
 const formSchema = z.object({
     name: z.string(),
@@ -33,6 +39,132 @@ const formSchema = z.object({
     isCompleted: z.boolean(),
     dueDate: z.union([z.date(), z.undefined()]),
 });
+
+function optimisticNameUpdate({ queryClient, projectId, todoId, name }: optimisticInput & { name: string }) {
+    queryClient.setQueryData<ProjectWithTodo>(
+        projectKeys.detail(projectId),
+        (project) => {
+            if (!project) return undefined;
+            return {
+                ...project,
+                todos: project.todos.map((todo) =>
+                    todo.id === todoId
+                        ? { ...todo, name }
+                        : todo
+                ),
+            };
+        }
+    );
+
+    queryClient.setQueryData<Todo[]>(
+        todoKeys.today(),
+        (todos) => {
+            if (!todos) return undefined;
+            return (
+                todos.map((todo) =>
+                    todo.id === todoId
+                        ? { ...todo, name }
+                        : todo,
+                )
+            );
+        },
+    );
+
+    queryClient.setQueryData<Todo>(
+        todoKeys.detail(todoId),
+        (todo) => {
+            if (!todo) return undefined;
+            return {
+                ...todo,
+                name,
+            };
+        },
+    );
+}
+
+function optimisticCheckboxUpdate({ queryClient, projectId, todoId, isCompleted }: optimisticInput & { isCompleted: boolean }) {
+    queryClient.setQueryData<ProjectWithTodo>(
+        projectKeys.detail(projectId),
+        (project) => {
+            if (!project) return undefined;
+            return {
+                ...project,
+                todos: project.todos.map((todo) =>
+                    todo.id === todoId
+                        ? { ...todo, isCompleted }
+                        : todo
+                ),
+            };
+        }
+    );
+
+    queryClient.setQueryData<Todo[]>(
+        todoKeys.today(),
+        (todos) => {
+            if (!todos) return undefined;
+            return (
+                todos.map((todo) =>
+                    todo.id === todoId
+                        ? { ...todo, isCompleted }
+                        : todo,
+                )
+            );
+        },
+    );
+
+    queryClient.setQueryData<Todo>(
+        todoKeys.detail(todoId),
+        (todo) => {
+            if (!todo) return undefined;
+            return {
+                ...todo,
+                isCompleted,
+            };
+        },
+    );
+}
+
+function optimisticDateUpdate({ queryClient, projectId, todoId, dueDate }: optimisticInput & { dueDate: Date | null }) {
+    queryClient.setQueryData<ProjectWithTodo>(
+        projectKeys.detail(projectId),
+        (project) => {
+            if (!project) return undefined;
+            return {
+                ...project,
+                todos: project.todos.map((todo) =>
+                    todo.id === todoId
+                        ? { ...todo, dueDate }
+                        : todo
+                ),
+            };
+        }
+    );
+
+    queryClient.setQueryData<Todo[]>(
+        todoKeys.today(),
+        (todos) => {
+            if (!todos) return undefined;
+            return (
+                todos.map((todo) =>
+                    todo.id === todoId
+                        ? { ...todo, dueDate }
+                        : todo,
+                )
+            );
+        },
+    );
+
+    queryClient.setQueryData<Todo>(
+        todoKeys.detail(todoId),
+        (todo) => {
+            if (!todo) return undefined;
+            return {
+                ...todo,
+                dueDate,
+            };
+        },
+    );
+}
 
 export function TaskSidebar() {
     const { rightSidebar: { setOpen } } = useMultiSidebar();
@@ -156,22 +288,7 @@ export function TaskSidebar() {
                                             onBlur={field.handleBlur}
                                             onChange={(e) => {
                                                 field.handleChange(e.target.value);
-
-                                                queryClient.setQueryData<ProjectWithTodo>(
-                                                    projectKeys.detail(todo!.projectId),
-                                                    (project) => {
-                                                        if (!project) return project;
-                                                        return {
-                                                            ...project,
-                                                            todos: project.todos.map((todo) =>
-                                                                todo.id === todoId
-                                                                    ? { ...todo, name: e.target.value }
-                                                                    : todo
-                                                            ),
-                                                        };
-                                                    }
-                                                );
-
+                                                optimisticNameUpdate({ queryClient, projectId: todo!.projectId, todoId: todoId!, name: e.target.value });
                                                 debounceTaskUpdater({ todoId: todoId!, updates: { name: e.target.value } });
                                             }}
                                             aria-invalid={isInvalid}
@@ -241,27 +358,12 @@ export function TaskSidebar() {
                                                         selected={field.state.value}
                                                         onSelect={async (date) => {
                                                             field.handleChange(date);
-
-                                                            queryClient.setQueryData<ProjectWithTodo>(
-                                                                projectKeys.detail(todo!.projectId),
-                                                                (project) => {
-                                                                    if (!project) return project;
-                                                                    return {
-                                                                        ...project,
-                                                                        todos: project.todos.map((todo) =>
-                                                                            todo.id === todoId
-                                                                                ? { ...todo, dueDate: date ?? null }
-                                                                                : todo
-                                                                        ),
-                                                                    };
-                                                                }
-                                                            );
-
+                                                            optimisticDateUpdate({ queryClient, projectId: todo!.projectId, todoId: todo!.id, dueDate: date ?? null })
                                                             await updateTodo({
                                                                 data: {
                                                                     todoId: todoId!,
                                                                     updates: {
-                                                                        dueDate: date,
+                                                                        dueDate: date ?? null,
                                                                     }
                                                                 }
                                                             });
@@ -290,22 +392,7 @@ export function TaskSidebar() {
                                                 checked={field.state.value}
                                                 onCheckedChange={async (e) => {
                                                     field.handleChange(e.valueOf());
-
-                                                    queryClient.setQueryData<ProjectWithTodo>(
-                                                        projectKeys.detail(todo!.projectId),
-                                                        (project) => {
-                                                            if (!project) return project;
-                                                            return {
-                                                                ...project,
-                                                                todos: project.todos.map((todo) =>
-                                                                    todo.id === todoId
-                                                                        ? { ...todo, isCompleted: e.valueOf() }
-                                                                        : todo
-                                                                ),
-                                                            };
-                                                        }
-                                                    );
-
+                                                    optimisticCheckboxUpdate({ queryClient, projectId: todo!.projectId, todoId: todoId!, isCompleted: e.valueOf() });
                                                     await updateTodo({
                                                         data: {
                                                             todoId: todoId!,

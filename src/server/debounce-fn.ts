@@ -1,13 +1,8 @@
-import { getRouter } from "@/router";
 import { useDebouncedCallback } from "use-debounce";
 import { updateTodo } from "./functions/todos";
 import { useRenameProject } from "@/features/project/api/project-mutations";
 
 const WAIT = 300; // in milliseconds
-
-async function invalidateRouter() {
-    await getRouter().invalidate();
-}
 
 export function useDebounceProjectName() {
     const renameProject = useRenameProject();
@@ -34,7 +29,6 @@ export function useDebounceTaskBasic() {
                     updates: data.updates,
                 }
             });
-            await invalidateRouter();
         }, WAIT
     );
 }

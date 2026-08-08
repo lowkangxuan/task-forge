@@ -23,7 +23,7 @@ export function todoQueryOptions(queryClient: QueryClient, todoId?: string) {
                 queryClient.getQueryData<ProjectWithTodo[]>(
                     projectKeys.list(),
                 );
-            console.log(projectQueries);
+
             for (const project of projectQueries!) {
                 const todo = project?.todos.find(
                     (todo) => todo.id === todoId,

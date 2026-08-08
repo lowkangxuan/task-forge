@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_appLayout/today')({
 
 function RouteComponent() {
     const { data: todos } = useSuspenseQuery(todayTodoQueryOptions());
-    console.log(todos);
+
     return (
         <div className="flex flex-col gap-4">
             <Header as="h1">Today</Header>
