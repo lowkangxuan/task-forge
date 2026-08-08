@@ -150,6 +150,8 @@ export const todoRelations = relations(todos, ({ one }) => ({
     }),
 }));
 
+export type Priority = (typeof priorityEnum.enumValues)[number];
+
 export type Project = typeof projects.$inferSelect;
 export type Todo = typeof todos.$inferSelect;
 

@@ -21,7 +21,7 @@ import { Link, useMatchRoute, useNavigate, useSearch } from "@tanstack/react-rou
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { updateTodo } from "@/server/functions/todos";
 import { format } from "date-fns";
-import type { ProjectWithTodo, Todo } from "@/db/schema";
+import { priorityEnum, type ProjectWithTodo, type Todo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-sidebar-actions";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectKeys } from "@/features/project/api/project-queries";
@@ -37,8 +37,9 @@ type optimisticInput = {
 const formSchema = z.object({
     name: z.string(),
     description: z.string(),
-    isCompleted: z.boolean(),
     dueDate: z.union([z.date(), z.undefined()]),
+    isCompleted: z.boolean(),
+    priority: z.enum(priorityEnum.enumValues),
 });
 
 function optimisticNameUpdate({ queryClient, projectId, todoId, name }: optimisticInput & { name: string }) {
@@ -107,10 +108,11 @@ export function TaskSidebar() {
         defaultValues: {
             name: todo?.name ?? "",
             description: todo?.description ?? "",
-            isCompleted: todo?.isCompleted ?? false,
             dueDate: todo?.dueDate
                 ? new Date(todo.dueDate)
                 : undefined,
+            isCompleted: todo?.isCompleted ?? false,
+            priority: todo?.priority ?? "none",
         },
         validators: {
             onSubmit: formSchema,
@@ -128,6 +130,7 @@ export function TaskSidebar() {
             dueDate: todo?.dueDate
                 ? new Date(todo.dueDate)
                 : undefined,
+            priority: todo?.priority,
         });
     }, [todoId]);
 
