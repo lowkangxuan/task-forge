@@ -78,18 +78,6 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                             todoId: todo.id,
                             isCompleted: checked,
                         })
-                        // queryClient.setQueryData<Todo>(
-                        //     todoKeys.detail(todo.id),
-                        //     (todo) => {
-                        //         if (!todo) return undefined;
-
-                        //         return {
-                        //             ...todo,
-                        //             isCompleted: checked,
-                        //         };
-                        //     },
-                        // );
-                        // await handleTaskCompletion(todo.id, checked === true);
                     }}
 
                 />
