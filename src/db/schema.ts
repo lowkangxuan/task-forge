@@ -1,6 +1,8 @@
 import { relations } from "drizzle-orm";
 import { ulid } from "ulid";
-import { pgTable, text, timestamp, boolean, index, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, varchar, pgEnum } from "drizzle-orm/pg-core";
+
+export const priorityEnum = pgEnum("priority", ["none", "low", "medium", "high"]);
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
@@ -102,6 +104,7 @@ export const todos = pgTable("todos",
             .references(() => projects.id, { onDelete: "cascade" }),
         name: text("name").notNull(),
         description: text("description"),
+        priority: priorityEnum("priority").default("none").notNull(),
         isCompleted: boolean("is_completed").default(false).notNull(),
         dueDate: timestamp("due_date"),
         createdAt: timestamp("created_at").defaultNow().notNull(),
