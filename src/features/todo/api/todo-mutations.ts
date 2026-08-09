@@ -14,10 +14,8 @@ export function useDeleteTodo() {
             }),
 
         onSuccess: (deletedTodo) => {
-            return queryClient.invalidateQueries({
-                queryKey: projectKeys.detail(deletedTodo.projectId),
-                exact: true,
-            })
+            queryClient.invalidateQueries({ queryKey: projectKeys.detail(deletedTodo.projectId), exact: true });
+            queryClient.invalidateQueries({ queryKey: projectKeys.list() });
         }
     })
 }
@@ -36,9 +34,8 @@ export function useDuplicateTodo() {
             await createNewTodo({ data: input }),
 
         onSuccess: (newTodo) => {
-            return queryClient.invalidateQueries({
-                queryKey: projectKeys.detail(newTodo.projectId),
-            });
+            queryClient.invalidateQueries({ queryKey: projectKeys.list() });
+            queryClient.invalidateQueries({ queryKey: projectKeys.detail(newTodo.projectId) });
         },
     })
 }
