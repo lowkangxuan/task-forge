@@ -1,5 +1,5 @@
 import { useDebouncedCallback } from "use-debounce";
-import { updateTodo } from "./functions/todos";
+import { updateTodo } from "../features/todo/server/todos";
 import { useRenameProject } from "@/features/project/api/project-mutations";
 
 const WAIT = 300; // in milliseconds

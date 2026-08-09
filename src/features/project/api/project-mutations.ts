@@ -3,7 +3,7 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 
-import { deleteProject, duplicateProject, updateProjectName } from "@/server/functions/projects";
+import { deleteProject, duplicateProject, updateProjectName } from "@/features/project/server/projects";
 import {
     projectKeys,
 } from "@/features/project/api/project-queries";

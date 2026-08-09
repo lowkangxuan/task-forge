@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
-import { findManyTodos, findOneTodoById, findTodayTodos, findUpcomingTodos, insertTodo, removeTodo, updateTodoData } from "../repositories/todos.server";
+import { findManyTodos, findOneTodoById, findTodayTodos, findUpcomingTodos, insertTodo, removeTodo, updateTodoData } from "./todos.server";
 import type { Priority } from "@/db/schema";
 
 const updateTodoinputValidator = z.object({

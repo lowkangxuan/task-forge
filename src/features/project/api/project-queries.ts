@@ -3,7 +3,7 @@ import { queryOptions } from "@tanstack/react-query";
 import {
     getProjectById,
     getUserProjects,
-} from "@/server/functions/projects";
+} from "@/features/project/server/projects";
 
 export const projectKeys = {
     all: ["projects"] as const,

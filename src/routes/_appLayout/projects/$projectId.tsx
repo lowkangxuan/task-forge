@@ -1,12 +1,12 @@
 import { CustomInput } from '@/components/ui/custom-input';
 import { Button } from '@/components/ui/button';
-import { createNewTodo } from '@/server/functions/todos';
+import { createNewTodo } from '@/features/todo/server/todos';
 import { createFileRoute, notFound, useRouter } from '@tanstack/react-router'
 import * as z from "zod";
 import { useEffect, useState } from 'react';
 import { useDebounceProjectName } from '@/server/debounce-fn';
 import { TodoRow } from '@/features/todo/components/todo-row';
-import { verifyProjectOwnership } from '@/server/functions/projects';
+import { verifyProjectOwnership } from "@/features/project/server/projects";
 import { projectKeys, projectQueryOptions } from '@/features/project/api/project-queries';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import type { ProjectWithTodo } from '@/db/schema';

@@ -3,7 +3,7 @@ import { TaskSidebar } from '@/features/sidebar/components/task-sidebar';
 import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/multisidebar';
 import { ProjectActions } from '@/features/project/components/project-header-actions';
 import { ProjectsProvider } from '@/providers/ProjectsProvider';
-import { getUserProjects } from '@/server/functions/projects';
+import { getUserProjects } from "@/features/project/server/projects";
 import { createFileRoute, Outlet, redirect, useMatchRoute } from '@tanstack/react-router';
 import { projectsQueryOptions } from '@/features/project/api/project-queries';
 

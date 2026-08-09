@@ -1,6 +1,6 @@
 import type { ProjectWithTodo } from "@/db/schema";
 import { projectKeys } from "@/features/project/api/project-queries";
-import { getTodayTodos, getTodoById, getUpcomingTodos } from "@/server/functions/todos";
+import { getTodayTodos, getTodoById, getUpcomingTodos } from "@/features/todo/server/todos";
 import { QueryClient, queryOptions, skipToken } from "@tanstack/react-query";
 
 export const todoKeys = {

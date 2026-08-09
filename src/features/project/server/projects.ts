@@ -4,8 +4,8 @@ import { projects, type ProjectWithTodo } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
-import { findManyProjects, findProjectById, insertProject, removeProject } from "../repositories/projects.server";
-import { insertTodo } from "../repositories/todos.server";
+import { findManyProjects, findProjectById, insertProject, removeProject } from "./projects.server";
+import { insertTodo } from "@/features/todo/server/todos.server";
 
 
 const defaultProjectInput = z.object({

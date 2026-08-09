@@ -1,6 +1,6 @@
 import type { Priority, ProjectWithTodo, Todo } from "@/db/schema";
 import { projectKeys } from "@/features/project/api/project-queries";
-import { createNewTodo, deleteTodo, updateTodo } from "@/server/functions/todos";
+import { createNewTodo, deleteTodo, updateTodo } from "@/features/todo/server/todos";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { todoKeys } from "./todo-queries";
 
