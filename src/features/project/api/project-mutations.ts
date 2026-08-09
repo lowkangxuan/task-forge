@@ -8,6 +8,7 @@ import {
     projectKeys,
 } from "@/features/project/api/project-queries";
 import type { ProjectWithTodo } from "@/db/schema";
+import { todoKeys } from "@/features/todo/api/todo-queries";
 
 export function useDeleteProject() {
     const queryClient = useQueryClient();
@@ -21,6 +22,7 @@ export function useDeleteProject() {
         onSuccess: async (_result, projectId) => {
             queryClient.removeQueries({ queryKey: projectKeys.detail(projectId) });
             queryClient.invalidateQueries({ queryKey: projectKeys.list() });
+            queryClient.invalidateQueries({ queryKey: todoKeys.all });
         },
     });
 }
@@ -49,6 +51,7 @@ export function useDuplicateProject() {
 
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: projectKeys.all });
+            queryClient.invalidateQueries({ queryKey: todoKeys.all });
         },
     });
 }
