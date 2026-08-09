@@ -266,9 +266,9 @@ export function TaskSidebar() {
                                 const isInvalid =
                                     field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
-                                    <Field data-invalid={isInvalid} orientation="responsive" className="text-sm">
-                                        <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><CalendarIcon />Due date</FieldLabel>
-                                        <FieldContent>
+                                    <Field data-invalid={isInvalid} orientation="horizontal" className="grid grid-cols-[8rem_1fr] items-center! gap-4 text-sm">
+                                        <FieldLabel htmlFor={field.name} className="text-sm gap-1"><CalendarIcon />Due date</FieldLabel>
+                                        <FieldContent className="min-w-0">
                                             <Popover>
                                                 <PopoverTrigger render={
                                                     <Button
@@ -307,9 +307,9 @@ export function TaskSidebar() {
                                 const isInvalid =
                                     field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
-                                    <Field data-invalid={isInvalid} orientation="responsive" className="text-sm">
-                                        <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><ClipboardCheck />Status</FieldLabel>
-                                        <FieldContent>
+                                    <Field data-invalid={isInvalid} orientation="horizontal" className="grid grid-cols-[8rem_1fr] items-center! gap-4 text-sm">
+                                        <FieldLabel htmlFor={field.name} className="text-sm gap-1"><ClipboardCheck />Status</FieldLabel>
+                                        <FieldContent className="min-w-0">
                                             <Checkbox
                                                 checked={field.state.value}
                                                 onCheckedChange={async (e) => {
@@ -332,9 +332,9 @@ export function TaskSidebar() {
                                 const isInvalid =
                                     field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
-                                    <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
-                                        <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><Flag />Priority</FieldLabel>
-                                        <FieldContent>
+                                    <Field data-invalid={isInvalid} orientation="horizontal" className="grid grid-cols-[8rem_1fr] items-center! gap-4 text-sm">
+                                        <FieldLabel htmlFor={field.name} className="text-sm gap-1"><Flag />Priority</FieldLabel>
+                                        <FieldContent className="min-w-0">
                                             <Select
                                                 name={field.name}
                                                 value={field.state.value}
