@@ -16,6 +16,8 @@ export function useDeleteTodo() {
         onSuccess: (deletedTodo) => {
             queryClient.invalidateQueries({ queryKey: projectKeys.detail(deletedTodo.projectId), exact: true });
             queryClient.invalidateQueries({ queryKey: projectKeys.list() });
+            queryClient.invalidateQueries({ queryKey: todoKeys.today() });
+            queryClient.invalidateQueries({ queryKey: todoKeys.upcoming() });
         }
     })
 }
@@ -28,6 +30,7 @@ export function useDuplicateTodo() {
             projectId: string,
             name: string,
             description?: string | null,
+            priority?: Priority,
             isCompleted?: boolean,
             dueDate?: Date | null,
         }) =>
@@ -36,6 +39,8 @@ export function useDuplicateTodo() {
         onSuccess: (newTodo) => {
             queryClient.invalidateQueries({ queryKey: projectKeys.list() });
             queryClient.invalidateQueries({ queryKey: projectKeys.detail(newTodo.projectId) });
+            queryClient.invalidateQueries({ queryKey: todoKeys.today() });
+            queryClient.invalidateQueries({ queryKey: todoKeys.upcoming() });
         },
     })
 }

@@ -38,11 +38,12 @@ export function TodoRow({ todo, path }: TodoRowProps) {
     async function handleAction(action: TodoActions) {
         switch (action) {
             case "duplicate": {
-                const { projectId, name, description, isCompleted, dueDate } = todo;
+                const { projectId, name, description, priority, isCompleted, dueDate } = todo;
                 duplicateTodoMutation.mutate({
                     projectId,
                     name,
                     description,
+                    priority,
                     isCompleted,
                     dueDate
                 });

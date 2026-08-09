@@ -21,6 +21,7 @@ export const createNewTodo = createServerFn({ method: "POST" })
         projectId: string,
         name: string,
         description?: string | null,
+        priority?: Priority,
         isCompleted?: boolean,
         dueDate?: Date | null,
     }) => data)
