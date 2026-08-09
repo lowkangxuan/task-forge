@@ -266,37 +266,33 @@ export function TaskSidebar() {
                                     field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
                                     <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
-                                        <FieldContent className="flex-none">
-                                            <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><CalendarIcon />Due date</FieldLabel>
-                                        </FieldContent>
-                                        <FieldContent>
-                                            <Popover>
-                                                <PopoverTrigger render={
-                                                    <Button
-                                                        variant="ghost"
-                                                        id="date-picker-simple"
-                                                        className="justify-start min-w-0 text-sm p-0 hover:bg-transparent"
-                                                    >
-                                                        {field.state.value ? format(field.state.value, "PPP") : <span className="text-foreground">None</span>}
-                                                    </Button>
-                                                } />
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        id={field.name}
-                                                        mode="single"
-                                                        selected={field.state.value}
-                                                        onSelect={async (date) => {
-                                                            field.handleChange(date);
-                                                            updateDateMutation.mutate({
-                                                                projectId: todo!.projectId,
-                                                                todoId: todo!.id,
-                                                                dueDate: date ?? null,
-                                                            });
-                                                        }}
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                        </FieldContent>
+                                        <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><CalendarIcon />Due date</FieldLabel>
+                                        <Popover>
+                                            <PopoverTrigger render={
+                                                <Button
+                                                    variant="ghost"
+                                                    id="date-picker-simple"
+                                                    className="justify-start min-w-0 text-sm p-0 hover:bg-transparent"
+                                                >
+                                                    {field.state.value ? format(field.state.value, "PPP") : <span className="text-foreground">None</span>}
+                                                </Button>
+                                            } />
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    id={field.name}
+                                                    mode="single"
+                                                    selected={field.state.value}
+                                                    onSelect={async (date) => {
+                                                        field.handleChange(date);
+                                                        updateDateMutation.mutate({
+                                                            projectId: todo!.projectId,
+                                                            todoId: todo!.id,
+                                                            dueDate: date ?? null,
+                                                        });
+                                                    }}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
                                     </Field>
                                 )
                             }}
@@ -309,21 +305,17 @@ export function TaskSidebar() {
                                     field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
                                     <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
-                                        <FieldContent className="flex-none">
-                                            <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><ClipboardCheck />Status</FieldLabel>
-                                        </FieldContent>
-                                        <FieldContent>
-                                            <Checkbox
-                                                checked={field.state.value}
-                                                onCheckedChange={async (e) => {
-                                                    field.handleChange(e.valueOf());
-                                                    updateCompletedMutation.mutate({
-                                                        projectId: todo!.projectId,
-                                                        todoId: todo!.id,
-                                                        isCompleted: e.valueOf(),
-                                                    });
-                                                }} />
-                                        </FieldContent>
+                                        <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><ClipboardCheck />Status</FieldLabel>
+                                        <Checkbox
+                                            checked={field.state.value}
+                                            onCheckedChange={async (e) => {
+                                                field.handleChange(e.valueOf());
+                                                updateCompletedMutation.mutate({
+                                                    projectId: todo!.projectId,
+                                                    todoId: todo!.id,
+                                                    isCompleted: e.valueOf(),
+                                                });
+                                            }} />
                                     </Field>
                                 )
                             }}
