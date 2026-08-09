@@ -1,31 +1,27 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Todo } from "@/db/schema";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, type ReactNode } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { CalendarX } from "lucide-react";
+import { CalendarX, Flag } from "lucide-react";
 import { format } from "date-fns";
 import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
 import { useDeleteTodo, useDuplicateTodo, useUpdateTodoCompleted } from "../api/todo-mutations";
 import { useQueryClient } from "@tanstack/react-query";
-import { todoKeys } from "../api/todo-queries";
-import { updateTodo } from "@/server/functions/todos";
 
 interface TodoRowProps {
     todo: Todo,
     path?: string,
 }
 
-async function handleTaskCompletion(todoId: string, isCompleted: boolean) {
-    await updateTodo({
-        data: {
-            todoId: todoId,
-            updates: {
-                isCompleted: isCompleted,
-            }
-        }
-    })
+
+function TodoSubDetail({ className, children }: { children: ReactNode } & React.HTMLAttributes<"span">) {
+    return (
+        <span className={cn("flex gap-1 items-center px-2 border-r first:pl-0 last:border-0 last:pr-0", className)}>
+            {children}
+        </span>
+    )
 }
 
 export function TodoRow({ todo, path }: TodoRowProps) {
@@ -89,8 +85,9 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                     className="flex flex-col flex-1"
                 >
                     <span className="text-sm">{todo.name === "" ? "New Task" : todo.name}</span>
-                    <div className="flex divide-x text-xs">
-                        {todo.dueDate && <span className="flex gap-1 items-center"><CalendarX size={16} />{format(todo.dueDate, "PPP")}</span>}
+                    <div className="flex text-xs">
+                        {todo.dueDate && <TodoSubDetail><CalendarX size={16} />{format(todo.dueDate, "PPP")}</TodoSubDetail>}
+                        {todo.priority !== "none" && <TodoSubDetail className="capitalize"><Flag size={16} />{todo.priority}</TodoSubDetail>}
                     </div>
                 </Link>
             </ContextMenuTrigger>
