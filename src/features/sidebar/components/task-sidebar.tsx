@@ -16,23 +16,30 @@ import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/fie
 import { CustomInput } from "@/components/ui/custom-input";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
-import { CalendarIcon, ChevronsRight, ClipboardCheck } from "lucide-react";
+import { CalendarIcon, ChevronsRight, ClipboardCheck, Flag } from "lucide-react";
 import { Link, useMatchRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
-import { updateTodo } from "@/server/functions/todos";
 import { format } from "date-fns";
-import { priorityEnum, type ProjectWithTodo, type Todo } from "@/db/schema";
+import { priorityEnum, type Priority, type ProjectWithTodo, type Todo } from "@/db/schema";
 import { TodoActions } from "@/features/todo/components/todo-sidebar-actions";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectKeys } from "@/features/project/api/project-queries";
 import { todoKeys, todoQueryOptions } from "@/features/todo/api/todo-queries";
 import { useUpdateTodoCompleted, useUpdateTodoDate } from "@/features/todo/api/todo-mutations";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type optimisticInput = {
     queryClient: QueryClient;
     projectId: string;
     todoId: string;
 }
+
+const priorities = [
+    { label: "None", value: "none" },
+    { label: "Low", value: "low" },
+    { label: "Medium", value: "medium" },
+    { label: "High", value: "high" },
+] satisfies ReadonlyArray<{ label: string; value: Priority; }>;
 
 const formSchema = z.object({
     name: z.string(),
@@ -103,7 +110,7 @@ export function TaskSidebar() {
             search.t,
     });
     const { data: todo } = useQuery(todoQueryOptions(queryClient, todoId));
-    
+
     const form = useForm({
         defaultValues: {
             name: todo?.name ?? "",
@@ -317,6 +324,37 @@ export function TaskSidebar() {
                                                     });
                                                 }} />
                                         </FieldContent>
+                                    </Field>
+                                )
+                            }}
+                        />
+
+                        <form.Field
+                            name="priority"
+                            children={(field) => {
+                                const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid
+                                return (
+                                    <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
+                                        <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><Flag />Priority</FieldLabel>
+                                        <Select
+                                            name={field.name}
+                                            value={field.state.value}
+                                            onValueChange={(val) => field.handleChange(val as Priority)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="None" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    {priorities.map((priority) => (
+                                                        <SelectItem key={priority.value} value={priority.value}>
+                                                            {priority.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
                                     </Field>
                                 )
                             }}
