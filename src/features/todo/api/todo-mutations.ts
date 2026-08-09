@@ -172,7 +172,7 @@ export function useUpdateTodoCompleted() {
             );
         },
 
-        onSuccess: (data, { projectId, todoId }) => {
+        onSuccess: (_, { projectId, todoId }) => {
             queryClient.invalidateQueries({ queryKey: projectKeys.list() });
             queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
             queryClient.invalidateQueries({ queryKey: todoKeys.detail(todoId) });
@@ -241,7 +241,7 @@ export function useUpdateTodoPriority() {
             );
         },
 
-        onSuccess: (data, { projectId, todoId }) => {
+        onSuccess: (_, { todoId }) => {
             queryClient.invalidateQueries({ queryKey: projectKeys.all });
             queryClient.invalidateQueries({ queryKey: todoKeys.detail(todoId) });
         }

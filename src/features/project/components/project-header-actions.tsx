@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { deleteProject, duplicateProject } from "@/server/functions/projects";
-import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Ellipsis } from "lucide-react";
 import { useState } from "react";
 import { PROJECT_HEADER_ACTIONS, type ProjectHeaderActions } from "../project-actions";
@@ -14,7 +13,6 @@ type ProjectActionsProp = {
 export function ProjectActions({ projectId }: ProjectActionsProp) {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
-    const router = useRouter();
     const deleteProjectMutation = useDeleteProject();
     const duplicateProjectMutation = useDuplicateProject();
 

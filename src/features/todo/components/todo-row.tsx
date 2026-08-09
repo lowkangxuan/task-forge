@@ -8,7 +8,6 @@ import { format } from "date-fns";
 import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TODO_ACTIONS, type TodoActions } from "../todo-actions";
 import { useDeleteTodo, useDuplicateTodo, useUpdateTodoCompleted } from "../api/todo-mutations";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface TodoRowProps {
     todo: Todo,
@@ -25,7 +24,6 @@ function TodoSubDetail({ className, children }: { children: ReactNode } & React.
 }
 
 export function TodoRow({ todo, path }: TodoRowProps) {
-    const queryClient = useQueryClient();
     const deleteTodoMutation = useDeleteTodo();
     const duplicateTodoMutation = useDuplicateTodo();
     const updateCompletedMutation = useUpdateTodoCompleted();
