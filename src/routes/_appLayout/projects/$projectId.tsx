@@ -1,6 +1,5 @@
 import { CustomInput } from '@/components/ui/custom-input';
 import { Button } from '@/components/ui/button';
-import { createNewTodo } from '@/features/todo/server/todos';
 import { createFileRoute, notFound, useRouter } from '@tanstack/react-router'
 import * as z from "zod";
 import { useEffect, useState } from 'react';
@@ -10,6 +9,7 @@ import { verifyProjectOwnership } from "@/features/project/server/projects";
 import { projectKeys, projectQueryOptions } from '@/features/project/api/project-queries';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import type { ProjectWithTodo } from '@/db/schema';
+import { useCreateTodo } from '@/features/todo/api/todo-mutations';
 
 const searchSchema = z.object({
     t: z.string().optional(),
@@ -34,7 +34,7 @@ export const Route = createFileRoute('/_appLayout/projects/$projectId')({
 
 function ProjectViewComponent() {
     const queryClient = useQueryClient();
-    const router = useRouter();
+    const createTodoMutation = useCreateTodo();
     const { projectId } = Route.useParams();
     const { data: project } = useSuspenseQuery(projectQueryOptions(projectId));
     const [title, setTitle] = useState(project!.name);
@@ -44,23 +44,20 @@ function ProjectViewComponent() {
         setTitle(project!.name);
     }, [project!.id]);
 
-    async function handleTaskCreation({ projectId, title = "", description, isCompleted, dueDate }: {
+    async function handleTaskCreation({ projectId, name = "", description, isCompleted, dueDate }: {
         projectId: string,
-        title?: string,
+        name?: string,
         description?: string,
         isCompleted?: boolean,
         dueDate?: Date,
     }) {
-        await createNewTodo({
-            data: {
-                projectId,
-                name: title,
-                description,
-                isCompleted,
-                dueDate,
-            }
+        createTodoMutation.mutate({
+            projectId,
+            name,
+            description,
+            isCompleted,
+            dueDate,
         });
-        router.invalidate();
     }
 
     return (

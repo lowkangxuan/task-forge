@@ -4,6 +4,25 @@ import { createNewTodo, deleteTodo, updateTodo } from "@/features/todo/server/to
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { todoKeys } from "./todo-queries";
 
+export function useCreateTodo() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (input: {
+            projectId: string,
+            name: string,
+            description?: string,
+            isCompleted?: boolean,
+            dueDate?: Date,
+        }) =>
+            await createNewTodo({ data: input }),
+
+        onSuccess: ({ projectId }) => {
+            queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
+        },
+    })
+}
+
 export function useDeleteTodo() {
     const queryClient = useQueryClient();
 
