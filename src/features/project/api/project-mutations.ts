@@ -3,12 +3,33 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 
-import { deleteProject, duplicateProject, updateProjectName } from "@/features/project/server/projects";
+import { createNewProject, deleteProject, duplicateProject, updateProjectName } from "@/features/project/server/projects";
 import {
     projectKeys,
 } from "@/features/project/api/project-queries";
 import type { ProjectWithTodo } from "@/db/schema";
 import { todoKeys } from "@/features/todo/api/todo-queries";
+
+export function useCreateProject() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (input: {
+            name: string,
+            description: string,
+        }) =>
+            await createNewProject({
+                data: {
+                    name: input.name,
+                    description: input.description,
+                }
+            }),
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: projectKeys.all });
+        }
+    })
+}
 
 export function useDeleteProject() {
     const queryClient = useQueryClient();

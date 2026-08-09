@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../../components/ui/dialog";
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "../../../components/ui/field";
-import { Input } from "../../../components/ui/input";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { createNewProject } from "@/server/functions/projects";
-import { SidebarMenuItem, SidebarMenuButton } from "../../../components/ui/multisidebar";
+import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/multisidebar";
+import { useCreateProject } from "../api/project-mutations";
 
 const formSchema = z.object({
     name: z.string().min(5, "Project name must have at least 5 characters"),
@@ -16,6 +16,7 @@ const formSchema = z.object({
 });
 
 export function ProjectCreationDialog() {
+    const createProjectMutation = useCreateProject();
     const [open, setOpen] = useState(false);
     const form = useForm({
         defaultValues: {
@@ -27,12 +28,7 @@ export function ProjectCreationDialog() {
         },
         onSubmit: async ({ value }) => {
             try {
-                await createNewProject({
-                    data: {
-                        name: value.name,
-                        description: value.description,
-                    }
-                });
+                createProjectMutation.mutate(value);
                 toast.success("Project successfully created!");
                 form.reset();
                 setOpen(false);
