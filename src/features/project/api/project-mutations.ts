@@ -19,13 +19,8 @@ export function useDeleteProject() {
             }),
 
         onSuccess: async (_result, projectId) => {
-            queryClient.removeQueries({
-                queryKey: projectKeys.detail(projectId),
-            });
-
-            await queryClient.invalidateQueries({
-                queryKey: projectKeys.lists(),
-            });
+            queryClient.removeQueries({ queryKey: projectKeys.detail(projectId) });
+            queryClient.invalidateQueries({ queryKey: projectKeys.list() });
         },
     });
 }
@@ -53,9 +48,7 @@ export function useDuplicateProject() {
         },
 
         onSettled: () => {
-            return queryClient.invalidateQueries({
-                queryKey: projectKeys.all,
-            });
+            queryClient.invalidateQueries({ queryKey: projectKeys.all });
         },
     });
 }
@@ -71,9 +64,7 @@ export function useRenameProject() {
             await updateProjectName({ data: input, }),
 
         onSettled: () => {
-            return queryClient.invalidateQueries({
-                queryKey: projectKeys.all,
-            });
+            queryClient.invalidateQueries({ queryKey: projectKeys.all });
         },
     })
 }
