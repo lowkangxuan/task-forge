@@ -1,5 +1,5 @@
 import { db } from "@/db/drizzle";
-import { todos } from "@/db/schema";
+import { todos, type Priority } from "@/db/schema";
 import { endOfDay, endOfMonth, startOfDay } from "date-fns";
 import { asc, between, eq } from "drizzle-orm";
 
@@ -18,6 +18,7 @@ export async function updateTodoData(input: {
     updates: {
         name?: string,
         description?: string,
+        priority?: Priority,
         isCompleted?: boolean,
         dueDate?: Date | null,
     }

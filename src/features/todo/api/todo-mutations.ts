@@ -1,4 +1,4 @@
-import type { ProjectWithTodo, Todo } from "@/db/schema";
+import type { Priority, ProjectWithTodo, Todo } from "@/db/schema";
 import { projectKeys } from "@/features/project/api/project-queries";
 import { createNewTodo, deleteTodo, updateTodo } from "@/server/functions/todos";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -178,4 +178,72 @@ export function useUpdateTodoCompleted() {
             queryClient.invalidateQueries({ queryKey: todoKeys.detail(todoId) });
         }
     })
+}
+
+export function useUpdateTodoPriority() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (input: {
+            projectId: string,
+            todoId: string,
+            priority: Priority,
+        }) =>
+            await updateTodo({
+                data: {
+                    todoId: input.todoId,
+                    updates: {
+                        priority: input.priority
+                    }
+                }
+            }),
+
+        onMutate: (variables) => {
+            const { projectId, todoId, priority } = variables;
+            queryClient.setQueryData<ProjectWithTodo>(
+                projectKeys.detail(projectId),
+                (project) => {
+                    if (!project) return undefined;
+                    return {
+                        ...project,
+                        todos: project.todos.map((todo) =>
+                            todo.id === todoId
+                                ? { ...todo, priority }
+                                : todo
+                        ),
+                    };
+                }
+            );
+
+            queryClient.setQueryData<Todo[]>(
+                todoKeys.today(),
+                (todos) => {
+                    if (!todos) return undefined;
+                    return (
+                        todos.map((todo) =>
+                            todo.id === todoId
+                                ? { ...todo, priority }
+                                : todo,
+                        )
+                    );
+                },
+            );
+
+            queryClient.setQueryData<Todo>(
+                todoKeys.detail(todoId),
+                (todo) => {
+                    if (!todo) return undefined;
+                    return {
+                        ...todo,
+                        priority,
+                    };
+                },
+            );
+        },
+
+        onSuccess: (data, { projectId, todoId }) => {
+            queryClient.invalidateQueries({ queryKey: projectKeys.all });
+            queryClient.invalidateQueries({ queryKey: todoKeys.detail(todoId) });
+        }
+    });
 }

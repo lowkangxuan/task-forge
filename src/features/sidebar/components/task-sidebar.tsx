@@ -25,7 +25,7 @@ import { TodoActions } from "@/features/todo/components/todo-sidebar-actions";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectKeys } from "@/features/project/api/project-queries";
 import { todoKeys, todoQueryOptions } from "@/features/todo/api/todo-queries";
-import { useUpdateTodoCompleted, useUpdateTodoDate } from "@/features/todo/api/todo-mutations";
+import { useUpdateTodoCompleted, useUpdateTodoDate, useUpdateTodoPriority } from "@/features/todo/api/todo-mutations";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type optimisticInput = {
@@ -97,6 +97,7 @@ export function TaskSidebar() {
     const queryClient = useQueryClient();
     const updateDateMutation = useUpdateTodoDate();
     const updateCompletedMutation = useUpdateTodoCompleted();
+    const updatePriorityMutation = useUpdateTodoPriority();
     const debounceTaskUpdater = useDebounceTaskBasic();
 
     const matchRoute = useMatchRoute();
@@ -137,7 +138,7 @@ export function TaskSidebar() {
             dueDate: todo?.dueDate
                 ? new Date(todo.dueDate)
                 : undefined,
-            priority: todo?.priority,
+            priority: todo?.priority ?? "none",
         });
     }, [todoId]);
 
@@ -265,34 +266,36 @@ export function TaskSidebar() {
                                 const isInvalid =
                                     field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
-                                    <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
+                                    <Field data-invalid={isInvalid} orientation="responsive" className="text-sm">
                                         <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><CalendarIcon />Due date</FieldLabel>
-                                        <Popover>
-                                            <PopoverTrigger render={
-                                                <Button
-                                                    variant="ghost"
-                                                    id="date-picker-simple"
-                                                    className="justify-start min-w-0 text-sm p-0 hover:bg-transparent"
-                                                >
-                                                    {field.state.value ? format(field.state.value, "PPP") : <span className="text-foreground">None</span>}
-                                                </Button>
-                                            } />
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    id={field.name}
-                                                    mode="single"
-                                                    selected={field.state.value}
-                                                    onSelect={async (date) => {
-                                                        field.handleChange(date);
-                                                        updateDateMutation.mutate({
-                                                            projectId: todo!.projectId,
-                                                            todoId: todo!.id,
-                                                            dueDate: date ?? null,
-                                                        });
-                                                    }}
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
+                                        <FieldContent>
+                                            <Popover>
+                                                <PopoverTrigger render={
+                                                    <Button
+                                                        variant="ghost"
+                                                        id="date-picker-simple"
+                                                        className="justify-start min-w-0 text-sm p-0 hover:bg-transparent"
+                                                    >
+                                                        {field.state.value ? format(field.state.value, "PPP") : <span className="text-foreground">None</span>}
+                                                    </Button>
+                                                } />
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        id={field.name}
+                                                        mode="single"
+                                                        selected={field.state.value}
+                                                        onSelect={async (date) => {
+                                                            field.handleChange(date);
+                                                            updateDateMutation.mutate({
+                                                                projectId: todo!.projectId,
+                                                                todoId: todo!.id,
+                                                                dueDate: date ?? null,
+                                                            });
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </FieldContent>
                                     </Field>
                                 )
                             }}
@@ -304,18 +307,20 @@ export function TaskSidebar() {
                                 const isInvalid =
                                     field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
-                                    <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
+                                    <Field data-invalid={isInvalid} orientation="responsive" className="text-sm">
                                         <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><ClipboardCheck />Status</FieldLabel>
-                                        <Checkbox
-                                            checked={field.state.value}
-                                            onCheckedChange={async (e) => {
-                                                field.handleChange(e.valueOf());
-                                                updateCompletedMutation.mutate({
-                                                    projectId: todo!.projectId,
-                                                    todoId: todo!.id,
-                                                    isCompleted: e.valueOf(),
-                                                });
-                                            }} />
+                                        <FieldContent>
+                                            <Checkbox
+                                                checked={field.state.value}
+                                                onCheckedChange={async (e) => {
+                                                    field.handleChange(e.valueOf());
+                                                    updateCompletedMutation.mutate({
+                                                        projectId: todo!.projectId,
+                                                        todoId: todo!.id,
+                                                        isCompleted: e.valueOf(),
+                                                    });
+                                                }} />
+                                        </FieldContent>
                                     </Field>
                                 )
                             }}
@@ -329,24 +334,33 @@ export function TaskSidebar() {
                                 return (
                                     <Field data-invalid={isInvalid} orientation="responsive" className="items-center! text-sm">
                                         <FieldLabel htmlFor={field.name} className="text-sm gap-1 w-32"><Flag />Priority</FieldLabel>
-                                        <Select
-                                            name={field.name}
-                                            value={field.state.value}
-                                            onValueChange={(val) => field.handleChange(val as Priority)}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="None" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {priorities.map((priority) => (
-                                                        <SelectItem key={priority.value} value={priority.value}>
-                                                            {priority.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
+                                        <FieldContent>
+                                            <Select
+                                                name={field.name}
+                                                value={field.state.value}
+                                                onValueChange={(val) => {
+                                                    field.handleChange(val as Priority);
+                                                    updatePriorityMutation.mutate({
+                                                        projectId: todo!.projectId,
+                                                        todoId: todo!.id,
+                                                        priority: val!,
+                                                    })
+                                                }}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="None" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        {priorities.map((priority) => (
+                                                            <SelectItem key={priority.value} value={priority.value}>
+                                                                {priority.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </FieldContent>
                                     </Field>
                                 )
                             }}
