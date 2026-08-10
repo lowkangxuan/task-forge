@@ -1,5 +1,4 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
-import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/_appLayout/")({
     beforeLoad: () => {

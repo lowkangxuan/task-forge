@@ -2,8 +2,6 @@ import { AppSidebar } from '@/features/sidebar/components/app-sidebar';
 import { TaskSidebar } from '@/features/sidebar/components/task-sidebar';
 import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/multisidebar';
 import { ProjectActions } from '@/features/project/components/project-header-actions';
-import { ProjectsProvider } from '@/providers/ProjectsProvider';
-import { getUserProjects } from "@/features/project/server/projects";
 import { createFileRoute, Outlet, redirect, useMatchRoute } from '@tanstack/react-router';
 import { projectsQueryOptions } from '@/features/project/api/project-queries';
 
@@ -14,23 +12,19 @@ export const Route = createFileRoute("/_appLayout")({
         }
     },
     loader: async ({ context }) => {
-        const userProjects = await getUserProjects();
         context.queryClient.prefetchQuery(
             projectsQueryOptions(),
-        )
-        return userProjects;
+        );
     },
     component: AppLayoutComponent,
 })
 
 function AppLayoutComponent() {
     const context = Route.useRouteContext();
-    const loaderProjects = Route.useLoaderData();
     const matchRoute = useMatchRoute();
     const projectIdParam = matchRoute({ to: "/projects/$projectId" });
 
     return (
-        <ProjectsProvider initialProjects={loaderProjects}>
             <MultiSidebarProvider defaultRightOpen={false}>
                 <AppSidebar name={context.session?.user.name} />
                 <SidebarInset className="px-4">
@@ -46,6 +40,5 @@ function AppLayoutComponent() {
                 </SidebarInset>
                 <TaskSidebar />
             </MultiSidebarProvider>
-        </ProjectsProvider>
     )
 }
