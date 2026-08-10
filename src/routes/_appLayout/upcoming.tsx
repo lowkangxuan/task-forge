@@ -2,7 +2,7 @@ import { Header } from '@/components/header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { upcomingTodoQueryOptions } from '@/features/todo/api/todo-queries';
 import { FilteredTodo } from '@/features/todo/components/filtered-todo';
-import { useProjects } from '@/providers/ProjectsProvider';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_appLayout/upcoming')({
@@ -12,8 +12,11 @@ export const Route = createFileRoute('/_appLayout/upcoming')({
     component: RouteComponent,
 })
 
+
+
 function RouteComponent() {
-    const { localProjects } = useProjects();
+    const { data: todos } = useSuspenseQuery(upcomingTodoQueryOptions());
+
     return (
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
             <Header as="h1">Upcoming</Header>
@@ -26,26 +29,26 @@ function RouteComponent() {
                 </TabsList>
                 <TabsContent value="tomorrow">
                     <FilteredTodo
-                        projects={localProjects}
+                        todos={todos}
                         filter="tomorrow"
                     />
                 </TabsContent>
                 <TabsContent value="this_week">
                     <FilteredTodo
-                        projects={localProjects}
-                        filter="this_week"
+                        todos={todos}
+                        filter="later_week"
                     />
                 </TabsContent>
                 <TabsContent value="next_week">
                     <FilteredTodo
-                        projects={localProjects}
+                        todos={todos}
                         filter="next_week"
                     />
                 </TabsContent>
                 <TabsContent value="this_month">
                     <FilteredTodo
-                        projects={localProjects}
-                        filter="this_month"
+                        todos={todos}
+                        filter="later_month"
                     />
                 </TabsContent>
             </Tabs>

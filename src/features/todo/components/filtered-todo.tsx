@@ -1,14 +1,14 @@
-import type { ProjectWithTodo } from "@/db/schema";
+import type { Todo } from "@/db/schema";
 import { TodoRow } from "./todo-row";
 import { filterCheck, FILTERS, type Filter } from "../filters";
 
 type FilteredTodoProps = {
-    projects: ProjectWithTodo[];
+    todos: Todo[];
     filter: Filter;
 }
 
-function filterTodos({ projects, filter }: FilteredTodoProps) {
-    return projects.flatMap((project) => project.todos.filter((todo) => !!todo.dueDate && filterCheck(todo.dueDate, filter)));
+function filterTodos({ todos, filter }: FilteredTodoProps) {
+    return todos.filter((todo) => !todo.isCompleted && !!todo.dueDate && filterCheck(todo.dueDate, filter));
 }
 
 export function FilteredTodo(props: FilteredTodoProps) {

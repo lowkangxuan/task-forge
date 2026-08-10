@@ -48,5 +48,5 @@ export async function findTodayTodos() {
 
 export async function findUpcomingTodos() {
     const today = new Date();
-    return await db.select().from(todos).where(between(todos.dueDate, startOfDay(today), endOfMonth(today),)).orderBy(asc(todos.createdAt));
+    return await db.select().from(todos).where(between(todos.dueDate, startOfDay(today), endOfMonth(today),)).orderBy(asc(todos.dueDate), asc(todos.createdAt));
 }
