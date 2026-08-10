@@ -25,7 +25,7 @@ function RouteComponent() {
                     <TabsTrigger value="tomorrow" className="px-2 py-1">Tomorrow</TabsTrigger>
                     <TabsTrigger value="this_week" className="px-2 py-1">This Week</TabsTrigger>
                     <TabsTrigger value="next_week" className="px-2 py-1">Next Week</TabsTrigger>
-                    <TabsTrigger value="this_month" className="px-2 py-1">This Month</TabsTrigger>
+                    <TabsTrigger value="this_month" className="px-2 py-1">Later</TabsTrigger>
                 </TabsList>
                 <TabsContent value="tomorrow">
                     <FilteredTodo
@@ -48,7 +48,7 @@ function RouteComponent() {
                 <TabsContent value="this_month">
                     <FilteredTodo
                         todos={todos}
-                        filter="later_month"
+                        filter="later"
                     />
                 </TabsContent>
             </Tabs>
