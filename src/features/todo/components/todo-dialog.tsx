@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { todoQueryOptions } from "../api/todo-queries";
-import { priorityEnum, type Priority, type Todo } from "@/db/schema";
+import { todoKeys, todoQueryOptions } from "../api/todo-queries";
+import { priorityEnum, type Priority, type ProjectWithTodo, type Todo } from "@/db/schema";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -15,6 +15,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { useUpdateTodoCompleted, useUpdateTodoDate, useUpdateTodoPriority } from "../api/todo-mutations";
+import { CustomInput } from "@/components/ui/custom-input";
+import { useDebounceTaskBasic } from "@/server/debounce-fn";
+import { projectKeys } from "@/features/project/api/project-queries";
+
+type optimisticInput = {
+    queryClient: QueryClient;
+    projectId: string;
+    todoId: string;
+}
 
 type TodoDialogProp = {
     todo: Todo;
@@ -35,14 +44,53 @@ const formSchema = z.object({
     priority: z.enum(priorityEnum.enumValues),
 });
 
+function optimisticNameUpdate({ queryClient, projectId, todoId, name }: optimisticInput & { name: string }) {
+    queryClient.setQueryData<ProjectWithTodo>(
+        projectKeys.detail(projectId),
+        (project) => {
+            if (!project) return undefined;
+            return {
+                ...project,
+                todos: project.todos.map((todo) =>
+                    todo.id === todoId
+                        ? { ...todo, name }
+                        : todo
+                ),
+            };
+        }
+    );
+
+    queryClient.setQueryData<Todo[]>(
+        todoKeys.today(),
+        (todos) => {
+            if (!todos) return undefined;
+            return (
+                todos.map((todo) =>
+                    todo.id === todoId
+                        ? { ...todo, name }
+                        : todo,
+                )
+            );
+        },
+    );
+
+    queryClient.setQueryData<Todo>(
+        todoKeys.detail(todoId),
+        (todo) => {
+            if (!todo) return undefined;
+            return {
+                ...todo,
+                name,
+            };
+        },
+    );
+}
+
 export function TodoDialog({ todo }: TodoDialogProp) {
+    const queryClient = useQueryClient();
     const [open, setOpen] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
     const navigate = useNavigate();
-
-    const updateDateMutation = useUpdateTodoDate();
-    const updateCompletedMutation = useUpdateTodoCompleted();
-    const updatePriorityMutation = useUpdateTodoPriority();
-
     const form = useForm({
         defaultValues: {
             name: todo?.name ?? "",
@@ -59,6 +107,12 @@ export function TodoDialog({ todo }: TodoDialogProp) {
 
     });
 
+    const debounceTaskUpdater = useDebounceTaskBasic();
+    const updateDateMutation = useUpdateTodoDate();
+    const updateCompletedMutation = useUpdateTodoCompleted();
+    const updatePriorityMutation = useUpdateTodoPriority();
+
+
     return (
         <Dialog open={open} onOpenChange={(open) => setOpen(open)} onOpenChangeComplete={(open) => {
             if (!open) {
@@ -73,129 +127,198 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                 <DialogHeader>
                     <DialogTitle>{todo?.name}</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-[1fr_14rem]">
-                    <div>dwadda</div>
-                    <form
-                        id="task-form"
-                        className="bg-accent p-4"
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            form.handleSubmit();
-                        }}
-                    >
-                        <FieldGroup className="gap-2">
-                            <form.Field
-                                name="dueDate"
-                                children={(field) => {
-                                    const isInvalid =
-                                        field.state.meta.isTouched && !field.state.meta.isValid
-                                    return (
-                                        <Field data-invalid={isInvalid} className="gap-0 text-sm">
-                                            <FieldLabel htmlFor={field.name} className="text-sm">Due date</FieldLabel>
-                                            <FieldContent className="flex-row items-center gap-2 min-w-0">
-                                                <CalendarIcon size={16} />
-                                                <Popover>
-                                                    <PopoverTrigger render={
-                                                        <Button
-                                                            variant="ghost"
-                                                            id="date-picker-simple"
-                                                            className="justify-start min-w-0 text-sm p-0 hover:bg-transparent"
-                                                        >
-                                                            {field.state.value ? format(field.state.value, "PPP") : <span className="text-foreground">None</span>}
-                                                        </Button>
-                                                    } />
-                                                    <PopoverContent className="w-auto p-0" align="start">
-                                                        <Calendar
-                                                            id={field.name}
-                                                            mode="single"
-                                                            selected={field.state.value}
-                                                            onSelect={async (date) => {
-                                                                field.handleChange(date);
-                                                                updateDateMutation.mutate({
-                                                                    projectId: todo!.projectId,
-                                                                    todoId: todo!.id,
-                                                                    dueDate: date ?? null,
-                                                                });
-                                                            }}
-                                                        />
-                                                    </PopoverContent>
-                                                </Popover>
-                                            </FieldContent>
-                                        </Field>
-                                    )
-                                }}
-                            />
+                <form
+                    id="task-form"
+                    className="grid grid-cols-[1fr_14rem]"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        form.handleSubmit();
+                    }}
+                >
+                    <FieldGroup className="gap-0 mb-4">
+                        <form.Field
+                            name="name"
+                            children={(field) => {
+                                const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid
+                                return (
+                                    <Field data-invalid={isInvalid}>
+                                        <div
+                                            ref={(node) => {
+                                                if (!node) return;
+                                                if (node.dataset.todoId !== todo.id) {
+                                                    node.innerText = todo.name;
+                                                    node.dataset.todoId = todo.id;
+                                                }
+                                            }}
+                                            role="textbox"
+                                            contentEditable={isEditing}
+                                            suppressContentEditableWarning
+                                            aria-multiline="true"
+                                            aria-readonly={!isEditing}
+                                            data-placeholder="New Task"
+                                            onClick={(e) => {
+                                                if (!isEditing) {
+                                                    const element = e.currentTarget;
+                                                    setIsEditing(true);
+                                                    requestAnimationFrame(() => {
+                                                        element.focus();
+                                                    });
+                                                }
+                                            }}
+                                            onBlur={field.handleBlur}
+                                            onInput={(e) => {
+                                                const value = e.currentTarget.innerText;
+                                                field.handleChange(value);
+                                                optimisticNameUpdate({ queryClient, projectId: todo!.projectId, todoId: todo!.id, name: value });
+                                                debounceTaskUpdater({ todoId: todo!.id, updates: { name: value } });
+                                            }}
+                                            className="text-3xl border-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+                                        />
+                                    </Field>
+                                )
+                            }}
+                        />
+                        <form.Field
+                            name="description"
+                            children={(field) => {
+                                const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid
+                                return (
+                                    <Field data-invalid={isInvalid}>
+                                        <CustomInput
+                                            id={field.name}
+                                            name={field.name}
+                                            value={field.state.value ?? ""}
+                                            type="text"
+                                            onBlur={field.handleBlur}
+                                            onChange={async (e) => {
+                                                field.handleChange(e.target.value)
+                                                await debounceTaskUpdater({ todoId: todo!.id, updates: { description: e.target.value } });
+                                            }}
+                                            aria-invalid={isInvalid}
+                                            placeholder="Task Description"
+                                            autoComplete="off"
+                                            variant="ghost"
+                                            size="2xl"
+                                        />
+                                    </Field>
+                                )
+                            }}
+                        />
+                    </FieldGroup>
+                    <FieldGroup className="gap-2">
+                        <form.Field
+                            name="dueDate"
+                            children={(field) => {
+                                const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid
+                                return (
+                                    <Field data-invalid={isInvalid} className="gap-0 text-sm">
+                                        <FieldLabel htmlFor={field.name} className="text-sm">Due date</FieldLabel>
+                                        <FieldContent className="flex-row items-center gap-2 min-w-0">
+                                            <CalendarIcon size={16} />
+                                            <Popover>
+                                                <PopoverTrigger render={
+                                                    <Button
+                                                        variant="ghost"
+                                                        id="date-picker-simple"
+                                                        className="justify-start min-w-0 text-sm p-0 hover:bg-transparent"
+                                                    >
+                                                        {field.state.value ? format(field.state.value, "PPP") : <span className="text-foreground">None</span>}
+                                                    </Button>
+                                                } />
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        id={field.name}
+                                                        mode="single"
+                                                        selected={field.state.value}
+                                                        onSelect={async (date) => {
+                                                            field.handleChange(date);
+                                                            updateDateMutation.mutate({
+                                                                projectId: todo!.projectId,
+                                                                todoId: todo!.id,
+                                                                dueDate: date ?? null,
+                                                            });
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </FieldContent>
+                                    </Field>
+                                )
+                            }}
+                        />
 
-                            <form.Field
-                                name="isCompleted"
-                                children={(field) => {
-                                    const isInvalid =
-                                        field.state.meta.isTouched && !field.state.meta.isValid
-                                    return (
-                                        <Field data-invalid={isInvalid} className="gap-0 text-sm">
-                                            <FieldLabel htmlFor={field.name} className="text-sm">Status</FieldLabel>
-                                            <FieldContent className="flex-row items-center gap-2 min-h-8">
-                                                <ClipboardCheck size={16} />
-                                                <Checkbox
-                                                    name={field.name}
-                                                    checked={field.state.value}
-                                                    onCheckedChange={async (e) => {
-                                                        field.handleChange(e.valueOf());
-                                                        updateCompletedMutation.mutate({
-                                                            projectId: todo!.projectId,
-                                                            todoId: todo!.id,
-                                                            isCompleted: e.valueOf(),
-                                                        });
-                                                    }} />
-                                            </FieldContent>
-                                        </Field>
-                                    )
-                                }}
-                            />
+                        <form.Field
+                            name="isCompleted"
+                            children={(field) => {
+                                const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid
+                                return (
+                                    <Field data-invalid={isInvalid} className="gap-0 text-sm">
+                                        <FieldLabel htmlFor={field.name} className="text-sm">Status</FieldLabel>
+                                        <FieldContent className="flex-row items-center gap-2 min-h-8">
+                                            <ClipboardCheck size={16} />
+                                            <Checkbox
+                                                name={field.name}
+                                                checked={field.state.value}
+                                                onCheckedChange={async (e) => {
+                                                    field.handleChange(e.valueOf());
+                                                    updateCompletedMutation.mutate({
+                                                        projectId: todo!.projectId,
+                                                        todoId: todo!.id,
+                                                        isCompleted: e.valueOf(),
+                                                    });
+                                                }} />
+                                        </FieldContent>
+                                    </Field>
+                                )
+                            }}
+                        />
 
-                            <form.Field
-                                name="priority"
-                                children={(field) => {
-                                    const isInvalid =
-                                        field.state.meta.isTouched && !field.state.meta.isValid
-                                    return (
-                                        <Field data-invalid={isInvalid} className="gap-0 text-sm">
-                                            <FieldLabel htmlFor={field.name} className="text-sm">Priority</FieldLabel>
-                                            <FieldContent className="flex-row items-center gap-2 min-w-0">
-                                                <Flag size={16} />
-                                                <Select
-                                                    name={field.name}
-                                                    value={field.state.value}
-                                                    onValueChange={(val) => {
-                                                        field.handleChange(val as Priority);
-                                                        updatePriorityMutation.mutate({
-                                                            projectId: todo!.projectId,
-                                                            todoId: todo!.id,
-                                                            priority: val!,
-                                                        })
-                                                    }}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="None" />
-                                                    </SelectTrigger>
-                                                    <SelectContent alignItemWithTrigger={false} align="start">
-                                                        <SelectGroup>
-                                                            {priorities.map((priority) => (
-                                                                <SelectItem key={priority.value} value={priority.value}>
-                                                                    {priority.label}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                            </FieldContent>
-                                        </Field>
-                                    )
-                                }}
-                            />
-                        </FieldGroup>
-                    </form>
-                </div>
+                        <form.Field
+                            name="priority"
+                            children={(field) => {
+                                const isInvalid =
+                                    field.state.meta.isTouched && !field.state.meta.isValid
+                                return (
+                                    <Field data-invalid={isInvalid} className="gap-0 text-sm">
+                                        <FieldLabel htmlFor={field.name} className="text-sm">Priority</FieldLabel>
+                                        <FieldContent className="flex-row items-center gap-2 min-w-0">
+                                            <Flag size={16} />
+                                            <Select
+                                                name={field.name}
+                                                value={field.state.value}
+                                                onValueChange={(val) => {
+                                                    field.handleChange(val as Priority);
+                                                    updatePriorityMutation.mutate({
+                                                        projectId: todo!.projectId,
+                                                        todoId: todo!.id,
+                                                        priority: val!,
+                                                    })
+                                                }}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="None" />
+                                                </SelectTrigger>
+                                                <SelectContent alignItemWithTrigger={false} align="start">
+                                                    <SelectGroup>
+                                                        {priorities.map((priority) => (
+                                                            <SelectItem key={priority.value} value={priority.value}>
+                                                                {priority.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </FieldContent>
+                                    </Field>
+                                )
+                            }}
+                        />
+                    </FieldGroup>
+                </form>
             </DialogContent>
         </Dialog >
     )
