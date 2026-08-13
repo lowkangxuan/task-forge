@@ -108,7 +108,7 @@ export function TaskSidebar() {
     const todoId = useSearch({
         strict: false,
         select: (search) =>
-            search.t,
+            search.todo,
     });
     const { data: todo } = useQuery(todoQueryOptions(queryClient, todoId));
 
@@ -177,7 +177,7 @@ export function TaskSidebar() {
                                 to="."
                                 search={(prev) => ({
                                     ...prev,
-                                    t: undefined,
+                                    todo: undefined,
                                 })}
                                 replace={true}
                                 className={buttonVariants({ variant: "ghost", size: "icon-lg" })}

@@ -38,7 +38,7 @@ function AppLayoutComponent() {
                         <Outlet />
                     </div>
                 </SidebarInset>
-                <TaskSidebar />
+                {/* <TaskSidebar /> */}
             </MultiSidebarProvider>
     )
 }

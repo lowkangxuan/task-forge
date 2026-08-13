@@ -1,7 +1,6 @@
 import { CustomInput } from '@/components/ui/custom-input';
 import { Button } from '@/components/ui/button';
-import { createFileRoute, notFound, useRouter } from '@tanstack/react-router'
-import * as z from "zod";
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { useEffect, useState } from 'react';
 import { useDebounceProjectName } from '@/server/debounce-fn';
 import { TodoRow } from '@/features/todo/components/todo-row';
@@ -11,12 +10,7 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import type { ProjectWithTodo } from '@/db/schema';
 import { useCreateTodo } from '@/features/todo/api/todo-mutations';
 
-const searchSchema = z.object({
-    t: z.string().optional(),
-})
-
-export const Route = createFileRoute('/_appLayout/projects/$projectId')({
-    validateSearch: searchSchema,
+export const Route = createFileRoute('/_appLayout/_todoEditorLayout/projects/$projectId')({
     beforeLoad: async ({ params }) => {
         const result = await verifyProjectOwnership({ data: { projectId: params.projectId } });
 

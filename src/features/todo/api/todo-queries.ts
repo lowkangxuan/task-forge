@@ -17,12 +17,14 @@ export function todoQueryOptions(queryClient: QueryClient, todoId?: string) {
             ? async () => await getTodoById({ data: { todoId } })
             : skipToken,
         initialData: () => {
-            if (!todoId) return undefined;
+            if (!todoId) return null;
 
             const projectQueries =
                 queryClient.getQueryData<ProjectWithTodo[]>(
                     projectKeys.list(),
                 );
+
+            if (!projectQueries) return null;
 
             for (const project of projectQueries!) {
                 const todo = project?.todos.find(
@@ -32,7 +34,7 @@ export function todoQueryOptions(queryClient: QueryClient, todoId?: string) {
                 if (todo) return todo;
             }
 
-            return undefined;
+            return null;
         },
     });
 }

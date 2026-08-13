@@ -4,7 +4,7 @@ import { FilteredTodo } from '@/features/todo/components/filtered-todo';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_appLayout/today')({
+export const Route = createFileRoute('/_appLayout/_todoEditorLayout/today')({
     loader: ({ context }) => {
         context.queryClient.ensureQueryData(
             todayTodoQueryOptions(),

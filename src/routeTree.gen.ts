@@ -14,10 +14,11 @@ import { Route as AppLayoutRouteImport } from './routes/_appLayout'
 import { Route as AppLayoutIndexRouteImport } from './routes/_appLayout/index'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthSigninRouteImport } from './routes/_auth/signin'
-import { Route as AppLayoutUpcomingRouteImport } from './routes/_appLayout/upcoming'
-import { Route as AppLayoutTodayRouteImport } from './routes/_appLayout/today'
+import { Route as AppLayoutTodoEditorLayoutRouteImport } from './routes/_appLayout/_todoEditorLayout'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as AppLayoutProjectsProjectIdRouteImport } from './routes/_appLayout/projects/$projectId'
+import { Route as AppLayoutTodoEditorLayoutUpcomingRouteImport } from './routes/_appLayout/_todoEditorLayout/upcoming'
+import { Route as AppLayoutTodoEditorLayoutTodayRouteImport } from './routes/_appLayout/_todoEditorLayout/today'
+import { Route as AppLayoutTodoEditorLayoutProjectsProjectIdRouteImport } from './routes/_appLayout/_todoEditorLayout/projects/$projectId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -42,88 +43,97 @@ const AuthSigninRoute = AuthSigninRouteImport.update({
   path: '/signin',
   getParentRoute: () => AuthRoute,
 } as any)
-const AppLayoutUpcomingRoute = AppLayoutUpcomingRouteImport.update({
-  id: '/upcoming',
-  path: '/upcoming',
-  getParentRoute: () => AppLayoutRoute,
-} as any)
-const AppLayoutTodayRoute = AppLayoutTodayRouteImport.update({
-  id: '/today',
-  path: '/today',
-  getParentRoute: () => AppLayoutRoute,
-} as any)
+const AppLayoutTodoEditorLayoutRoute =
+  AppLayoutTodoEditorLayoutRouteImport.update({
+    id: '/_todoEditorLayout',
+    getParentRoute: () => AppLayoutRoute,
+  } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppLayoutProjectsProjectIdRoute =
-  AppLayoutProjectsProjectIdRouteImport.update({
+const AppLayoutTodoEditorLayoutUpcomingRoute =
+  AppLayoutTodoEditorLayoutUpcomingRouteImport.update({
+    id: '/upcoming',
+    path: '/upcoming',
+    getParentRoute: () => AppLayoutTodoEditorLayoutRoute,
+  } as any)
+const AppLayoutTodoEditorLayoutTodayRoute =
+  AppLayoutTodoEditorLayoutTodayRouteImport.update({
+    id: '/today',
+    path: '/today',
+    getParentRoute: () => AppLayoutTodoEditorLayoutRoute,
+  } as any)
+const AppLayoutTodoEditorLayoutProjectsProjectIdRoute =
+  AppLayoutTodoEditorLayoutProjectsProjectIdRouteImport.update({
     id: '/projects/$projectId',
     path: '/projects/$projectId',
-    getParentRoute: () => AppLayoutRoute,
+    getParentRoute: () => AppLayoutTodoEditorLayoutRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppLayoutIndexRoute
-  '/today': typeof AppLayoutTodayRoute
-  '/upcoming': typeof AppLayoutUpcomingRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
-  '/projects/$projectId': typeof AppLayoutProjectsProjectIdRoute
+  '/today': typeof AppLayoutTodoEditorLayoutTodayRoute
+  '/upcoming': typeof AppLayoutTodoEditorLayoutUpcomingRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/projects/$projectId': typeof AppLayoutTodoEditorLayoutProjectsProjectIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppLayoutIndexRoute
-  '/today': typeof AppLayoutTodayRoute
-  '/upcoming': typeof AppLayoutUpcomingRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
-  '/projects/$projectId': typeof AppLayoutProjectsProjectIdRoute
+  '/today': typeof AppLayoutTodoEditorLayoutTodayRoute
+  '/upcoming': typeof AppLayoutTodoEditorLayoutUpcomingRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/projects/$projectId': typeof AppLayoutTodoEditorLayoutProjectsProjectIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_appLayout': typeof AppLayoutRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
-  '/_appLayout/today': typeof AppLayoutTodayRoute
-  '/_appLayout/upcoming': typeof AppLayoutUpcomingRoute
+  '/_appLayout/_todoEditorLayout': typeof AppLayoutTodoEditorLayoutRouteWithChildren
   '/_auth/signin': typeof AuthSigninRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_appLayout/': typeof AppLayoutIndexRoute
-  '/_appLayout/projects/$projectId': typeof AppLayoutProjectsProjectIdRoute
+  '/_appLayout/_todoEditorLayout/today': typeof AppLayoutTodoEditorLayoutTodayRoute
+  '/_appLayout/_todoEditorLayout/upcoming': typeof AppLayoutTodoEditorLayoutUpcomingRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_appLayout/_todoEditorLayout/projects/$projectId': typeof AppLayoutTodoEditorLayoutProjectsProjectIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/today'
-    | '/upcoming'
     | '/signin'
     | '/signup'
-    | '/projects/$projectId'
+    | '/today'
+    | '/upcoming'
     | '/api/auth/$'
+    | '/projects/$projectId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/today'
-    | '/upcoming'
     | '/signin'
     | '/signup'
-    | '/projects/$projectId'
+    | '/today'
+    | '/upcoming'
     | '/api/auth/$'
+    | '/projects/$projectId'
   id:
     | '__root__'
     | '/_appLayout'
     | '/_auth'
-    | '/_appLayout/today'
-    | '/_appLayout/upcoming'
+    | '/_appLayout/_todoEditorLayout'
     | '/_auth/signin'
     | '/_auth/signup'
     | '/_appLayout/'
-    | '/_appLayout/projects/$projectId'
+    | '/_appLayout/_todoEditorLayout/today'
+    | '/_appLayout/_todoEditorLayout/upcoming'
     | '/api/auth/$'
+    | '/_appLayout/_todoEditorLayout/projects/$projectId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -169,18 +179,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSigninRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_appLayout/upcoming': {
-      id: '/_appLayout/upcoming'
-      path: '/upcoming'
-      fullPath: '/upcoming'
-      preLoaderRoute: typeof AppLayoutUpcomingRouteImport
-      parentRoute: typeof AppLayoutRoute
-    }
-    '/_appLayout/today': {
-      id: '/_appLayout/today'
-      path: '/today'
-      fullPath: '/today'
-      preLoaderRoute: typeof AppLayoutTodayRouteImport
+    '/_appLayout/_todoEditorLayout': {
+      id: '/_appLayout/_todoEditorLayout'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppLayoutTodoEditorLayoutRouteImport
       parentRoute: typeof AppLayoutRoute
     }
     '/api/auth/$': {
@@ -190,28 +193,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_appLayout/projects/$projectId': {
-      id: '/_appLayout/projects/$projectId'
+    '/_appLayout/_todoEditorLayout/upcoming': {
+      id: '/_appLayout/_todoEditorLayout/upcoming'
+      path: '/upcoming'
+      fullPath: '/upcoming'
+      preLoaderRoute: typeof AppLayoutTodoEditorLayoutUpcomingRouteImport
+      parentRoute: typeof AppLayoutTodoEditorLayoutRoute
+    }
+    '/_appLayout/_todoEditorLayout/today': {
+      id: '/_appLayout/_todoEditorLayout/today'
+      path: '/today'
+      fullPath: '/today'
+      preLoaderRoute: typeof AppLayoutTodoEditorLayoutTodayRouteImport
+      parentRoute: typeof AppLayoutTodoEditorLayoutRoute
+    }
+    '/_appLayout/_todoEditorLayout/projects/$projectId': {
+      id: '/_appLayout/_todoEditorLayout/projects/$projectId'
       path: '/projects/$projectId'
       fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof AppLayoutProjectsProjectIdRouteImport
-      parentRoute: typeof AppLayoutRoute
+      preLoaderRoute: typeof AppLayoutTodoEditorLayoutProjectsProjectIdRouteImport
+      parentRoute: typeof AppLayoutTodoEditorLayoutRoute
     }
   }
 }
 
+interface AppLayoutTodoEditorLayoutRouteChildren {
+  AppLayoutTodoEditorLayoutTodayRoute: typeof AppLayoutTodoEditorLayoutTodayRoute
+  AppLayoutTodoEditorLayoutUpcomingRoute: typeof AppLayoutTodoEditorLayoutUpcomingRoute
+  AppLayoutTodoEditorLayoutProjectsProjectIdRoute: typeof AppLayoutTodoEditorLayoutProjectsProjectIdRoute
+}
+
+const AppLayoutTodoEditorLayoutRouteChildren: AppLayoutTodoEditorLayoutRouteChildren =
+  {
+    AppLayoutTodoEditorLayoutTodayRoute: AppLayoutTodoEditorLayoutTodayRoute,
+    AppLayoutTodoEditorLayoutUpcomingRoute:
+      AppLayoutTodoEditorLayoutUpcomingRoute,
+    AppLayoutTodoEditorLayoutProjectsProjectIdRoute:
+      AppLayoutTodoEditorLayoutProjectsProjectIdRoute,
+  }
+
+const AppLayoutTodoEditorLayoutRouteWithChildren =
+  AppLayoutTodoEditorLayoutRoute._addFileChildren(
+    AppLayoutTodoEditorLayoutRouteChildren,
+  )
+
 interface AppLayoutRouteChildren {
-  AppLayoutTodayRoute: typeof AppLayoutTodayRoute
-  AppLayoutUpcomingRoute: typeof AppLayoutUpcomingRoute
+  AppLayoutTodoEditorLayoutRoute: typeof AppLayoutTodoEditorLayoutRouteWithChildren
   AppLayoutIndexRoute: typeof AppLayoutIndexRoute
-  AppLayoutProjectsProjectIdRoute: typeof AppLayoutProjectsProjectIdRoute
 }
 
 const AppLayoutRouteChildren: AppLayoutRouteChildren = {
-  AppLayoutTodayRoute: AppLayoutTodayRoute,
-  AppLayoutUpcomingRoute: AppLayoutUpcomingRoute,
+  AppLayoutTodoEditorLayoutRoute: AppLayoutTodoEditorLayoutRouteWithChildren,
   AppLayoutIndexRoute: AppLayoutIndexRoute,
-  AppLayoutProjectsProjectIdRoute: AppLayoutProjectsProjectIdRoute,
 }
 
 const AppLayoutRouteWithChildren = AppLayoutRoute._addFileChildren(

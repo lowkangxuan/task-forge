@@ -29,7 +29,7 @@ export function TodoRow({ todo, path }: TodoRowProps) {
     const updateCompletedMutation = useUpdateTodoCompleted();
     const [checked, setChecked] = useState(todo.isCompleted);
     const search = useSearch({ strict: false });
-    const isActive = search?.t === todo.id;
+    const isActive = search?.todo === todo.id;
 
     useEffect(() => {
         setChecked(todo.isCompleted);
@@ -80,7 +80,7 @@ export function TodoRow({ todo, path }: TodoRowProps) {
                     key={todo.id}
                     to={path ?? `.`}
                     params={{ projectId: todo.projectId }}
-                    search={{ t: todo.id }}
+                    search={{ todo: todo.id }}
                     className="flex flex-col flex-1"
                 >
                     <span className="text-sm">{todo.name === "" ? "New Task" : todo.name}</span>
