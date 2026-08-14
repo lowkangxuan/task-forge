@@ -4,24 +4,22 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { useEffect, useState } from 'react';
 import { useDebounceProjectName } from '@/server/debounce-fn';
 import { TodoRow } from '@/features/todo/components/todo-row';
-import { verifyProjectOwnership } from "@/features/project/server/projects";
 import { projectKeys, projectQueryOptions } from '@/features/project/api/project-queries';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import type { ProjectWithTodo } from '@/db/schema';
 import { useCreateTodo } from '@/features/todo/api/todo-mutations';
 
 export const Route = createFileRoute('/_appLayout/_todoEditorLayout/projects/$projectId')({
-    beforeLoad: async ({ params }) => {
-        const result = await verifyProjectOwnership({ data: { projectId: params.projectId } });
-
-        if (!result) {
-            throw notFound();
-        }
-    },
     loader: async ({ context, params }) => {
-        context.queryClient.ensureQueryData(
+        const project = await context.queryClient.ensureQueryData(
             projectQueryOptions(params.projectId),
         )
+
+        if (!project) {
+            throw notFound();
+        }
+        
+        return project;
     },
     component: RouteComponent,
 })
