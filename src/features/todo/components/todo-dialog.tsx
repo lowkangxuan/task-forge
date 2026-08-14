@@ -147,7 +147,7 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                                             ref={(node) => {
                                                 if (!node) return;
                                                 if (node.dataset.todoId !== todo.id) {
-                                                    node.innerText = todo.name;
+                                                    node.innerText = todo.name ?? "";
                                                     node.dataset.todoId = todo.id;
                                                 }
                                             }}
@@ -173,7 +173,7 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                                                 optimisticNameUpdate({ queryClient, projectId: todo!.projectId, todoId: todo!.id, name: value });
                                                 debounceTaskUpdater({ todoId: todo!.id, updates: { name: value } });
                                             }}
-                                            className="text-2xl font-medium border-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+                                            className="text-2xl font-medium border-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground empty:before:pointer-events-none"
                                         />
                                     </Field>
                                 )
