@@ -123,8 +123,8 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                 });
             }
         }}>
-            <DialogContent className="sm:max-w-3xl h-3/4 grid-rows-[auto_1fr]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-3xl h-3/4 grid-rows-[auto_1fr] gap-0 p-0 overflow-clip">
+                <DialogHeader className="p-4 border-b">
                     <DialogTitle>{todo?.name}</DialogTitle>
                 </DialogHeader>
                 <form
@@ -135,7 +135,7 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                         form.handleSubmit();
                     }}
                 >
-                    <FieldGroup className="gap-0 mb-4">
+                    <FieldGroup className="gap-0 p-4">
                         <form.Field
                             name="name"
                             children={(field) => {
@@ -173,7 +173,7 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                                                 optimisticNameUpdate({ queryClient, projectId: todo!.projectId, todoId: todo!.id, name: value });
                                                 debounceTaskUpdater({ todoId: todo!.id, updates: { name: value } });
                                             }}
-                                            className="text-3xl border-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+                                            className="text-2xl font-medium border-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
                                         />
                                     </Field>
                                 )
@@ -207,7 +207,7 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                             }}
                         />
                     </FieldGroup>
-                    <FieldGroup className="gap-2">
+                    <FieldGroup className="gap-2 p-4 bg-accent">
                         <form.Field
                             name="dueDate"
                             children={(field) => {
