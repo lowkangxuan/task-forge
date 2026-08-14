@@ -20,7 +20,7 @@ export function getRouter() {
     },
     scrollRestoration: true,
     defaultPreload: "intent",
-    defaultPreloadStaleTime: 0,
+    defaultPreloadStaleTime: 30_000
   });
 
   setupRouterSsrQueryIntegration({

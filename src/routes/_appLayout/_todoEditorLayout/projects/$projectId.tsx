@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_appLayout/_todoEditorLayout/projects/$pr
         }
     },
     loader: async ({ context, params }) => {
-        context.queryClient.prefetchQuery(
+        context.queryClient.ensureQueryData(
             projectQueryOptions(params.projectId),
         )
     },

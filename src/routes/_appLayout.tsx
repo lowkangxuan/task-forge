@@ -1,5 +1,4 @@
 import { AppSidebar } from '@/features/sidebar/components/app-sidebar';
-import { TaskSidebar } from '@/features/sidebar/components/task-sidebar';
 import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/multisidebar';
 import { ProjectActions } from '@/features/project/components/project-header-actions';
 import { createFileRoute, Outlet, redirect, useMatchRoute } from '@tanstack/react-router';
@@ -12,7 +11,7 @@ export const Route = createFileRoute("/_appLayout")({
         }
     },
     loader: async ({ context }) => {
-        context.queryClient.prefetchQuery(
+        context.queryClient.ensureQueryData(
             projectsQueryOptions(),
         );
     },
@@ -38,7 +37,6 @@ function AppLayoutComponent() {
                         <Outlet />
                     </div>
                 </SidebarInset>
-                {/* <TaskSidebar /> */}
             </MultiSidebarProvider>
     )
 }

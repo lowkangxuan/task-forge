@@ -7,7 +7,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_appLayout/_todoEditorLayout/upcoming')({
     loader: ({ context }) => {
-        context.queryClient.prefetchQuery(upcomingTodoQueryOptions());
+        context.queryClient.ensureQueryData(upcomingTodoQueryOptions());
     },
     component: RouteComponent,
 })
