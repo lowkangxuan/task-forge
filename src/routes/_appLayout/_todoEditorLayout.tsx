@@ -31,7 +31,7 @@ function RouteComponent() {
                 replace: true,
             });
         }
-    }, [todoId, todo, isLoading, navigate]);
+    }, [todoId, todo, isLoading]);
 
     return (
         <>

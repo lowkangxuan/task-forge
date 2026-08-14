@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useSearch } from "@tanstack/react-router";
-import { todoKeys, todoQueryOptions } from "../api/todo-queries";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { todoKeys } from "../api/todo-queries";
 import { priorityEnum, type Priority, type ProjectWithTodo, type Todo } from "@/db/schema";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
