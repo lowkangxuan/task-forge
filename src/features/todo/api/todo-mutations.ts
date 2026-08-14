@@ -18,6 +18,7 @@ export function useCreateTodo() {
             await createNewTodo({ data: input }),
 
         onSuccess: ({ projectId }) => {
+            queryClient.invalidateQueries({ queryKey: projectKeys.list() });
             queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
         },
     })
