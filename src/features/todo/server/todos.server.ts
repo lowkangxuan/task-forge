@@ -32,7 +32,13 @@ export async function removeTodo(todoId: string) {
 }
 
 export async function findOneTodoById(todoId: string) {
-    return await db.select().from(todos).where(eq(todos.id, todoId)).limit(1);
+    const result = await db.query.todos.findFirst({
+        where: eq(todos.id, todoId),
+        with: {
+            parentProject: true,
+        }
+    });
+    return result;
 }
 
 export async function findManyTodos(projectId: string) {

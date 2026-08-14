@@ -60,7 +60,7 @@ export const getTodoById = createServerFn({ method: "GET" })
         todoId: z.string(),
     }))
     .handler(async ({ data }) => {
-        const [result] = await findOneTodoById(data.todoId);
+        const result = await findOneTodoById(data.todoId);
         return result;
     });
 

@@ -144,7 +144,7 @@ export const projectRelations = relations(projects, ({ one, many }) => ({
 }));
 
 export const todoRelations = relations(todos, ({ one }) => ({
-    project: one(projects, {
+    parentProject: one(projects, {
         fields: [todos.projectId],
         references: [projects.id],
     }),
@@ -156,3 +156,4 @@ export type Project = typeof projects.$inferSelect;
 export type Todo = typeof todos.$inferSelect;
 
 export type ProjectWithTodo = Project & { todos: Todo[] };
+export type TodoWithProject = Todo & { parentProject: Project };

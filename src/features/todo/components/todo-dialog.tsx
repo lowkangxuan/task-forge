@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { todoKeys } from "../api/todo-queries";
-import { priorityEnum, type Priority, type ProjectWithTodo, type Todo } from "@/db/schema";
+import { priorityEnum, type Priority, type ProjectWithTodo, type Todo, type TodoWithProject } from "@/db/schema";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -26,7 +26,7 @@ type optimisticInput = {
 }
 
 type TodoDialogProp = {
-    todo: Todo;
+    todo: TodoWithProject;
 }
 
 const priorities = [
@@ -125,7 +125,7 @@ export function TodoDialog({ todo }: TodoDialogProp) {
         }}>
             <DialogContent className="sm:max-w-3xl h-3/4 grid-rows-[auto_1fr] gap-0 p-0 overflow-clip">
                 <DialogHeader className="p-4 border-b">
-                    <DialogTitle>{todo?.name}</DialogTitle>
+                    <DialogTitle>{todo?.parentProject.name}</DialogTitle>
                 </DialogHeader>
                 <form
                     id="task-form"

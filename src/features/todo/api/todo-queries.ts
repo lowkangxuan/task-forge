@@ -1,4 +1,4 @@
-import type { ProjectWithTodo } from "@/db/schema";
+import type { ProjectWithTodo, TodoWithProject } from "@/db/schema";
 import { projectKeys } from "@/features/project/api/project-queries";
 import { getTodayTodos, getTodoById, getUpcomingTodos } from "@/features/todo/server/todos";
 import { QueryClient, queryOptions, skipToken } from "@tanstack/react-query";
@@ -31,7 +31,13 @@ export function todoQueryOptions(queryClient: QueryClient, todoId?: string) {
                     (todo) => todo.id === todoId,
                 );
 
-                if (todo) return todo;
+                if (todo) {
+                    const { todos, ...parentProject } = project;
+                    return {
+                        ...todo,
+                        parentProject,
+                    } satisfies TodoWithProject;
+                }
             }
 
             return null;
@@ -50,7 +56,7 @@ export function todayTodoQueryOptions() {
 export function upcomingTodoQueryOptions() {
     return queryOptions({
         queryKey: todoKeys.upcoming(),
-        queryFn: async() =>
+        queryFn: async () =>
             await getUpcomingTodos(),
     });
 }
