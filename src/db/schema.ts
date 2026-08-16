@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm";
 import { ulid } from "ulid";
 import { pgTable, text, timestamp, boolean, index, varchar, pgEnum, primaryKey } from "drizzle-orm/pg-core";
-import { primaryId } from "./schema.helper";
+import { primaryId, timestamps } from "./schema.helper";
 
 export const priorityEnum = pgEnum("priority", ["none", "low", "medium", "high"]);
 
@@ -72,46 +72,34 @@ export const verification = pgTable("verification", {
 );
 
 export const projects = pgTable("projects", {
-    id: varchar('id', { length: 26 })
-        .primaryKey()
-        .$defaultFn(() => ulid()),
+    ...primaryId,
+    ...timestamps,
     userId: text("user_id")
-        .notNull()
-        .references(() => user.id, { onDelete: "cascade" }),
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     description: text("description"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .$onUpdate(() => new Date())
-        .notNull(),
 },
     (table) => [index("projects_user_id_idx").on(table.userId)],
 );
 
 export const todos = pgTable("todos", {
-    id: varchar('id', { length: 26 })
-        .primaryKey()
-        .$defaultFn(() => ulid()),
+    ...primaryId,
+    ...timestamps,
     projectId: varchar("project_id", { length: 26 })
-        .notNull()
-        .references(() => projects.id, { onDelete: "cascade" }),
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     description: text("description"),
     priority: priorityEnum("priority").default("none").notNull(),
     isCompleted: boolean("is_completed").default(false).notNull(),
     dueDate: timestamp("due_date"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-        .$onUpdate(() => new Date())
-        .notNull(),
 },
     (table) => [index("todos_project_id_idx").on(table.projectId)],
 );
 
 export const labels = pgTable("labels", {
-    id: varchar("id", { length: 26 })
-        .primaryKey()
-        .$defaultFn(() => ulid()),
+    ...primaryId,
     userId: text("user_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
