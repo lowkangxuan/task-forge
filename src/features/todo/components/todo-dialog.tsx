@@ -7,7 +7,7 @@ import { priorityEnum, type Priority, type ProjectWithTodo, type Todo, type Todo
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { CalendarIcon, ClipboardCheck, Flag } from "lucide-react";
+import { CalendarIcon, ClipboardCheck, Flag, Tags } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -42,6 +42,7 @@ const formSchema = z.object({
     dueDate: z.union([z.date(), z.undefined()]),
     isCompleted: z.boolean(),
     priority: z.enum(priorityEnum.enumValues),
+    label: z.string(),
 });
 
 function optimisticNameUpdate({ queryClient, projectId, todoId, name }: optimisticInput & { name: string }) {
@@ -100,6 +101,7 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                 : undefined,
             isCompleted: todo?.isCompleted ?? false,
             priority: todo?.priority ?? "none",
+            label: "",
         },
         validators: {
             onSubmit: formSchema,
@@ -298,6 +300,7 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                                                         priority: val!,
                                                     })
                                                 }}
+                                                items={priorities}
                                             >
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="None" />
@@ -317,6 +320,20 @@ export function TodoDialog({ todo }: TodoDialogProp) {
                                 )
                             }}
                         />
+
+                        <Field className="gap-0 text-sm">
+                            <FieldLabel className="text-sm">Labels</FieldLabel>
+                            <FieldContent className="flex-row items-center gap-2 min-w-0">
+                                <Popover>
+                                    <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+                                        New Label
+                                    </PopoverTrigger>
+                                    <PopoverContent align="center">
+                                        Test
+                                    </PopoverContent>
+                                </Popover>
+                            </FieldContent>
+                        </Field>
                     </FieldGroup>
                 </form>
             </DialogContent>

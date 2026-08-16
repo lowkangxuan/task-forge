@@ -74,8 +74,8 @@ export const projects = pgTable("projects", {
     ...primaryId,
     ...timestamps,
     userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     description: text("description"),
 },
@@ -86,8 +86,8 @@ export const todos = pgTable("todos", {
     ...primaryId,
     ...timestamps,
     projectId: varchar("project_id", { length: 26 })
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
+        .notNull()
+        .references(() => projects.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     description: text("description"),
     priority: priorityEnum("priority").default("none").notNull(),
@@ -107,7 +107,7 @@ export const labels = pgTable("labels", {
     (table) => [index("labels_user_id_idx").on(table.userId)],
 );
 
-export const todo_labels = pgTable("todo_labels", {
+export const todoLabels = pgTable("todo_labels", {
     todoId: varchar("todo_id", { length: 26 })
         .notNull()
         .references(() => todos.id, { onDelete: "cascade" }),
@@ -162,6 +162,8 @@ export type Priority = (typeof priorityEnum.enumValues)[number];
 
 export type Project = typeof projects.$inferSelect;
 export type Todo = typeof todos.$inferSelect;
+export type Label = typeof labels.$inferSelect;
 
 export type ProjectWithTodo = Project & { todos: Todo[] };
 export type TodoWithProject = Todo & { parentProject: Project };
+export type TodoWithProjectWithLabels = TodoWithProject & { todoLabels: { label: Label }[] };
