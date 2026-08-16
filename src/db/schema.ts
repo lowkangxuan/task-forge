@@ -1,5 +1,4 @@
 import { relations } from "drizzle-orm";
-import { ulid } from "ulid";
 import { pgTable, text, timestamp, boolean, index, varchar, pgEnum, primaryKey } from "drizzle-orm/pg-core";
 import { primaryId, timestamps } from "./schema.helper";
 
