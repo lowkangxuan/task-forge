@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import { ulid } from "ulid";
-import { pgTable, text, timestamp, boolean, index, varchar, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, varchar, pgEnum, primaryKey } from "drizzle-orm/pg-core";
+import { primaryId } from "./schema.helper";
 
 export const priorityEnum = pgEnum("priority", ["none", "low", "medium", "high"]);
 
@@ -17,102 +18,122 @@ export const user = pgTable("user", {
         .notNull(),
 });
 
-export const session = pgTable(
-    "session",
-    {
-        id: text("id").primaryKey(),
-        expiresAt: timestamp("expires_at").notNull(),
-        token: text("token").notNull().unique(),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .$onUpdate(() => /* @__PURE__ */ new Date())
-            .notNull(),
-        ipAddress: text("ip_address"),
-        userAgent: text("user_agent"),
-        userId: text("user_id")
-            .notNull()
-            .references(() => user.id, { onDelete: "cascade" }),
-    },
+export const session = pgTable("session", {
+    id: text("id").primaryKey(),
+    expiresAt: timestamp("expires_at").notNull(),
+    token: text("token").notNull().unique(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .$onUpdate(() => /* @__PURE__ */ new Date())
+        .notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+},
     (table) => [index("session_userId_idx").on(table.userId)],
 );
 
-export const account = pgTable(
-    "account",
-    {
-        id: text("id").primaryKey(),
-        accountId: text("account_id").notNull(),
-        providerId: text("provider_id").notNull(),
-        userId: text("user_id")
-            .notNull()
-            .references(() => user.id, { onDelete: "cascade" }),
-        accessToken: text("access_token"),
-        refreshToken: text("refresh_token"),
-        idToken: text("id_token"),
-        accessTokenExpiresAt: timestamp("access_token_expires_at"),
-        refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
-        scope: text("scope"),
-        password: text("password"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .$onUpdate(() => /* @__PURE__ */ new Date())
-            .notNull(),
-    },
+export const account = pgTable("account", {
+    id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .$onUpdate(() => /* @__PURE__ */ new Date())
+        .notNull(),
+},
     (table) => [index("account_userId_idx").on(table.userId)],
 );
 
-export const verification = pgTable(
-    "verification",
-    {
-        id: text("id").primaryKey(),
-        identifier: text("identifier").notNull(),
-        value: text("value").notNull(),
-        expiresAt: timestamp("expires_at").notNull(),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .defaultNow()
-            .$onUpdate(() => /* @__PURE__ */ new Date())
-            .notNull(),
-    },
+export const verification = pgTable("verification", {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+},
     (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const projects = pgTable("projects",
-    {
-        id: varchar('id', { length: 26 })
-            .primaryKey()
-            .$defaultFn(() => ulid()),
-        userId: text("user_id")
-            .notNull()
-            .references(() => user.id, { onDelete: "cascade" }),
-        name: text("name").notNull(),
-        description: text("description"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .$onUpdate(() => new Date())
-            .notNull(),
-    },
+export const projects = pgTable("projects", {
+    id: varchar('id', { length: 26 })
+        .primaryKey()
+        .$defaultFn(() => ulid()),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .$onUpdate(() => new Date())
+        .notNull(),
+},
     (table) => [index("projects_user_id_idx").on(table.userId)],
 );
 
-export const todos = pgTable("todos",
-    {
-        id: varchar('id', { length: 26 })
-            .primaryKey()
-            .$defaultFn(() => ulid()),
-        projectId: varchar("project_id", { length: 26 })
-            .notNull()
-            .references(() => projects.id, { onDelete: "cascade" }),
-        name: text("name").notNull(),
-        description: text("description"),
-        priority: priorityEnum("priority").default("none").notNull(),
-        isCompleted: boolean("is_completed").default(false).notNull(),
-        dueDate: timestamp("due_date"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at")
-            .$onUpdate(() => new Date())
-            .notNull(),
-    },
+export const todos = pgTable("todos", {
+    id: varchar('id', { length: 26 })
+        .primaryKey()
+        .$defaultFn(() => ulid()),
+    projectId: varchar("project_id", { length: 26 })
+        .notNull()
+        .references(() => projects.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    description: text("description"),
+    priority: priorityEnum("priority").default("none").notNull(),
+    isCompleted: boolean("is_completed").default(false).notNull(),
+    dueDate: timestamp("due_date"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .$onUpdate(() => new Date())
+        .notNull(),
+},
     (table) => [index("todos_project_id_idx").on(table.projectId)],
+);
+
+export const labels = pgTable("labels", {
+    id: varchar("id", { length: 26 })
+        .primaryKey()
+        .$defaultFn(() => ulid()),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+},
+    (table) => [index("labels_user_id_idx").on(table.userId)],
+);
+
+export const todo_labels = pgTable("todo_labels", {
+    todoId: varchar("todo_id", { length: 26 })
+        .notNull()
+        .references(() => todos.id, { onDelete: "cascade" }),
+    labelId: varchar("label_id", { length: 26 })
+        .notNull()
+        .references(() => labels.id, { onDelete: "cascade" }),
+},
+    (table) => [
+        primaryKey({
+            columns: [table.todoId, table.labelId],
+        }),
+        index("todo_labels_label_id_idx").on(table.labelId),
+    ],
 );
 
 export const userRelations = relations(user, ({ many }) => ({
