@@ -19,6 +19,13 @@ export async function findProjectById(input: {
         where: and(eq(projects.id, projectId), eq(projects.userId, userId)),
         with: {
             todos: {
+                with: {
+                    todoLabels: {
+                        with: {
+                            label: true,
+                        }
+                    }
+                },
                 orderBy: (todos, { asc }) => [asc(todos.createdAt)],
             },
         },
@@ -32,6 +39,13 @@ export async function findManyProjects(userId: string) {
         where: (projects, { eq }) => eq(projects.userId, userId),
         with: {
             todos: {
+                with: {
+                    todoLabels: {
+                        with: {
+                            label: true,
+                        }
+                    }
+                },
                 orderBy: (todos, { asc }) => [asc(todos.createdAt)],
             },
         },

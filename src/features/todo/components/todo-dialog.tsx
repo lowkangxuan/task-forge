@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { todoKeys } from "../api/todo-queries";
-import { priorityEnum, type Priority, type ProjectWithTodo, type Todo, type TodoWithProject } from "@/db/schema";
+import { priorityEnum, type Priority, type ProjectWithTodo, type Todo, type TodoWithProjectWithLabels } from "@/db/schema";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -23,10 +23,6 @@ type optimisticInput = {
     queryClient: QueryClient;
     projectId: string;
     todoId: string;
-}
-
-type TodoDialogProp = {
-    todo: TodoWithProject;
 }
 
 const priorities = [
@@ -87,7 +83,7 @@ function optimisticNameUpdate({ queryClient, projectId, todoId, name }: optimist
     );
 }
 
-export function TodoDialog({ todo }: TodoDialogProp) {
+export function TodoDialog({ todo }: {todo: TodoWithProjectWithLabels}) {
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(true);
     const [isEditing, setIsEditing] = useState(false);

@@ -151,19 +151,40 @@ export const projectRelations = relations(projects, ({ one, many }) => ({
     todos: many(todos),
 }));
 
-export const todoRelations = relations(todos, ({ one }) => ({
+export const todoRelations = relations(todos, ({ one, many }) => ({
     parentProject: one(projects, {
         fields: [todos.projectId],
         references: [projects.id],
+    }),
+    todoLabels: many(todoLabels)
+}));
+
+export const labelRelations = relations(labels, ({ one, many }) => ({
+    user: one(user, {
+        fields: [labels.userId],
+        references: [user.id],
+    }),
+    todoLabels: many(todoLabels),
+}));
+
+export const todoLabelRelations = relations(todoLabels, ({ one }) => ({
+    todo: one(todos, {
+        fields: [todoLabels.todoId],
+        references: [todos.id],
+    }),
+    label: one(labels, {
+        fields: [todoLabels.labelId],
+        references: [labels.id],
     }),
 }));
 
 export type Priority = (typeof priorityEnum.enumValues)[number];
 
-export type Project = typeof projects.$inferSelect;
 export type Todo = typeof todos.$inferSelect;
 export type Label = typeof labels.$inferSelect;
+export type Project = typeof projects.$inferSelect;
 
-export type ProjectWithTodo = Project & { todos: Todo[] };
 export type TodoWithProject = Todo & { parentProject: Project };
-export type TodoWithProjectWithLabels = TodoWithProject & { todoLabels: { label: Label }[] };
+export type TodoWithLabels = Todo & { todoLabels: { label: Label }[] };
+export type TodoWithProjectWithLabels = TodoWithProject & TodoWithLabels;
+export type ProjectWithTodo = Project & { todos: TodoWithLabels[] };
