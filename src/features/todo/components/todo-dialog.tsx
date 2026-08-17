@@ -83,7 +83,7 @@ function optimisticNameUpdate({ queryClient, projectId, todoId, name }: optimist
     );
 }
 
-export function TodoDialog({ todo }: {todo: TodoWithProjectWithLabels}) {
+export function TodoDialog({ userId, todo }: {userId: string, todo: TodoWithProjectWithLabels}) {
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(true);
     const [isEditing, setIsEditing] = useState(false);

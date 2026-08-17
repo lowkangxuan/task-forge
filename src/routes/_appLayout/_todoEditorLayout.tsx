@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_appLayout/_todoEditorLayout')({
 })
 
 function RouteComponent() {
-    const queryClient = useQueryClient();
+    const { session, queryClient} = Route.useRouteContext();
     const navigate = useNavigate();
     const { todo: todoId } = Route.useSearch();
     const { data: todo, isLoading } = useQuery(todoQueryOptions(queryClient, todoId));
@@ -36,7 +36,7 @@ function RouteComponent() {
     return (
         <>
             <Outlet />
-            {todo ? <TodoDialog todo={todo} /> : null}
+            {todo ? <TodoDialog userId={session!.user.id} todo={todo} /> : null}
         </>
     )
 }

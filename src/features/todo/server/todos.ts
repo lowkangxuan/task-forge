@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
-import { findManyTodos, findOneTodoById, findTodayTodos, findUpcomingTodos, insertTodo, removeTodo, updateTodoData } from "./todos.server";
+import { insertLabelToTodo, findAllUserLabels, findManyTodos, findOneTodoById, findTodayTodos, findUpcomingTodos, insertTodo, removeTodo, updateTodoData, insertLabel, findOneLabel } from "./todos.server";
 import type { Priority } from "@/db/schema";
 
 const updateTodoinputValidator = z.object({
@@ -83,4 +83,46 @@ export const getUpcomingTodos = createServerFn({ method: "GET" })
     .middleware([authMiddleware])
     .handler(async () => {
         return await findUpcomingTodos();
+    });
+
+export const getUserLabels = createServerFn({ method: "GET" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        userId: z.string(),
+    }))
+    .handler(async ({ data }) => {
+        return await findAllUserLabels(data.userId);
+    })
+
+export const findLabelByName = createServerFn({ method: "GET" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        name: z.string(),
+    }))
+    .handler(async ({ context, data }) => {
+        const { id: userId } = context.user;
+        const { name } = data;
+        return await findOneLabel(userId, name);
+    })
+
+export const createNewLabel = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        name: z.string(),
+    }))
+    .handler(async ({ context, data }) => {
+        const { id: userId } = context.user;
+        const { name } = data;
+        return await insertLabel(userId, name);
+    });
+
+export const addLabelIntoTodo = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        labelId: z.string(),
+        todoId: z.string(),
+    }))
+    .handler(async ({ data }) => {
+        const { labelId, todoId } = data;
+        return await insertLabelToTodo(labelId, todoId);
     });

@@ -1,6 +1,6 @@
 import type { ProjectWithTodo, TodoWithProjectWithLabels } from "@/db/schema";
 import { projectKeys } from "@/features/project/api/project-queries";
-import { getTodayTodos, getTodoById, getUpcomingTodos } from "@/features/todo/server/todos";
+import { getTodayTodos, getTodoById, getUpcomingTodos, getUserLabels } from "@/features/todo/server/todos";
 import { QueryClient, queryOptions, skipToken } from "@tanstack/react-query";
 
 export const todoKeys = {
@@ -8,6 +8,10 @@ export const todoKeys = {
     detail: (todoId: string) => [...todoKeys.all, "detail", todoId] as const,
     today: () => [...todoKeys.all, "today"] as const,
     upcoming: () => [...todoKeys.all, "upcoming"] as const,
+}
+
+export const labelKeys = {
+    all: ["labels"] as const,
 }
 
 export function todoQueryOptions(queryClient: QueryClient, todoId?: string) {
@@ -59,4 +63,12 @@ export function upcomingTodoQueryOptions() {
         queryFn: async () =>
             await getUpcomingTodos(),
     });
+}
+
+export function labelsQueryOptions(userId: string) {
+    return queryOptions({
+        queryKey: labelKeys.all,
+        queryFn: async () =>
+            await getUserLabels({ data: { userId } }),
+    })
 }

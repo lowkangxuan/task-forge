@@ -3,6 +3,7 @@ import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from '@/components
 import { ProjectActions } from '@/features/project/components/project-header-actions';
 import { createFileRoute, Outlet, redirect, useMatchRoute } from '@tanstack/react-router';
 import { projectsQueryOptions } from '@/features/project/api/project-queries';
+import { labelsQueryOptions } from '@/features/todo/api/todo-queries';
 
 export const Route = createFileRoute("/_appLayout")({
     beforeLoad: async ({ context }) => {
@@ -14,6 +15,10 @@ export const Route = createFileRoute("/_appLayout")({
         context.queryClient.ensureQueryData(
             projectsQueryOptions(),
         );
+
+        context.queryClient.ensureQueryData(
+            labelsQueryOptions(context.session!.user.id),
+        )
     },
     component: AppLayoutComponent,
 })

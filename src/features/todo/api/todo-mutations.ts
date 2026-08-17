@@ -1,8 +1,8 @@
-import type { Priority, ProjectWithTodo, Todo } from "@/db/schema";
+import { type Label, type Priority, type ProjectWithTodo, type Todo } from "@/db/schema";
 import { projectKeys } from "@/features/project/api/project-queries";
-import { createNewTodo, deleteTodo, updateTodo } from "@/features/todo/server/todos";
+import { addLabelIntoTodo, createNewLabel, createNewTodo, deleteTodo, findLabelByName, updateTodo } from "@/features/todo/server/todos";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { todoKeys } from "./todo-queries";
+import { labelKeys, todoKeys } from "./todo-queries";
 
 export function useCreateTodo() {
     const queryClient = useQueryClient();
@@ -272,4 +272,58 @@ export function useUpdateTodoPriority() {
             queryClient.invalidateQueries({ queryKey: todoKeys.detail(todoId) });
         }
     });
+}
+
+export function useUpdateTodoLabels(userId: string) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (input: {
+            todoId: string,
+            name: string,
+        }) => {
+            const { todoId, name } = input;
+            let label = await findLabelByName({ data: { name } });
+
+            if (!label) {
+                label = await createNewLabel({ data: { name } });
+            }
+
+            await addLabelIntoTodo({
+                data: {
+                    labelId: label.id,
+                    todoId,
+                }
+            });
+
+            return label;
+        },
+
+        onMutate: async (variables) => {
+            await queryClient.cancelQueries({
+                queryKey: labelKeys.all,
+            })
+
+            const previousLabels = queryClient.getQueryData<Label[]>(labelKeys.all);
+            queryClient.setQueryData<Label[]>(
+                labelKeys.all,
+                (labels = []) => {
+                    return [
+                        ...labels,
+                        {
+                            id: "dawda",
+                            name: variables.name,
+                            userId,
+                        }
+                    ]
+                }
+            );
+
+            return previousLabels;
+        },
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: labelKeys.all });
+        }
+    })
 }

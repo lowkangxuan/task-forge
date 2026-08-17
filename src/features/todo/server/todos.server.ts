@@ -1,5 +1,5 @@
 import { db } from "@/db/drizzle";
-import { todos, type Priority } from "@/db/schema";
+import { labels, todoLabels, todos, type Priority } from "@/db/schema";
 import { endOfDay, startOfDay, startOfTomorrow } from "date-fns";
 import { asc, between, eq, gte } from "drizzle-orm";
 
@@ -36,6 +36,11 @@ export async function findOneTodoById(todoId: string) {
         where: eq(todos.id, todoId),
         with: {
             parentProject: true,
+            todoLabels: {
+                with: {
+                    label: true,
+                }
+            }
         }
     });
     return result;
@@ -55,4 +60,23 @@ export async function findTodayTodos() {
 export async function findUpcomingTodos() {
     const tomorrow = startOfTomorrow();
     return await db.select().from(todos).where(gte(todos.dueDate, tomorrow)).orderBy(asc(todos.dueDate), asc(todos.createdAt));
+}
+
+export async function findAllUserLabels(userId: string) {
+    return await db.select().from(labels).where(eq(labels.userId, userId));
+}
+
+export async function findOneLabel(userId: string, name: string) {
+    return await db.query.labels.findFirst({
+        where: (labels, { eq, and }) => and(eq(labels.userId, userId), eq(labels.name, name)),
+    });
+}
+
+export async function insertLabel(userId: string, name: string) {
+    const [result] = await db.insert(labels).values({ userId, name }).returning()
+    return result;
+}
+
+export async function insertLabelToTodo(labelId: string, todoId: string) {
+    return await db.insert(todoLabels).values({ labelId, todoId }).returning();
 }
