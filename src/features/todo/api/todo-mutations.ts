@@ -274,6 +274,7 @@ export function useUpdateTodoPriority() {
     });
 }
 
+// TODO: FIX mutationFn WHERE DUPLICATED LABEL IS NOT CHECKED CAUSING onError TO BE CALLED!!!
 export function useUpdateTodoLabels(userId: string) {
     const queryClient = useQueryClient();
 
@@ -319,11 +320,20 @@ export function useUpdateTodoLabels(userId: string) {
                 }
             );
 
-            return previousLabels;
+            return { previousLabels };
         },
 
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: labelKeys.all });
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: labelKeys.all });
+        },
+
+        onError: (_error, _variables, context) => {
+            if (context?.previousLabels) {
+                queryClient.setQueryData(
+                    labelKeys.all,
+                    context.previousLabels
+                );
+            }
         }
     })
 }

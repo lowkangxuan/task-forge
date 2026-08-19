@@ -1,5 +1,5 @@
 import { todoQueryOptions } from '@/features/todo/api/todo-queries';
-import { TodoDialog } from '@/features/todo/components/todo-dialog'
+import { TodoDialog } from '@/features/todo/components/dialog-editor/todo-dialog'
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react';

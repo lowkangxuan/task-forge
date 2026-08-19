@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { todoKeys } from "../api/todo-queries";
+import { todoKeys } from "../../api/todo-queries";
 import { priorityEnum, type Priority, type ProjectWithTodo, type Todo, type TodoWithProjectWithLabels } from "@/db/schema";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
@@ -14,10 +14,11 @@ import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { useUpdateTodoCompleted, useUpdateTodoDate, useUpdateTodoPriority } from "../api/todo-mutations";
+import { useUpdateTodoCompleted, useUpdateTodoDate, useUpdateTodoLabels, useUpdateTodoPriority } from "../../api/todo-mutations";
 import { CustomInput } from "@/components/ui/custom-input";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { projectKeys } from "@/features/project/api/project-queries";
+import { TodoLabelPicker } from "./todo-label-picker";
 
 type optimisticInput = {
     queryClient: QueryClient;
@@ -83,7 +84,7 @@ function optimisticNameUpdate({ queryClient, projectId, todoId, name }: optimist
     );
 }
 
-export function TodoDialog({ userId, todo }: {userId: string, todo: TodoWithProjectWithLabels}) {
+export function TodoDialog({ userId, todo }: { userId: string, todo: TodoWithProjectWithLabels }) {
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -320,14 +321,7 @@ export function TodoDialog({ userId, todo }: {userId: string, todo: TodoWithProj
                         <Field className="gap-0 text-sm">
                             <FieldLabel className="text-sm">Labels</FieldLabel>
                             <FieldContent className="flex-row items-center gap-2 min-w-0">
-                                <Popover>
-                                    <PopoverTrigger render={<Button variant="outline" size="sm" />}>
-                                        New Label
-                                    </PopoverTrigger>
-                                    <PopoverContent align="center">
-                                        Test
-                                    </PopoverContent>
-                                </Popover>
+                                <TodoLabelPicker userId={userId} />
                             </FieldContent>
                         </Field>
                     </FieldGroup>
