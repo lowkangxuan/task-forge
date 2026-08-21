@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { todoKeys } from "../../api/todo-queries";
-import { priorityEnum, type Priority, type ProjectWithTodo, type Todo, type TodoWithProjectWithLabels } from "@/db/schema";
+import { priorityEnum, todos, type Priority, type ProjectWithTodo, type Todo, type TodoWithProjectWithLabels } from "@/db/schema";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -321,7 +321,12 @@ export function TodoDialog({ userId, todo }: { userId: string, todo: TodoWithPro
                         <Field className="gap-0 text-sm">
                             <FieldLabel className="text-sm">Labels</FieldLabel>
                             <FieldContent className="flex-row items-center gap-2 min-w-0">
-                                <TodoLabelPicker userId={userId} />
+                                {todo.labels && todo.todoLabels.map((label) => {
+                                    return (
+                                        label.label.name
+                                    )
+                                })}
+                                <TodoLabelPicker userId={userId} todoId={todo.id} activeLabels={todo.todoLabels.map(({ label }) => label.name)} />
                             </FieldContent>
                         </Field>
                     </FieldGroup>
