@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { labels, todoLabels, todos, type Priority } from "@/db/schema";
 import { endOfDay, startOfDay, startOfTomorrow } from "date-fns";
-import { asc, between, eq, gte } from "drizzle-orm";
+import { and, asc, between, eq, gte } from "drizzle-orm";
 
 export async function insertTodo(input: {
     projectId: string,
@@ -79,4 +79,8 @@ export async function insertLabel(userId: string, name: string) {
 
 export async function insertLabelToTodo(labelId: string, todoId: string) {
     return await db.insert(todoLabels).values({ labelId, todoId }).returning();
+}
+
+export async function deleteLabelFromTodo(labelId: string, todoId: string) {
+    return await db.delete(todoLabels).where(and(eq(todoLabels.labelId, labelId), eq(todoLabels.todoId, todoId))).returning();
 }

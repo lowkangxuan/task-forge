@@ -1,8 +1,25 @@
-import { type Label, type Priority, type ProjectWithTodo, type Todo } from "@/db/schema";
+import { type Label, type Priority, type ProjectWithTodo, type Todo, type TodoWithLabels } from "@/db/schema";
 import { projectKeys } from "@/features/project/api/project-queries";
-import { addLabelIntoTodo, createNewLabel, createNewTodo, deleteTodo, findLabelByName, updateTodo } from "@/features/todo/server/todos";
+import { addLabelIntoTodo, createNewLabel, createNewTodo, deleteTodo, findLabelByName, removeLabelFromTodo, updateTodo } from "@/features/todo/server/todos";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { labelKeys, todoKeys } from "./todo-queries";
+
+type UpdateTodoLabelInput =
+    | {
+        action: "add";
+        todoId: string;
+        label: Label;
+    }
+    | {
+        action: "remove";
+        todoId: string;
+        label: Label;
+    }
+    | {
+        action: "create";
+        todoId: string;
+        name: string;
+    };
 
 export function useCreateTodo() {
     const queryClient = useQueryClient();
@@ -274,66 +291,182 @@ export function useUpdateTodoPriority() {
     });
 }
 
-// TODO: FIX mutationFn WHERE DUPLICATED LABEL IS NOT CHECKED CAUSING onError TO BE CALLED!!!
 export function useUpdateTodoLabels(userId: string) {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (input: {
-            todoId: string,
-            name: string,
-        }) => {
-            const { todoId, name } = input;
-            let label = await findLabelByName({ data: { name } });
+        mutationFn: async (input: UpdateTodoLabelInput) => {
+            if (input.action === "remove") {
+                await removeLabelFromTodo({
+                    data: {
+                        todoId: input.todoId,
+                        labelId: input.label.id,
+                    },
+                });
+
+                return {
+                    action: "remove" as const,
+                    label: input.label,
+                };
+            }
+
+            if (input.action === "add") {
+                await addLabelIntoTodo({
+                    data: {
+                        todoId: input.todoId,
+                        labelId: input.label.id,
+                    },
+                });
+
+                return {
+                    action: "add" as const,
+                    label: input.label,
+                };
+            }
+
+            let label = await findLabelByName({
+                data: {
+                    name: input.name,
+                },
+            });
 
             if (!label) {
-                label = await createNewLabel({ data: { name } });
+                label = await createNewLabel({
+                    data: {
+                        name: input.name,
+                    },
+                });
             }
 
             await addLabelIntoTodo({
                 data: {
+                    todoId: input.todoId,
                     labelId: label.id,
-                    todoId,
-                }
+                },
             });
 
-            return label;
+            return {
+                action: "add" as const,
+                label,
+            };
         },
 
         onMutate: async (variables) => {
-            await queryClient.cancelQueries({
-                queryKey: labelKeys.all,
-            })
+            await Promise.all([
+                queryClient.cancelQueries({
+                    queryKey: labelKeys.all,
+                }),
+                queryClient.cancelQueries({
+                    queryKey: todoKeys.detail(variables.todoId),
+                }),
+            ]);
 
-            const previousLabels = queryClient.getQueryData<Label[]>(labelKeys.all);
-            queryClient.setQueryData<Label[]>(
-                labelKeys.all,
-                (labels = []) => {
-                    return [
+            const previousLabels =
+                queryClient.getQueryData<Label[]>(labelKeys.all);
+
+            const previousTodo =
+                queryClient.getQueryData<TodoWithLabels>(
+                    todoKeys.detail(variables.todoId),
+                );
+
+            if (variables.action === "remove") {
+                queryClient.setQueryData<TodoWithLabels>(
+                    todoKeys.detail(variables.todoId),
+                    (todo) => {
+                        if (!todo) return todo;
+
+                        return {
+                            ...todo,
+                            todoLabels: todo.todoLabels.filter(({ label }) =>
+                                label.id !== variables.label.id
+                            ),
+                        };
+                    },
+                );
+            }
+
+            if (variables.action === "add") {
+                queryClient.setQueryData<TodoWithLabels>(
+                    todoKeys.detail(variables.todoId),
+                    (todo) => {
+                        if (!todo) return todo;
+
+                        return {
+                            ...todo,
+                            todoLabels: [
+                                ...todo.todoLabels,
+                                {
+                                    label: variables.label,
+                                },
+                            ],
+                        };
+                    },
+                );
+            }
+
+            if (variables.action === "create") {
+                const optimisticLabel: Label = {
+                    id: `optimistic-${crypto.randomUUID()}`,
+                    name: variables.name,
+                    userId,
+                };
+
+                queryClient.setQueryData<Label[]>(
+                    labelKeys.all,
+                    (labels = []) => [
                         ...labels,
-                        {
-                            id: "dawda",
-                            name: variables.name,
-                            userId,
-                        }
-                    ]
-                }
-            );
+                        optimisticLabel,
+                    ],
+                );
 
-            return { previousLabels };
+                queryClient.setQueryData<TodoWithLabels>(
+                    todoKeys.detail(variables.todoId),
+                    (todo) => {
+                        if (!todo) return todo;
+
+                        return {
+                            ...todo,
+                            todoLabels: [
+                                ...todo.todoLabels,
+                                {
+                                    label: optimisticLabel,
+                                },
+                            ],
+                        };
+                    },
+                );
+            }
+
+            return {
+                previousLabels,
+                previousTodo,
+            };
         },
 
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: labelKeys.all });
-        },
-
-        onError: (_error, _variables, context) => {
+        onError: (_error, variables, context) => {
             if (context?.previousLabels) {
                 queryClient.setQueryData(
                     labelKeys.all,
-                    context.previousLabels
+                    context.previousLabels,
                 );
             }
-        }
-    })
+
+            if (context?.previousTodo) {
+                queryClient.setQueryData(
+                    todoKeys.detail(variables.todoId),
+                    context.previousTodo,
+                );
+            }
+        },
+
+        onSettled: (_data, _error, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: labelKeys.all,
+            });
+
+            queryClient.invalidateQueries({
+                queryKey: todoKeys.detail(variables.todoId),
+            });
+        },
+    });
 }

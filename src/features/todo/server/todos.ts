@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth-middleware";
 import * as z from "zod";
-import { insertLabelToTodo, findAllUserLabels, findManyTodos, findOneTodoById, findTodayTodos, findUpcomingTodos, insertTodo, removeTodo, updateTodoData, insertLabel, findOneLabel } from "./todos.server";
+import { insertLabelToTodo, findAllUserLabels, findManyTodos, findOneTodoById, findTodayTodos, findUpcomingTodos, insertTodo, removeTodo, updateTodoData, insertLabel, findOneLabel, deleteLabelFromTodo } from "./todos.server";
 import type { Priority } from "@/db/schema";
 
 const updateTodoinputValidator = z.object({
@@ -125,4 +125,15 @@ export const addLabelIntoTodo = createServerFn({ method: "POST" })
     .handler(async ({ data }) => {
         const { labelId, todoId } = data;
         return await insertLabelToTodo(labelId, todoId);
+    });
+
+export const removeLabelFromTodo = createServerFn({ method: "POST" })
+    .middleware([authMiddleware])
+    .inputValidator(z.object({
+        labelId: z.string(),
+        todoId: z.string(),
+    }))
+    .handler(async ({ data }) => {
+        const { labelId, todoId } = data;
+        return await deleteLabelFromTodo(labelId, todoId);
     });

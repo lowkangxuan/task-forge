@@ -321,10 +321,10 @@ export function TodoDialog({ userId, todo }: { userId: string, todo: TodoWithPro
                         <Field className="gap-0 text-sm">
                             <FieldLabel className="text-sm">Labels</FieldLabel>
                             <FieldContent className="flex-row items-center gap-2 min-w-0">
-                                {todo.labels && todo.todoLabels.map((label) => {
+                                {todo.todoLabels && todo.todoLabels.map(({ label }) => {
                                     return (
-                                        label.label.name
-                                    )
+                                        <span>{label.name}</span>
+                                    );
                                 })}
                                 <TodoLabelPicker userId={userId} todoId={todo.id} activeLabels={todo.todoLabels.map(({ label }) => label.name)} />
                             </FieldContent>
