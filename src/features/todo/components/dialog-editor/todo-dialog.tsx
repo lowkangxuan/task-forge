@@ -3,13 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { todoKeys } from "../../api/todo-queries";
-import { priorityEnum, todos, type Priority, type ProjectWithTodo, type Todo, type TodoWithProjectWithLabels } from "@/db/schema";
+import { priorityEnum, type Priority, type ProjectWithTodo, type Todo, type TodoWithProjectWithLabels } from "@/db/schema";
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { CalendarIcon, ClipboardCheck, Flag, Tags } from "lucide-react";
+import { CalendarIcon, ClipboardCheck, Flag, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,6 +19,7 @@ import { CustomInput } from "@/components/ui/custom-input";
 import { useDebounceTaskBasic } from "@/server/debounce-fn";
 import { projectKeys } from "@/features/project/api/project-queries";
 import { TodoLabelPicker } from "./todo-label-picker";
+import { cn } from "@/lib/utils";
 
 type optimisticInput = {
     queryClient: QueryClient;
@@ -110,7 +111,7 @@ export function TodoDialog({ userId, todo }: { userId: string, todo: TodoWithPro
     const updateDateMutation = useUpdateTodoDate();
     const updateCompletedMutation = useUpdateTodoCompleted();
     const updatePriorityMutation = useUpdateTodoPriority();
-
+    const updateTodoLabelsMutation = useUpdateTodoLabels(userId);
 
     return (
         <Dialog open={open} onOpenChange={(open) => setOpen(open)} onOpenChangeComplete={(open) => {
@@ -320,10 +321,30 @@ export function TodoDialog({ userId, todo }: { userId: string, todo: TodoWithPro
 
                         <Field className="gap-0 text-sm">
                             <FieldLabel className="text-sm">Labels</FieldLabel>
-                            <FieldContent className="flex-row items-center gap-2 min-w-0">
+                            <FieldContent className="flex-row flex-wrap items-center gap-1 min-w-0">
                                 {todo.todoLabels && todo.todoLabels.map(({ label }) => {
                                     return (
-                                        <span key={label.id}>{label.name}</span>
+                                        <div
+                                            key={label.id}
+                                            className={cn(buttonVariants({ variant: "outline", size: "sm"}), "font-normal")}
+                                        >
+                                            {label.name}
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                className="size-4"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    updateTodoLabelsMutation.mutate({
+                                                        action: "remove",
+                                                        todoId: todo.id,
+                                                        label,
+                                                    })
+                                                }}
+                                            >
+                                                <X />
+                                            </Button>
+                                        </div>
                                     );
                                 })}
                                 <TodoLabelPicker userId={userId} todoId={todo.id} activeLabels={todo.todoLabels.map(({ label }) => label.name)} />
