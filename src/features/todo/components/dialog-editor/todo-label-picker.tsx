@@ -19,9 +19,13 @@ export function TodoLabelPicker({ userId, todoId, activeLabels }: TodoLabelPicke
     const [search, setSearch] = useState("");
     const updateTodoLabelsMutation = useUpdateTodoLabels(userId);
 
-    const filteredLabels = labels?.filter((label) => {
-        return label.name.includes(search);
-    })
+    const filteredLabels = labels?.filter((label) =>
+        label.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const labelExists = labels?.some(
+        (label) => label.name.toLowerCase() === search.trim().toLowerCase()
+    );
 
     return (
         <Popover>
@@ -40,46 +44,62 @@ export function TodoLabelPicker({ userId, todoId, activeLabels }: TodoLabelPicke
                 </div>
                 <Separator />
                 <div className="flex flex-col">
-                    {filteredLabels && filteredLabels.length > 0
-                        ? filteredLabels?.map((label) => {
-                            const isLabelSelected = activeLabels.includes(label.name);
-                            const label_const = {
-                                userId,
-                                id: label.id,
-                                name: label.name,
-                            };
+                    {filteredLabels?.map((label) => {
+                        const isLabelSelected = activeLabels.includes(label.name);
+                        const label_const = {
+                            userId,
+                            id: label.id,
+                            name: label.name,
+                        };
 
-                            return (
-                                <Button
-                                    key={label.id}
-                                    variant="ghost"
-                                    className="justify-start font-normal"
-                                    onClick={() => {
-                                        if (isLabelSelected) {
-                                            updateTodoLabelsMutation.mutate({
-                                                action: "remove",
-                                                todoId,
-                                                label: {
-                                                    ...label_const,
-                                                },
-                                            });
-                                        }
-                                        else {
-                                            updateTodoLabelsMutation.mutate({
-                                                action: "add",
-                                                todoId,
-                                                label: {
-                                                    ...label_const,
-                                                },
-                                            });
-                                        }
-                                    }}
-                                >
-                                    {label.name} {isLabelSelected ? <Check /> : ""}
-                                </Button>
-                            );
-                        })
-                        : <span className="px-2.5 py-2">Label not found</span>}
+                        return (
+                            <Button
+                                key={label.id}
+                                variant="ghost"
+                                className="justify-start font-normal"
+                                onClick={() => {
+                                    if (isLabelSelected) {
+                                        updateTodoLabelsMutation.mutate({
+                                            action: "remove",
+                                            todoId,
+                                            label: {
+                                                ...label_const,
+                                            },
+                                        });
+                                    }
+                                    else {
+                                        updateTodoLabelsMutation.mutate({
+                                            action: "add",
+                                            todoId,
+                                            label: {
+                                                ...label_const,
+                                            },
+                                        });
+                                    }
+                                }}
+                            >
+                                {label.name} {isLabelSelected ? <Check /> : ""}
+                            </Button>
+                        );
+                    })}
+
+                    {search.trim() && !labelExists && (
+                        <Button
+                            variant="ghost"
+                            className="justify-start font-normal"
+                            onClick={() => {
+                                updateTodoLabelsMutation.mutate({
+                                    action: "create",
+                                    todoId,
+                                    name: search.trim(),
+                                });
+                            }}
+                        >
+                            <Plus />
+                            Create "{search.trim()}"
+                        </Button>
+
+                    )}
                 </div>
 
             </PopoverContent>
